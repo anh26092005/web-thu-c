@@ -9,12 +9,12 @@ const NotFoundPage = () => {
         <div className="text-center">
           <Logo />
 
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Looking for something?
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 font-sans">
+            Opps! Trang bạn đang tìm kiếm không tồn tại
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            We&apos;re sorry. The Web address you entered is not a functioning
-            page on our site.
+          <p className="mt-2 text-sm text-gray-600 font-sans">
+            Chúng tôi rất tiếc, địa chỉ bạn đang tìm kiếm không tồn tại trên
+            trang web của chúng tôi.
           </p>
         </div>
         <div className="mt-8 space-y-6">
@@ -23,31 +23,31 @@ const NotFoundPage = () => {
               href="/"
               className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-semibold rounded-md text-white bg-shop_dark_green/80 hover:bg-shop_dark_green focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amazonOrangeDark hoverEffect"
             >
-              Go to Shopcart&apos;s home page
+              Đi đến trang chủ của Khủng Long Châu
             </Link>
             <Link
               href="/help"
               className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-md text-amazonBlue bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amazonBlue"
             >
-              Help
+              Liên hệ với chúng tôi
             </Link>
           </div>
         </div>
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
-            Need help? Visit the{" "}
+            Cần trợ giúp? Truy cập{" "}
             <Link
               href="/help"
               className="font-medium text-amazon-blue hover:text-amazon-blue-dark"
             >
-              Help section
+              phần trợ giúp
             </Link>{" "}
-            or{" "}
+            hoặc{" "}
             <Link
               href="/contact"
               className="font-medium text-amazon-blue hover:text-amazon-blue-dark"
             >
-              contact us
+              liên hệ với chúng tôi
             </Link>
           </p>
         </div>

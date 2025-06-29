@@ -71,11 +71,11 @@ const CartPage = () => {
   }, []);
   const handleResetCart = () => {
     const confirmed = window.confirm(
-      "Are you sure you want to reset your cart?"
+      "Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng?"
     );
     if (confirmed) {
       resetCart();
-      toast.success("Cart reset successfully!");
+      toast.success("Đã xóa tất cả sản phẩm trong giỏ hàng!");
     }
   };
 
@@ -107,7 +107,7 @@ const CartPage = () => {
             <>
               <div className="flex items-center gap-2 py-5">
                 <ShoppingBag className="text-darkColor" />
-                <Title>Shopping Cart</Title>
+                <Title>Giỏ hàng</Title>
               </div>
               <div className="grid lg:grid-cols-3 md:gap-8">
                 <div className="lg:col-span-2 rounded-lg">
@@ -142,13 +142,13 @@ const CartPage = () => {
                                   {product?.name}
                                 </h2>
                                 <p className="text-sm capitalize">
-                                  Variant:{" "}
+                                  Phiên bản:{" "}
                                   <span className="font-semibold">
                                     {product?.variant}
                                   </span>
                                 </p>
                                 <p className="text-sm capitalize">
-                                  Status:{" "}
+                                  Trạng thái:{" "}
                                   <span className="font-semibold">
                                     {product?.status}
                                   </span>
@@ -164,7 +164,7 @@ const CartPage = () => {
                                       />
                                     </TooltipTrigger>
                                     <TooltipContent className="font-bold">
-                                      Add to Favorite
+                                      Thêm vào yêu thích
                                     </TooltipContent>
                                   </Tooltip>
                                   <Tooltip>
@@ -173,14 +173,14 @@ const CartPage = () => {
                                         onClick={() => {
                                           deleteCartProduct(product?._id);
                                           toast.success(
-                                            "Product deleted successfully!"
+                                            "Đã xóa sản phẩm thành công!"
                                           );
                                         }}
                                         className="w-4 h-4 md:w-5 md:h-5 mr-1 text-gray-500 hover:text-red-600 hoverEffect"
                                       />
                                     </TooltipTrigger>
                                     <TooltipContent className="font-bold bg-red-600">
-                                      Delete product
+                                      Xóa sản phẩm
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
@@ -202,7 +202,7 @@ const CartPage = () => {
                       className="m-5 font-semibold"
                       variant="destructive"
                     >
-                      Reset Cart
+                      Xóa tất cả
                     </Button>
                   </div>
                 </div>
@@ -210,22 +210,22 @@ const CartPage = () => {
                   <div className="lg:col-span-1">
                     <div className="hidden md:inline-block w-full bg-white p-6 rounded-lg border">
                       <h2 className="text-xl font-semibold mb-4">
-                        Order Summary
+                        Tóm tắt đơn hàng
                       </h2>
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <span>SubTotal</span>
+                          <span>Tổng phụ</span>
                           <PriceFormatter amount={getSubTotalPrice()} />
                         </div>
                         <div className="flex items-center justify-between">
-                          <span>Discount</span>
+                          <span>Giảm giá</span>
                           <PriceFormatter
                             amount={getSubTotalPrice() - getTotalPrice()}
                           />
                         </div>
                         <Separator />
                         <div className="flex items-center justify-between font-semibold text-lg">
-                          <span>Total</span>
+                          <span>Tổng cộng</span>
                           <PriceFormatter
                             amount={getTotalPrice()}
                             className="text-lg font-bold text-black"
@@ -237,7 +237,7 @@ const CartPage = () => {
                           disabled={loading}
                           onClick={handleCheckout}
                         >
-                          {loading ? "Please wait..." : "Proceed to Checkout"}
+                          {loading ? "Vui lòng chờ..." : "Tiến hành thanh toán"}
                         </Button>
                       </div>
                     </div>
@@ -245,7 +245,7 @@ const CartPage = () => {
                       <div className="bg-white rounded-md mt-5">
                         <Card>
                           <CardHeader>
-                            <CardTitle>Delivery Address</CardTitle>
+                            <CardTitle>Địa chỉ giao hàng</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <RadioGroup
@@ -278,7 +278,7 @@ const CartPage = () => {
                               ))}
                             </RadioGroup>
                             <Button variant="outline" className="w-full mt-4">
-                              Add New Address
+                              Thêm địa chỉ mới
                             </Button>
                           </CardContent>
                         </Card>
@@ -289,21 +289,21 @@ const CartPage = () => {
                 {/* Order summary for mobile view */}
                 <div className="md:hidden fixed bottom-0 left-0 w-full bg-white pt-2">
                   <div className="bg-white p-4 rounded-lg border mx-4">
-                    <h2>Order Summary</h2>
+                    <h2>Tóm tắt đơn hàng</h2>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span>SubTotal</span>
+                        <span>Tổng phụ</span>
                         <PriceFormatter amount={getSubTotalPrice()} />
                       </div>
                       <div className="flex items-center justify-between">
-                        <span>Discount</span>
+                        <span>Giảm giá</span>
                         <PriceFormatter
                           amount={getSubTotalPrice() - getTotalPrice()}
                         />
                       </div>
                       <Separator />
                       <div className="flex items-center justify-between font-semibold text-lg">
-                        <span>Total</span>
+                        <span>Tổng cộng</span>
                         <PriceFormatter
                           amount={getTotalPrice()}
                           className="text-lg font-bold text-black"
@@ -315,7 +315,7 @@ const CartPage = () => {
                         disabled={loading}
                         onClick={handleCheckout}
                       >
-                        {loading ? "Please wait..." : "Proceed to Checkout"}
+                        {loading ? "Vui lòng chờ..." : "Tiến hành thanh toán"}
                       </Button>
                     </div>
                   </div>

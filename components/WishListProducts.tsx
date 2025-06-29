@@ -22,11 +22,11 @@ const WishListProducts = () => {
 
   const handleResetWishlist = () => {
     const confirmReset = window.confirm(
-      "Are you sure you want to reset your wishlist?"
+      "Bạn có chắc chắn muốn xóa tất cả sản phẩm yêu thích?"
     );
     if (confirmReset) {
       resetFavorite();
-      toast.success("Wishlist reset successfully");
+      toast.success("Đã xóa tất cả sản phẩm yêu thích");
     }
   };
 
@@ -38,14 +38,14 @@ const WishListProducts = () => {
             <table className="w-full border-collapse">
               <thead className="border-b">
                 <tr className="bg-black/5">
-                  <th className="p-2 text-left">Image</th>
+                  <th className="p-2 text-left">Hình ảnh</th>
                   <th className="p-2 text-left hidden md:table-cell">
-                    Category
+                    Danh mục
                   </th>
-                  <th className="p-2 text-left hidden md:table-cell">Type</th>
-                  <th className="p-2 text-left hidden md:table-cell">Status</th>
-                  <th className="p-2 text-left">Price</th>
-                  <th className="p-2 text-center md:text-left">Action</th>
+                  <th className="p-2 text-left hidden md:table-cell">Loại</th>
+                  <th className="p-2 text-left hidden md:table-cell">Trạng thái</th>
+                  <th className="p-2 text-left">Giá</th>
+                  <th className="p-2 text-center md:text-left">Hành động</th>
                 </tr>
               </thead>
               <tbody>
@@ -57,7 +57,7 @@ const WishListProducts = () => {
                         <X
                           onClick={() => {
                             removeFromFavorite(product?._id);
-                            toast.success("Product removed from wishlist");
+                            toast.success("Đã xóa sản phẩm khỏi danh sách yêu thích");
                           }}
                           size={18}
                           className="hover:text-red-600 hover:cursor-pointer hoverEffect"
@@ -96,8 +96,8 @@ const WishListProducts = () => {
                         } font-medium text-sm hidden md:table-cell`}
                       >
                         {(product?.stock as number) > 0
-                          ? "In Stock"
-                          : "Out of Stock"}
+                          ? "Còn hàng"
+                          : "Hết hàng"}
                       </td>
                       <td className="p-2">
                         <PriceFormatter amount={product?.price} />
@@ -114,7 +114,7 @@ const WishListProducts = () => {
             {visibleProducts < favoriteProduct?.length && (
               <div className="my-5">
                 <Button variant="outline" onClick={loadMore}>
-                  Load More
+                  Xem thêm
                 </Button>
               </div>
             )}
@@ -124,7 +124,7 @@ const WishListProducts = () => {
                   onClick={() => setVisibleProducts(10)}
                   variant="outline"
                 >
-                  Load Less
+                  Thu gọn
                 </Button>
               </div>
             )}
@@ -136,7 +136,7 @@ const WishListProducts = () => {
               variant="destructive"
               size="lg"
             >
-              Reset Wishlist
+              Xóa tất cả
             </Button>
           )}
         </>
@@ -151,14 +151,14 @@ const WishListProducts = () => {
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight">
-              Your wishlist is empty
+              Danh sách yêu thích của bạn đang trống
             </h2>
             <p className="text-sm text-muted-foreground">
-              Items added to your wishlist will appear here
+              Các sản phẩm được thêm vào danh sách yêu thích sẽ xuất hiện ở đây
             </p>
           </div>
           <Button asChild>
-            <Link href="/shop">Continue Shopping</Link>
+            <Link href="/shop">Tiếp tục mua sắm</Link>
           </Button>
         </div>
       )}
