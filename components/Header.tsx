@@ -24,8 +24,8 @@ const Header = async () => {
   return (
     <header className="sticky top-0 z-50 pt-5 backdrop-blur-md bg-[#f6f6f6] max-lg:pb-5 max-lg:px-5">
       <div className="md:hidden flex items-center justify-between px-5 mt-5" >
-           <MobileMenu />
-           <Logo /> 
+           <MobileMenu/>
+           <Logo className="sm:mr-15 mr-5 text-xl"/> 
            <CartIcon/>
       </div>
       <Container className="flex items-center justify-between text-lightColor mt-5">
@@ -33,7 +33,7 @@ const Header = async () => {
           
          
          <div className="max-md:hidden">
-           <Logo /> 
+           <Logo className="max-xl:text-xl"/> 
            </div>
         {/* </div> */}
         {/* <div className="w-auto md:w-2/3 flex items-center justify-end gap-5"> */}
