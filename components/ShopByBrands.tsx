@@ -9,22 +9,22 @@ import { GitCompareArrows, Headset, ShieldCheck, Truck } from "lucide-react";
 const extraData = [
   {
     title: "Miễn phí vận chuyển",
-    description: "Miễn phí vận chuyển cho đơn hàng trên $100",
+    description: "theo chính sách giao hàng",
     icon: <Truck size={45} />,
   },
   {
-    title: "Đổi trả miễn phí",
-    description: "Đổi trả miễn phí cho đơn hàng trên $100",
+    title: "Đổi trả trong 30 ngày",
+    description: "kể từ ngày mua hàng",
     icon: <GitCompareArrows size={45} />,
   },
   {
     title: "Hỗ trợ khách hàng",
-    description: "Hỗ trợ khách hàng thân thiện 24/7",
+    description: "tư vấn thân thiện 24/7",
     icon: <Headset size={45} />,
   },
   {
-    title: "Đảm bảo hoàn tiền",
-    description: "Chất lượng được kiểm tra bởi đội ngũ chúng tôi",
+    title: "Thuốc chính hãng",
+    description: "đa dạng và chuyên sâu",
     icon: <ShieldCheck size={45} />,
   },
 ];

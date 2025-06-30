@@ -20,7 +20,7 @@ export default function RootLayout({
     <ClerkProvider>
       <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 bg-shop_light_pink">{children}</main>
         <Footer />
       </div>
     </ClerkProvider>

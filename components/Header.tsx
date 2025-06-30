@@ -22,22 +22,34 @@ const Header = async () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 py-5 bg-white/70 backdrop-blur-md">
-      <Container className="flex items-center justify-between text-lightColor">
-        <div className="w-auto md:w-1/3 flex items-center gap-2.5 justify-start md:gap-0">
-          <MobileMenu />
-          <Logo />
-        </div>
-        <HeaderMenu />
-        <div className="w-auto md:w-1/3 flex items-center justify-end gap-5">
+    <header className="sticky top-0 z-50 pt-5 backdrop-blur-md bg-[#f6f6f6] max-lg:pb-5 max-lg:px-5">
+      <div className="md:hidden flex items-center justify-between px-5 mt-5" >
+           <MobileMenu />
+           <Logo /> 
+           <CartIcon/>
+      </div>
+      <Container className="flex items-center justify-between text-lightColor mt-5">
+        <div className="w-auto flex items-center gap-2.5 justify-between flex-1 md:gap-4">
+          
+         
+         <div className="max-md:hidden">
+           <Logo /> 
+           </div>
+        {/* </div> */}
+        {/* <div className="w-auto md:w-2/3 flex items-center justify-end gap-5"> */}
           <SearchBar />
-          <CartIcon />
-          <FavoriteButton />
+          
+          <div className="max-md:hidden">
+            <CartIcon />
+          </div>
+          <div className="max-lg:hidden">
+            <FavoriteButton />
+          </div>
 
           {user && (
             <Link
-              href={"/orders"}
-              className="group relative hover:text-shop_light_green hoverEffect"
+            href={"/orders"}
+            className="group relative hover:text-shop_light_green hoverEffect"
             >
               <Logs />
               <span className="absolute -top-1 -right-1 bg-shop_btn_dark_green text-white h-3.5 w-3.5 rounded-full text-xs font-semibold flex items-center justify-center">
@@ -54,6 +66,9 @@ const Header = async () => {
           </ClerkLoaded>
         </div>
       </Container>
+      <div className="flex items-center justify-center mt-7 p-6 bg-[#5998f0] h-10 max-lg:hidden">
+       <HeaderMenu />
+       </div>
     </header>
   );
 };
