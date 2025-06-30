@@ -23,6 +23,7 @@ export const categoriesData = [
   { title: "Sinh lý", href: "sinh-ly" },
 ];
 export const productType = [
+  { title: "Tất cả", value: "all" },
   { title: "Thuốc", value: "thuoc" },
   { title: "Thực phẩm chức năng", value: "thuc-pham-chuc-nang" },
   { title: "Dược mỹ phẩm", value: "duoc-my-pham" },
