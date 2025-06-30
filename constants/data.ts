@@ -14,19 +14,22 @@ export const quickLinksData = [
   { title: "Trợ giúp", href: "/help" },
 ];
 export const categoriesData = [
-  { title: "Thuốc", href: "mobiles" },
-  { title: "Thực phẩm chức năng", href: "appliances" },
-  { title: "Dược mỹ phẩm", href: "smartphones" },
-  { title: "Chăm sóc cá nhân", href: "air-conditioners" },
-  { title: "Trang thiết bị y tế", href: "washing-machine" },
-  { title: "Dinh dưỡng", href: "kitchen-appliances" },
-  { title: "Sinh lý", href: "gadget-accessories" },
+  { title: "Thuốc", href: "thuoc" },
+  { title: "Thực phẩm chức năng", href: "thuc-pham-chuc-nang" },
+  { title: "Dược mỹ phẩm", href: "duoc-my-pham" },
+  { title: "Chăm sóc cá nhân", href: "cham-soc-ca-nhan" },
+  { title: "Trang thiết bị y tế", href: "trang-thiet-bi-y-te" },
+  { title: "Dinh dưỡng", href: "dinh-duong-thuc-pham-chuc-nang" },
+  { title: "Sinh lý", href: "sinh-ly" },
 ];
 export const productType = [
-  { title: "Thiết bị", value: "gadget" },
-  { title: "Thiết bị gia dụng", value: "appliances" },
-  { title: "Tủ lạnh", value: "refrigerators" },
-  { title: "Khác", value: "others" },
+  { title: "Thuốc", value: "thuoc" },
+  { title: "Thực phẩm chức năng", value: "thuc-pham-chuc-nang" },
+  { title: "Dược mỹ phẩm", value: "duoc-my-pham" },
+  { title: "Chăm sóc cá nhân", value: "cham-soc-ca-nhan" },
+  { title: "Trang thiết bị y tế", value: "trang-thiet-bi-y-te" },
+  { title: "Dinh dưỡng", value: "dinh-duong-thuc-pham-chuc-nang" },
+  { title: "Sinh lý", value: "sinh-ly" },
 ];
 
 import { banner1, banner2 } from "@/images";
