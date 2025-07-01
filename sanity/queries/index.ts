@@ -62,17 +62,26 @@ const getDealProducts = async () => {
     return [];
   }
 };
-const getProductBySlug = async (slug: string) => {
+export const getProductBySlug = async (slug: string) => {
   try {
+    if (!slug) {
+      throw new Error("Slug is missing");
+    }
+
+    console.log("[getProductBySlug] Querying product with slug:", slug);
+
     const product = await sanityFetch({
       query: PRODUCT_BY_SLUG_QUERY,
       params: {
         slug,
       },
     });
-    return product?.data || null;
+
+    console.log("[getProductBySlug] Product data from Sanity:", product);
+
+    return product || null;
   } catch (error) {
-    console.error("Error fetching product by ID:", error);
+    console.error("[getProductBySlug] Error fetching product by slug:", error);
     return null;
   }
 };
