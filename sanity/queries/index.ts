@@ -62,7 +62,8 @@ const getDealProducts = async () => {
     return [];
   }
 };
-export const getProductBySlug = async (slug: string) => {
+const getProductBySlug = async (slug: string) => {
+  console.log("slug", slug);
   try {
     if (!slug) {
       throw new Error("Slug is missing");
@@ -79,7 +80,7 @@ export const getProductBySlug = async (slug: string) => {
 
     console.log("[getProductBySlug] Product data from Sanity:", product);
 
-    return product || null;
+    return product?.data || null;
   } catch (error) {
     console.error("[getProductBySlug] Error fetching product by slug:", error);
     return null;

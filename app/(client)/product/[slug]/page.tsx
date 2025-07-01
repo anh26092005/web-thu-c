@@ -4,6 +4,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import ImageView from "@/components/ImageView";
 import PriceView from "@/components/PriceView";
 import ProductCharacteristics from "@/components/ProductCharacteristics";
+import ProductInfo from "@/components/ProductInfo";
 import { getProductBySlug } from "@/sanity/queries";
 import { CornerDownLeft, StarIcon, Truck } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -16,14 +17,18 @@ import { TbTruckDelivery } from "react-icons/tb";
 const SingleProductPage = async ({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) => {
-  const { slug } = params;
-  const product = await getProductBySlug(slug);
+  const { slug } = await params;
+  const product  = await getProductBySlug(slug);
+  const isStock = product?.stock > 0;
+  console.log("params", params);
   if (!product) {
     return notFound();
   }
+  
   return (
+    <>
     <Container className="flex flex-col md:flex-row gap-10 py-10">
       {product?.images && (
         <ImageView images={product?.images} isStock={product?.stock} />
@@ -108,6 +113,10 @@ const SingleProductPage = async ({
         </div>
       </div>
     </Container>
+      <div>
+        <ProductInfo info={product?.drugInfo}/>
+      </div>
+    </>
   );
 };
 
