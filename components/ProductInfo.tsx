@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 // Hàm render Portable Text đơn giản (chỉ hỗ trợ text, strong, em, link)
 function renderPortableText(blocks: any[]) {
@@ -47,144 +47,199 @@ interface Props {
 }
 
 const ProductInfo = ({ info }: Props) => {
-  const [tab, setTab] = useState("compositionSection");
+  // Tạo ref cho từng section
+  const sectionRefs = {
+    compositionSection: useRef<HTMLDivElement>(null),
+    usageSection: useRef<HTMLDivElement>(null),
+    usageInstructions: useRef<HTMLDivElement>(null),
+    sideEffects: useRef<HTMLDivElement>(null),
+    warningsAndPrecautions: useRef<HTMLDivElement>(null),
+    storage: useRef<HTMLDivElement>(null),
+  };
+
+  // State cho tab đang active
+  const [activeTab, setActiveTab] = useState<string>("compositionSection");
+
+  // State cho xem thêm/thu gọn
+  const [expanded, setExpanded] = useState(false);
 
   if (!info) return null;
 
-  // Thành phần
-  const renderComposition = () => (
-    <div>
-      <h2 className="font-bold text-xl mb-2">{info.drugName}</h2>
-      <div className="text-gray-600 mb-2">{info.compositionSection?.subtitle}</div>
-      <table className="w-full mb-4">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2 text-left">Thông tin thành phần</th>
-            <th className="p-2 text-left">Hàm lượng</th>
-          </tr>
-        </thead>
-        <tbody>
-          {info.compositionSection?.ingredientsTable?.map((row: any) => (
-            <tr key={row._key} className="border-b">
-              <td className="p-2">{row.ingredientName}</td>
-              <td className="p-2">{row.amount}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
-  // Công dụng
-  const renderUsage = () => (
-    <div>
-      <h2 className="font-bold text-xl mb-2">{info.usageSection?.title}</h2>
-      <h3 className="font-semibold mt-2 mb-1">{info.usageSection?.indications?.subtitle}</h3>
-      {renderPortableText(info.usageSection?.indications?.content)}
-      <h3 className="font-semibold mt-2 mb-1">{info.usageSection?.pharmacodynamics?.subtitle}</h3>
-      {renderPortableText(info.usageSection?.pharmacodynamics?.content)}
-      <h3 className="font-semibold mt-2 mb-1">{info.usageSection?.pharmacokinetics?.subtitle}</h3>
-      {renderPortableText(info.usageSection?.pharmacokinetics?.content)}
-    </div>
-  );
-
-  // Cách dùng
-  const renderInstructions = () => (
-    <div>
-      <h2 className="font-bold text-xl mb-2">{info.usageInstructions?.title}</h2>
-      <h3 className="font-semibold mt-2 mb-1">{info.usageInstructions?.howToUse?.subtitle}</h3>
-      {renderPortableText(info.usageInstructions?.howToUse?.content)}
-      <h3 className="font-semibold mt-2 mb-1">{info.usageInstructions?.dosage?.subtitle}</h3>
-      {renderPortableText(info.usageInstructions?.dosage?.content)}
-      <h3 className="font-semibold mt-2 mb-1">Làm gì khi dùng quá liều?</h3>
-      {renderPortableText(info.overdoseAndMissedDose?.overdose?.content)}
-      <h3 className="font-semibold mt-2 mb-1">Làm gì khi quên 1 liều?</h3>
-      {renderPortableText(info.overdoseAndMissedDose?.missedDose?.content)}
-    </div>
-  );
-
-  // Tác dụng phụ
-  const renderSideEffects = () => (
-    <div>
-      <h2 className="font-bold text-xl mb-2">{info.sideEffects?.title || "Tác dụng phụ"}</h2>
-      {renderPortableText(info.sideEffects?.content)}
-    </div>
-  );
-
-  // Lưu ý
-  const renderWarnings = () => {
-    const w = info.warningsAndPrecautions;
-    return (
-      <div>
-        <div className="bg-orange-100 p-4 rounded mb-4">
-          <div className="font-bold text-orange-700 flex items-center mb-2">
-            <span style={{ fontSize: 20, marginRight: 8 }}>⚠️</span>
-            {w?.mainNoteTitle || "Lưu ý"}
-          </div>
-          {renderPortableText(w?.introText)}
-          <div className="font-semibold mt-2 mb-1">{w?.contraindications?.subtitle}</div>
-          {renderPortableText(w?.contraindications?.content)}
-          <div className="font-semibold mt-2 mb-1">{w?.precautions?.subtitle}</div>
-          {renderPortableText(w?.precautions?.content)}
-          <div className="font-semibold mt-2 mb-1">{w?.drivingAndOperatingMachinery?.subtitle}</div>
-          {renderPortableText(w?.drivingAndOperatingMachinery?.content)}
-          <div className="font-semibold mt-2 mb-1">{w?.pregnancy?.subtitle}</div>
-          {renderPortableText(w?.pregnancy?.content)}
-          <div className="font-semibold mt-2 mb-1">{w?.breastfeeding?.subtitle}</div>
-          {renderPortableText(w?.breastfeeding?.content)}
-          <div className="font-semibold mt-2 mb-1">{w?.drugInteractions?.subtitle}</div>
-          {renderPortableText(w?.drugInteractions?.content)}
-        </div>
-      </div>
-    );
+  // Hàm scroll tới section
+  const scrollToSection = (key: keyof typeof sectionRefs) => {
+    setActiveTab(key);
+    sectionRefs[key]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Bảo quản
-  const renderStorage = () => (
-    <div>
-      <h2 className="font-bold text-xl mb-2">{info.storage?.title || "Bảo quản"}</h2>
-      {renderPortableText(info.storage?.content)}
-    </div>
-  );
+  // Scrollspy: cập nhật activeTab khi cuộn
+  useEffect(() => {
+    const handleScroll = () => {
+      // Lấy vị trí từng section
+      const offsets = TABS.map((t) => {
+        const ref = sectionRefs[t.key as keyof typeof sectionRefs];
+        if (!ref.current) return { key: t.key, offset: Infinity };
+        // Lấy khoảng cách từ top viewport đến section
+        const rect = ref.current.getBoundingClientRect();
+        return { key: t.key, offset: Math.abs(rect.top - 80) }; // 80 là offset cho sticky header nếu có
+      });
+      // Tìm section gần nhất phía trên
+      const min = offsets.reduce((prev, curr) => (curr.offset < prev.offset ? curr : prev), offsets[0]);
+      setActiveTab(min.key);
+    };
 
-  // Chọn tab để render
-  const renderTabContent = () => {
-    switch (tab) {
-      case "compositionSection":
-        return renderComposition();
-      case "usageSection":
-        return renderUsage();
-      case "usageInstructions":
-        return renderInstructions();
-      case "sideEffects":
-        return renderSideEffects();
-      case "warningsAndPrecautions":
-        return renderWarnings();
-      case "storage":
-        return renderStorage();
-      default:
-        return null;
-    }
-  };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Gọi lần đầu để set đúng tab khi load
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className="flex">
-      {/* Sidebar tab */}
-      <div className="w-48 flex-shrink-0">
+    <div className="flex bg-white rounded-xl p-5">
+      {/* Sidebar chỉ mục */}
+      <div className="w-48 flex-shrink-0 sticky top-4 h-fit">
         <ul className="flex flex-col gap-2">
           {TABS.map((t) => (
             <li
               key={t.key}
-              className={`cursor-pointer px-4 py-2 rounded ${tab === t.key ? "bg-gray-100 font-bold" : "hover:bg-gray-50"}`}
-              onClick={() => setTab(t.key)}
+              className={`cursor-pointer px-4 py-2 rounded font-medium text-xl text-gray-500 transition border-b-2 border-[#edf0f2]  ${
+                activeTab === t.key ? "bg-[#edf0f2] font-bold text-blue-700 rounded-md text-gray-900" : "hover:bg-gray-100 hover:text-gray-900 rounded-md"
+              }`}
+              onClick={() => scrollToSection(t.key as keyof typeof sectionRefs)}
             >
               {t.label}
             </li>
           ))}
         </ul>
       </div>
-      {/* Nội dung tab */}
-      <div className="flex-1 pl-8">{renderTabContent()}</div>
+      {/* Nội dung tất cả section */}
+      <div className="flex-1 pl-8 relative">
+        {/* Bọc toàn bộ nội dung trong 1 div để xử lý xem thêm/thu gọn */}
+        <div
+          style={
+            expanded
+              ? { maxHeight: "none", overflow: "visible" }
+              : {
+                  maxHeight: 350,
+                  overflow: "hidden",
+                  position: "relative",
+                  transition: "max-height 0.3s",
+                }
+          }
+        >
+          {/* Thành phần */}
+          <div ref={sectionRefs.compositionSection} id="compositionSection" className="mb-8 scroll-mt-24">
+            <h2 className="font-bold text-xl mb-4">{info.drugName}</h2>
+            <div className="text-gray-600/80 mb-4 font-semibold">{info.compositionSection?.subtitle}</div>
+            <table className="w-2/3 mb-4 overflow-hidden rounded-md">
+              <thead>
+                <tr className="bg-gray-300 overflow-hidden rounded-full border-b-2 border-white">
+                  <th className="p-2 text-left">Thông tin thành phần</th>
+                  <th className="p-2 text-right border-l-2 border-white">Hàm lượng</th>
+                </tr>
+              </thead>
+              <tbody>
+                {info.compositionSection?.ingredientsTable?.map((row: any) => (
+                  <tr key={row._key} className="border-b-2 border-white bg-[#edf0f2]">
+                    <td className="p-2">{row.ingredientName}</td>
+                    <td className="p-2 text-right border-l-2 border-white">{row.amount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Công dụng */}
+          <div ref={sectionRefs.usageSection} id="usageSection" className="mb-8 scroll-mt-24">
+            <h2 className="font-bold text-xl mb-4">{info.usageSection?.title}</h2>
+            <h3 className="font-semibold mt-2 mb-3">{info.usageSection?.indications?.subtitle}</h3>
+            {renderPortableText(info.usageSection?.indications?.content)}
+            <h3 className="font-semibold mt-5 mb-3">{info.usageSection?.pharmacodynamics?.subtitle}</h3>
+            {renderPortableText(info.usageSection?.pharmacodynamics?.content)}
+            <h3 className="font-semibold mt-5 mb-3">{info.usageSection?.pharmacokinetics?.subtitle}</h3>
+            {renderPortableText(info.usageSection?.pharmacokinetics?.content)}
+          </div>
+          {/* Cách dùng */}
+          <div ref={sectionRefs.usageInstructions} id="usageInstructions" className="mb-8 scroll-mt-24">
+            <h2 className="font-bold text-xl mb-4">{info.usageInstructions?.title}</h2>
+            <h3 className="font-semibold mt-2 mb-3">{info.usageInstructions?.howToUse?.subtitle}</h3>
+            {renderPortableText(info.usageInstructions?.howToUse?.content)}
+            <h3 className="font-semibold mt-5 mb-3">{info.usageInstructions?.dosage?.subtitle}</h3>
+            {renderPortableText(info.usageInstructions?.dosage?.content)}
+            <h3 className="font-semibold mt-5 mb-3">Làm gì khi dùng quá liều?</h3>
+            {renderPortableText(info.overdoseAndMissedDose?.overdose?.content)}
+            <h3 className="font-semibold mt-5 mb-3">Làm gì khi quên 1 liều?</h3>
+            {renderPortableText(info.overdoseAndMissedDose?.missedDose?.content)}
+          </div>
+          {/* Tác dụng phụ */}
+          <div ref={sectionRefs.sideEffects} id="sideEffects" className="mb-8 scroll-mt-24">
+            <h2 className="font-bold text-xl mb-4">{info.sideEffects?.title || "Tác dụng phụ"}</h2>
+            {renderPortableText(info.sideEffects?.content)}
+          </div>
+          {/* Lưu ý */}
+          <div ref={sectionRefs.warningsAndPrecautions} id="warningsAndPrecautions" className="mb-8 scroll-mt-24">
+            <div className="bg-[#fff3e0] p-4 rounded-md mb-4">
+              <div className="font-bold text-yellow-500 flex text-2xl items-center mt-1 mb-2">
+                <span style={{ fontSize: 20, marginRight: 8 }}>⚠️</span>
+                {info.warningsAndPrecautions?.mainNoteTitle || "Lưu ý"}
+              </div>
+              {renderPortableText(info.warningsAndPrecautions?.introText)}
+              <div className="font-semibold mt-3 mb-4">{info.warningsAndPrecautions?.contraindications?.subtitle}</div>
+              {renderPortableText(info.warningsAndPrecautions?.contraindications?.content)}
+              <div className="font-semibold mt-5 mb-4">{info.warningsAndPrecautions?.precautions?.subtitle}</div>
+              {renderPortableText(info.warningsAndPrecautions?.precautions?.content)}
+              <div className="font-semibold mt-5 mb-4">{info.warningsAndPrecautions?.drivingAndOperatingMachinery?.subtitle}</div>
+              {renderPortableText(info.warningsAndPrecautions?.drivingAndOperatingMachinery?.content)}
+              <div className="font-semibold mt-5 mb-4">{info.warningsAndPrecautions?.pregnancy?.subtitle}</div>
+              {renderPortableText(info.warningsAndPrecautions?.pregnancy?.content)}
+              <div className="font-semibold mt-5 mb-4">{info.warningsAndPrecautions?.breastfeeding?.subtitle}</div>
+              {renderPortableText(info.warningsAndPrecautions?.breastfeeding?.content)}
+              <div className="font-semibold mt-5 mb-4">{info.warningsAndPrecautions?.drugInteractions?.subtitle}</div>
+              {renderPortableText(info.warningsAndPrecautions?.drugInteractions?.content)}
+            </div>
+          </div>
+          {/* Bảo quản */}
+          <div ref={sectionRefs.storage} id="storage" className="mb-8 scroll-mt-24">
+            <h2 className="font-bold text-xl mb-2">{info.storage?.title || "Bảo quản"}</h2>
+            {renderPortableText(info.storage?.content)}
+          </div>
+          {/* Hiệu ứng mờ phía dưới khi chưa mở rộng */}
+          {!expanded && (
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 80,
+                background: "linear-gradient(to top, #fff, rgba(255,255,255,0))",
+                pointerEvents: "none",
+              }}
+            />
+          )}
+        </div>
+        {/* Nút xem thêm/thu gọn */}
+        <div className="flex justify-center mt-2 mb-4">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="flex items-center gap-2 text-base font-medium focus:outline-none"
+          >
+            {expanded ? (
+              <>
+                <span style={{ fontSize: 18 }}><i className="fi fi-br-chevron-double-up text-base text-xs"></i></span> Thu gọn
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: 18 }}><i className="fi fi-br-chevron-double-down text-base text-xs"></i></span> Xem thêm
+              </>
+            )}
+          </button>
+        </div>
+         {/* Box cảnh báo cuối trang */}
+         <div className="mt-2 mb-2 p-3 bg-blue-50 rounded-md flex items-center" style={{ borderLeft: "5px solid #1976d2" }}>
+          <span className="text-blue-600 text-sm">
+            Mọi thông tin trên đây chi mang tính chất tham khảo. Việc sử dụng thuốc phải tuân theo hướng dẫn của bác sĩ chuyên môn.
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

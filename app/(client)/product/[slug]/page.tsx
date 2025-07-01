@@ -113,7 +113,7 @@ const SingleProductPage = async ({
         </div>
       </div>
     </Container>
-      <div>
+      <div className="flex flex-col md:flex-row gap-10 py-10 max-w-screen-xl mx-auto px-4">
         <ProductInfo info={product?.drugInfo}/>
       </div>
     </>
