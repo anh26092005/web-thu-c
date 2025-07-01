@@ -18,14 +18,48 @@ const ProductGrid = () => {
   const query = `*[_type == "product" && variant == $variant] | order(name asc){
   ...,"categories": categories[]->title
 }`;
-  const params = { variant: selectedTab.toLowerCase() };
+const queryAll = `*[_type == "product"] | order(name asc){
+  ...,"categories": categories[]->title
+}`;
+
+  let variant = selectedTab.toLowerCase();
+  if (variant === "thuốc") {
+    variant = "thuoc";
+  }
+  if (variant === "thực phẩm chức năng") {
+    variant = "thuc-pham-chuc-nang";
+  }
+  if (variant === "sinh lý") {
+    variant = "sinh-ly";
+  }
+  if (variant === "trang thiết bị y tế") {
+    variant = "trang-thiet-bi-y-te";
+  }
+  if (variant === "dinh dưỡng") {
+    variant = "dinh-duong";
+  }
+  if (variant === "dược mỹ phẩm") {
+    variant = "duoc-my-pham";
+  }
+  if (variant === "chăm sóc cá nhân") {
+    variant = "cham-soc-ca-nhan";
+  }
+  
+
+  const params = { variant };
+  console.log(params);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await client.fetch(query, params);
-        setProducts(await response);
+        if (selectedTab === "Tất cả") {
+          const response = await client.fetch(queryAll);
+          setProducts(await response);
+        } else {
+          const response = await client.fetch(query, params);
+          setProducts(await response);
+        }
       } catch (error) {
         console.log("Product fetching Error", error);
       } finally {
