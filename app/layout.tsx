@@ -3,7 +3,7 @@ import { Toaster } from "react-hot-toast";
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="vi">
-      <body className="font-poppins antialiased">
+      <body className="font-sans antialiased">
         {children}
         <Toaster
           position="bottom-right"

@@ -1,7 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Title } from "./ui/text";
-import Link from "next/link";
+// import { Title } from "./ui/text";
+// import Link from "next/link";
 import Image from "next/image";
 
 import {

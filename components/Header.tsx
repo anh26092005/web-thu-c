@@ -22,7 +22,7 @@ const Header = async () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 pt-5 backdrop-blur-md bg-[#f6f6f6] max-lg:pb-5 max-lg:px-5">
+    <header className=" top-0 z-50 pt-3 backdrop-blur-md bg-[#f6f6f6] max-lg:pb-5 max-lg:px-5">
       <div className="md:hidden flex items-center justify-between px-5 mt-5" >
            <MobileMenu/>
            <Logo className="sm:mr-15 mr-5 text-xl"/> 

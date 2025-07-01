@@ -20,9 +20,9 @@ const ProductGrid = () => {
   const query = `*[_type == "product" && variant == $variant] | order(name asc){
   ...,"categories": categories[]->title
 }`;
-const queryAll = `*[_type == "product"] | order(name asc){
-  ...,"categories": categories[]->title
-}`;
+// const queryAll = `*[_type == "product"] | order(name asc){
+//   ...,"categories": categories[]->title
+// }`;
 
   let variant = selectedTab.toLowerCase();
   if (variant === "thuốc") {

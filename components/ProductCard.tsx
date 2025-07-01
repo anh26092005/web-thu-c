@@ -12,8 +12,8 @@ import AddToCartButton from "./AddToCartButton";
 
 const ProductCard = ({ product }: { product: Product }) => {
   return (
-    <div className="text-sm border-[1px] rounded-md border-darkBlue/20 group bg-white">
-      <div className="relative group overflow-hidden bg-shop_light_bg">
+    <div className="text-sm border-[1px] rounded-2xl border-white group bg-white hover:border-shop_light_green/80 transition-all duration-300">
+      <div className="relative group overflow-hidden bg-shop_light_bg rounded-2xl">
         {product?.images && (
           <Link href={`/product/${product?.slug?.current}`}>
             <Image
@@ -22,7 +22,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               width={500}
               height={500}
               priority
-              className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500 
+              className={`w-full h-57 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500 
               ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
             />
           </Link>
@@ -67,10 +67,10 @@ const ProductCard = ({ product }: { product: Product }) => {
           <p className="text-lightText text-xs tracking-wide">5 Đánh giá</p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5">
           <p className="font-medium">Còn hàng</p>
           <p
-            className={`${product?.stock === 0 ? "text-red-600" : "text-shop_dark_green/80 font-semibold"}`}
+            className={`${product?.stock === 0 ? "text-red-600" : "text-shop_dark_green/80 font-semibold mt-[2.5px]"}`}
           >
             {(product?.stock as number) > 0 ? product?.stock : "Hết hàng"}
           </p>
@@ -81,7 +81,9 @@ const ProductCard = ({ product }: { product: Product }) => {
           discount={product?.discount}
           className="text-sm"
         />
-        <AddToCartButton product={product} className="w-36 rounded-full" />
+        <div className="flex justify-center mt-2 p-0">
+          <AddToCartButton product={product} className="w-52 rounded-full" />
+        </div>
       </div>
     </div>
   );

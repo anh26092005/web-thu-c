@@ -17,7 +17,7 @@ const CategoryList = ({
 }: Props) => {
   return (
     <div className="w-full bg-white p-5">
-      <Title className="text-base font-black">Product Categories</Title>
+      <Title className="text-base font-semibold">Danh mục sản phẩm</Title>
       <RadioGroup value={selectedCategory || ""} className="mt-2 space-y-1">
         {categories?.map((category) => (
           <div
@@ -46,7 +46,7 @@ const CategoryList = ({
           onClick={() => setSelectedCategory(null)}
           className="text-sm font-medium mt-2 underline underline-offset-2 decoration-[1px] hover:text-shop_dark_green hoverEffect text-left"
         >
-          Reset selection
+          Đặt lại lựa chọn
         </button>
       )}
     </div>

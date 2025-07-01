@@ -1,6 +1,6 @@
 "use client";
 import { productType } from "@/constants/data";
-import Link from "next/link";
+// import Link from "next/link";
 interface Props {
   selectedTab: string;
   onTabSelect: (tab: string) => void;

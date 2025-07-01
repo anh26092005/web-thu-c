@@ -37,7 +37,7 @@ const AddToCartButton = ({ product, className }: Props) => {
             <QuantityButtons product={product} />
           </div>
           <div className="flex items-center justify-between border-t pt-1">
-            <span className="text-xs font-semibold">Tổng phụ</span>
+            <span className="text-xs font-semibold">Tổng</span>
             <PriceFormatter
               amount={product?.price ? product?.price * itemCount : 0}
             />
@@ -48,11 +48,11 @@ const AddToCartButton = ({ product, className }: Props) => {
           onClick={handleAddToCart}
           disabled={isOutOfStock}
           className={cn(
-            "w-full bg-shop_dark_green/80 text-lightBg shadow-none border border-shop_dark_green/80 font-semibold tracking-wide text-white hover:bg-shop_dark_green hover:border-shop_dark_green hoverEffect",
+            "w-full bg-shop_light_green text-lightBg shadow-none border border-shop_light_green/80 font-medium tracking-wide text-white hover:bg-shop_light_green hover:border-shop_light_green hoverEffect",
             className
           )}
         >
-          <ShoppingBag /> {isOutOfStock ? "Hết hàng" : "Thêm vào giỏ"}
+          <ShoppingBag /> {isOutOfStock ? "Hết hàng" : "Chọn mua"}
         </Button>
       )}
     </div>

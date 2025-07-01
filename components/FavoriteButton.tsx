@@ -28,8 +28,8 @@ const FavoriteButton = ({
       addToFavorite(product).then(() => {
         toast.success(
           existingProduct
-            ? "Product removed successfully!"
-            : "Product added successfully!"
+            ? "Đã xóa khỏi danh sách yêu thích!"
+            : "Đã thêm vào danh sách yêu thích!"
         );
       });
     }
@@ -39,7 +39,7 @@ const FavoriteButton = ({
       {!showProduct ? (
         <Link href={"/wishlist"} className="group relative flex gap-1 items-center">
           <Heart className="w-5 h-5 hover:text-shop_light_green hoverEffect" />
-          <span className="absolute -top-1 right-18 max-xl:-right-1 bg-shop_dark_green text-white h-3.5 w-3.5 rounded-full text-xs font-semibold flex items-center justify-center">
+          <span className="absolute -top-1 right-18 max-xl:-right-1 bg-shop_light_green text-white h-3.5 w-3.5 rounded-full text-xs font-semibold flex items-center justify-center">
             {favoriteProduct?.length ? favoriteProduct?.length : 0}
           </span>
           <span className="max-xl:hidden text-m font-semibold hover:text-shop_light_green hoverEffect">Yêu thích</span>
