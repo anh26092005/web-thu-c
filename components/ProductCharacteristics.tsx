@@ -19,10 +19,10 @@ const ProductCharacteristics = async ({
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
-        <AccordionTrigger>{product?.name}: Characteristics</AccordionTrigger>
+        <AccordionTrigger>{product?.name}: Thông tin sản phẩm</AccordionTrigger>
         <AccordionContent>
           <p className="flex items-center justify-between">
-            Brand:{" "}
+            Nhà sản xuất:{" "}
             {brand && (
               <span className="font-semibold tracking-wide">
                 {brand[0]?.brandName}
@@ -30,21 +30,27 @@ const ProductCharacteristics = async ({
             )}
           </p>
           <p className="flex items-center justify-between">
-            Collection:{" "}
+            Năm sản xuất:{" "}
             <span className="font-semibold tracking-wide">2025</span>
           </p>
           <p className="flex items-center justify-between">
-            Type:{" "}
+            Loại sản phẩm:{" "}
             <span className="font-semibold tracking-wide">
               {product?.variant}
             </span>
           </p>
           <p className="flex items-center justify-between">
-            Stock:{" "}
+            Tình trạng:{" "}
             <span className="font-semibold tracking-wide">
-              {product?.stock ? "Available" : "Out of Stock"}
+              {product?.stock ? "Còn hàng" : "Hết hàng"}
             </span>
           </p>
+          {/* <p className="flex items-center justify-between">
+            Xuất xứ:{" "}
+            <span className="font-semibold tracking-wide">
+              {product?.origin}
+            </span>
+          </p> */}
         </AccordionContent>
       </AccordionItem>
     </Accordion>
