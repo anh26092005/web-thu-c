@@ -9,7 +9,7 @@ export const productType = defineType({
   fields: [
     defineField({
       name: "name",
-      title: "Product Name",
+      title: "Tên sản phẩm",
       type: "string",
       validation: (Rule) => Rule.required(),
     }),
@@ -25,44 +25,50 @@ export const productType = defineType({
     }),
     defineField({
       name: "images",
-      title: "Product Images",
+      title: "Hình ảnh sản phẩm",
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
     }),
     defineField({
       name: "description",
-      title: "Description",
+      title: "Mô tả",
       type: "string",
     }),
     defineField({
       name: "price",
-      title: "Price",
+      title: "Giá",
       type: "number",
       validation: (Rule) => Rule.required().min(0),
     }),
     defineField({
       name: "discount",
-      title: "Discount",
+      title: "Giảm giá",
       type: "number",
       validation: (Rule) => Rule.required().min(0),
     }),
     defineField({
       name: "categories",
-      title: "Categories",
+      title: "Danh mục",
       type: "array",
       of: [{ type: "reference", to: { type: "category" } }],
     }),
     defineField({
       name: "stock",
-      title: "Stock",
+      title: "Số lượng",
       type: "number",
       validation: (Rule) => Rule.min(0),
     }),
     defineField({
       name: "brand",
-      title: "Brand",
+      title: "Nhà sản xuất",
       type: "reference",
       to: { type: "brand" },
+    }),
+
+    defineField({
+      name: "origin",
+      title: "Xuất xứ",
+      type: "string",
     }),
 
     defineField({
@@ -79,7 +85,7 @@ export const productType = defineType({
     }),
     defineField({
       name: "variant",
-      title: "Product Type",
+      title: "Loại sản phẩm",
       type: "string",
       options: {
         list: [
@@ -95,7 +101,7 @@ export const productType = defineType({
     }),
     defineField({
       name: "isFeatured",
-      title: "Featured Product",
+      title: "Sản phẩm nổi bật",
       type: "boolean",
       description: "Toggle to Featured on or off",
       initialValue: false,
