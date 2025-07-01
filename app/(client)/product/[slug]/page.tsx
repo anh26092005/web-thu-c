@@ -21,7 +21,6 @@ const SingleProductPage = async ({
 }) => {
   const { slug } = await params;
   const product  = await getProductBySlug(slug);
-  const isStock = product?.stock > 0;
   console.log("params", params);
   if (!product) {
     return notFound();
@@ -29,7 +28,7 @@ const SingleProductPage = async ({
   
   return (
     <>
-    <Container className="flex flex-col md:flex-row gap-10 py-10">
+    <Container className="flex flex-col md:flex-row gap-10 py-10 bg-white rounded-xl mt-10">
       {product?.images && (
         <ImageView images={product?.images} isStock={product?.stock} />
       )}

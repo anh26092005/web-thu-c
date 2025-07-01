@@ -6,8 +6,8 @@ interface Props {
 }
 
 const PriceFormatter = ({ amount, className }: Props) => {
-  const formattedPrice = new Number(amount).toLocaleString("en-US", {
-    currency: "USD",
+  const formattedPrice = new Number(amount).toLocaleString("vi-VN", {
+    currency: "VND",
     style: "currency",
     minimumFractionDigits: 2,
   });

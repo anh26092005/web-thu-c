@@ -1,24 +1,147 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 
+// Định nghĩa các interface cho dữ liệu info
+export interface PortableTextSpan {
+  _key: string;
+  _type: "span";
+  text: string;
+  marks: string[];
+}
+
+export interface PortableTextMarkDef {
+  _key: string;
+  _type: string; // "link" hoặc khác
+  href?: string;
+}
+
+export interface PortableTextBlock {
+  _key: string;
+  _type: "block";
+  style: string;
+  children: PortableTextSpan[];
+  markDefs: PortableTextMarkDef[];
+  listItem?: string;
+  level?: number;
+}
+
+export interface IngredientRow {
+  _key: string;
+  _type: "ingredientRow";
+  ingredientName: string;
+  amount: string;
+}
+
+export interface CompositionSection {
+  subtitle: string;
+  ingredientsTable: IngredientRow[];
+}
+
+export interface OverdoseOrMissed {
+  subtitle: string;
+  content: PortableTextBlock[];
+}
+
+export interface OverdoseAndMissedDose {
+  overdose: OverdoseOrMissed;
+  missedDose: OverdoseOrMissed;
+}
+
+export interface SideEffects {
+  title?: string;
+  content: PortableTextBlock[];
+}
+
+export interface Storage {
+  title?: string;
+  content: PortableTextBlock[];
+}
+
+export interface UsageInstructions {
+  title?: string;
+  howToUse: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  dosage: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+}
+
+export interface UsageSection {
+  title?: string;
+  indications: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  pharmacodynamics: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  pharmacokinetics: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+}
+
+export interface WarningsAndPrecautions {
+  mainNoteTitle?: string;
+  introText?: PortableTextBlock[];
+  contraindications: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  precautions: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  drivingAndOperatingMachinery: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  pregnancy: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  breastfeeding: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+  drugInteractions: {
+    subtitle: string;
+    content: PortableTextBlock[];
+  };
+}
+
+export interface ProductDrugInfo {
+  drugName: string;
+  compositionSection: CompositionSection;
+  usageSection: UsageSection;
+  usageInstructions: UsageInstructions;
+  overdoseAndMissedDose: OverdoseAndMissedDose;
+  sideEffects: SideEffects;
+  storage: Storage;
+  warningsAndPrecautions: WarningsAndPrecautions;
+}
+
 // Hàm render Portable Text đơn giản (chỉ hỗ trợ text, strong, em, link)
-function renderPortableText(blocks: any[]) {
+function renderPortableText(blocks: PortableTextBlock[] = []) {
   if (!blocks) return null;
   return blocks.map((block, idx) => {
     if (block._type !== "block") return null;
     return (
       <div key={block._key || idx} style={{ marginBottom: 8 }}>
-        {block.children.map((span: any, i: number) => {
-          let text = span.text;
+        {block.children.map((span, i) => {
+          let text: React.ReactNode = span.text;
           if (span.marks?.length) {
             span.marks.forEach((mark: string) => {
               if (mark === "strong") text = <strong key={i}>{text}</strong>;
               if (mark === "em") text = <em key={i}>{text}</em>;
-              // Link xử lý ở dưới
             });
           }
           // Xử lý link
-          const markDef = block.markDefs?.find((def: any) => def._key === span.marks?.[0]);
+          const markDef = block.markDefs?.find((def) => def._key === span.marks?.[0]);
           if (markDef && markDef._type === "link") {
             text = (
               <a key={i} href={markDef.href} target="_blank" rel="noopener noreferrer" style={{ color: "#1976d2" }}>
@@ -43,7 +166,7 @@ const TABS = [
 ];
 
 interface Props {
-  info: any;
+  info: ProductDrugInfo;
 }
 
 const ProductInfo = ({ info }: Props) => {
@@ -63,15 +186,6 @@ const ProductInfo = ({ info }: Props) => {
   // State cho xem thêm/thu gọn
   const [expanded, setExpanded] = useState(false);
 
-  if (!info) return null;
-
-  // Hàm scroll tới section
-  const scrollToSection = (key: keyof typeof sectionRefs) => {
-    setActiveTab(key);
-    sectionRefs[key]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  // Scrollspy: cập nhật activeTab khi cuộn
   useEffect(() => {
     const handleScroll = () => {
       // Lấy vị trí từng section
@@ -92,6 +206,14 @@ const ProductInfo = ({ info }: Props) => {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (!info) return null;
+
+  // Hàm scroll tới section
+  const scrollToSection = (key: keyof typeof sectionRefs) => {
+    setActiveTab(key);
+    sectionRefs[key]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="flex bg-white rounded-xl p-5">
@@ -138,7 +260,7 @@ const ProductInfo = ({ info }: Props) => {
                 </tr>
               </thead>
               <tbody>
-                {info.compositionSection?.ingredientsTable?.map((row: any) => (
+                {info.compositionSection?.ingredientsTable?.map((row: IngredientRow) => (
                   <tr key={row._key} className="border-b-2 border-white bg-[#edf0f2]">
                     <td className="p-2">{row.ingredientName}</td>
                     <td className="p-2 text-right border-l-2 border-white">{row.amount}</td>
@@ -181,7 +303,7 @@ const ProductInfo = ({ info }: Props) => {
                 <span style={{ fontSize: 20, marginRight: 8 }}>⚠️</span>
                 {info.warningsAndPrecautions?.mainNoteTitle || "Lưu ý"}
               </div>
-              {renderPortableText(info.warningsAndPrecautions?.introText)}
+              {renderPortableText(info.warningsAndPrecautions?.introText || [])}
               <div className="font-semibold mt-3 mb-4">{info.warningsAndPrecautions?.contraindications?.subtitle}</div>
               {renderPortableText(info.warningsAndPrecautions?.contraindications?.content)}
               <div className="font-semibold mt-5 mb-4">{info.warningsAndPrecautions?.precautions?.subtitle}</div>
