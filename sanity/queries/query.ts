@@ -21,6 +21,18 @@ const PRODUCT_BY_SLUG_QUERY = defineQuery(
   `*[_type == "product" && slug.current == $slug][0]`
 );
 
+const BANNER_QUERY = defineQuery(`*[_type == "banner" && isActive == true]{
+  _id,
+  title,
+  image{
+    asset->{
+      _ref
+    },
+    alt
+  },
+  description
+}`);
+
 const BRAND_QUERY = defineQuery(`*[_type == "product" && slug.current == $slug]{
   "brandName": brand->title
   }`);
@@ -92,4 +104,5 @@ export {
   SINGLE_BLOG_QUERY,
   BLOG_CATEGORIES,
   OTHERS_BLOG_QUERY,
+  BANNER_QUERY,
 };

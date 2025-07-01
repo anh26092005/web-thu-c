@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 // import { Title } from "./ui/text";
 // import Link from "next/link";
 import Image from "next/image";
+import { urlFor } from "@/sanity/lib/image";
 
 import {
   Carousel,
@@ -13,9 +14,11 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { bannerData } from "@/constants/data";
+import { getBanners } from "@/sanity/queries";
+import { Banner } from "@/sanity.types";
 
-const HomeBanner = () => {
+const HomeBanner = async () => {
+  const bannerData: Banner[] = await getBanners();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: false, stopOnMouseEnter: true }));
@@ -106,8 +109,8 @@ const HomeBanner = () => {
                 </div> */}
                 <div className="block flex-1">
                   <Image
-                    src={item.image}
-                    alt={item.title}
+                    src={urlFor(item.image).url()}
+                    alt={item.image.alt || item.title}
                     width={400}
                     height={300}
                     className="w-full h-auto rounded-lg"

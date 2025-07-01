@@ -33,7 +33,7 @@ const Shop = ({ categories, brands }: Props) => {
     setLoading(true);
     try {
       let minPrice = 0;
-      let maxPrice = 10000;
+      let maxPrice = 99999999999999999999999999999999;
       if (selectedPrice) {
         const [min, max] = selectedPrice.split("-").map(Number);
         minPrice = min;
@@ -91,7 +91,7 @@ const Shop = ({ categories, brands }: Props) => {
         </div>
         <div className="flex flex-col md:flex-row gap-5 border-t border-t-shop_dark_green/50">
           {/* <div className="md:sticky md:top-20 md:self-start md:h-full md:min-w-64 pb-5 md:border-r border-r-shop_btn_dark_green/50 scrollbar-hide"> */}
-          <div className="md:sticky md:top-20 md:mt-5 md:self-start md:h-[calc(100vh-150px)] md:overflow-y-auto md:min-w-64 pb-5 shadow-sm scrollbar-hide rounded-lg">
+          <div className="md:sticky md:top-20 md:mt-5 md:self-start md:h-[calc(100vh-150px)] md:overflow-y-auto md:min-w-64 pb-5 shadow-sm scrollbar-hide rounded-lg max-w-[240px]">
             <CategoryList
               categories={categories}
               selectedCategory={selectedCategory}

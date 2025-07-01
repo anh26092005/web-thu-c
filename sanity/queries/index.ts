@@ -10,6 +10,7 @@ import {
   OTHERS_BLOG_QUERY,
   PRODUCT_BY_SLUG_QUERY,
   SINGLE_BLOG_QUERY,
+  BANNER_QUERY,
 } from "./query";
 
 const getCategories = async (quantity?: number) => {
@@ -100,6 +101,16 @@ const getBrand = async (slug: string) => {
     return null;
   }
 };
+const getBanners = async () => {
+  try {
+    const { data } = await sanityFetch({ query: BANNER_QUERY });
+    return data ?? [];
+  } catch (error) {
+    console.error("Error fetching banners:", error);
+    return [];
+  }
+};
+
 const getMyOrders = async (userId: string) => {
   try {
     const orders = await sanityFetch({
@@ -173,4 +184,5 @@ export {
   getSingleBlog,
   getBlogCategories,
   getOthersBlog,
+  getBanners,
 };

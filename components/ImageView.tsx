@@ -70,6 +70,7 @@ const ImageView = ({ images = [], isStock }: Props) => {
           </button>
         ))}
       </div>
+      <p className="text-sm text-gray-500">Mẫu mã sản phẩm có thể thay đổi theo lô hàng</p>
     </div>
   );
 };

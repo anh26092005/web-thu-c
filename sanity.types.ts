@@ -249,6 +249,7 @@ export type Product = {
   _updatedAt: string;
   _rev: string;
   name?: string;
+  origin?: string;
   slug?: Slug;
   images?: Array<{
     asset?: {
@@ -336,6 +337,29 @@ export type BlockContent = Array<{
   _type: "image";
   _key: string;
 }>;
+
+export type Banner = {
+  _id: string;
+  title: string;
+  description: Array<{
+    _key: string;
+    _type: "block";
+    style: string;
+    children: Array<{
+      _key: string;
+      _type: "span";
+      text: string;
+      marks: string[];
+    }>;
+    markDefs: any[]; // Nếu muốn an toàn hơn, bạn có thể định nghĩa rõ hơn cho markDefs
+  }>;
+  image: {
+    alt: string;
+    asset: {
+      _ref: string | null;
+    };
+  };
+};
 
 export type Category = {
   _id: string;

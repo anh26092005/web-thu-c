@@ -14,7 +14,7 @@ const ProductCharacteristics = async ({
   product: Product | null | undefined;
 }) => {
   const brand = await getBrand(product?.slug?.current as string);
-  console.log(brand);
+  console.log("product", product);
 
   return (
     <Accordion type="single" collapsible>
@@ -33,24 +33,24 @@ const ProductCharacteristics = async ({
             Năm sản xuất:{" "}
             <span className="font-semibold tracking-wide">2025</span>
           </p>
-          <p className="flex items-center justify-between">
+          {/* <p className="flex items-center justify-between">
             Loại sản phẩm:{" "}
             <span className="font-semibold tracking-wide">
               {product?.variant}
             </span>
-          </p>
+          </p> */}
           <p className="flex items-center justify-between">
             Tình trạng:{" "}
             <span className="font-semibold tracking-wide">
               {product?.stock ? "Còn hàng" : "Hết hàng"}
             </span>
           </p>
-          {/* <p className="flex items-center justify-between">
+          <p className="flex items-center justify-between">
             Xuất xứ:{" "}
             <span className="font-semibold tracking-wide">
               {product?.origin}
             </span>
-          </p> */}
+          </p>
         </AccordionContent>
       </AccordionItem>
     </Accordion>
