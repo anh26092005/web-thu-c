@@ -1,35 +1,34 @@
-import { defineType } from "sanity";
+import { defineField, defineType } from "sanity";
 
 export const bannerType = defineType({
     name: 'banner',
     title: 'Banner',
     type: 'document',
     fields: [
-      {
+      defineField({
         name: 'title',
         title: 'Tiêu đề Banner',
         type: 'string',
         description: 'Tiêu đề ngắn gọn cho banner (chỉ dùng cho quản lý nội bộ)',
-      },
-      {
+        validation: Rule => Rule.required().min(1).max(100),
+      }),
+      defineField({
         name: 'image',
         title: 'Hình ảnh Banner',
         type: 'image',
         options: {
           hotspot: true, // Cho phép crop ảnh thông minh
+          accept: 'image/*', // Chỉ chấp nhận file hình ảnh
         },
-        fields: [
-          {
-            name: 'alt',
+      }),
+      defineField({
+        name: 'alt',
             title: 'Văn bản thay thế (Alt Text)',
             type: 'string',
             description: 'Mô tả hình ảnh cho SEO và trợ năng',
-            validation: Rule => Rule.required(),
-          },
-        ],
-        validation: Rule => Rule.required(),
-      },
-      {
+            validation: Rule => Rule.required().min(1).max(200),
+      }),
+      defineField({
         name: 'description',
         title: 'Mô tả Banner',
         type: 'array', // Sử dụng Portable Text để mô tả có thể có định dạng
@@ -65,14 +64,14 @@ export const bannerType = defineType({
           },
         ],
         description: 'Mô tả chi tiết cho banner, có thể chứa định dạng văn bản.',
-      },
-      {
+      }),
+      defineField({
         name: 'isActive', // Giữ lại để kiểm soát banner nào sẽ hiển thị
         title: 'Hoạt động',
         type: 'boolean',
         description: 'Đặt thành "true" để hiển thị banner này trên trang web.',
         initialValue: true,
-      },
+      }),
     ],
     preview: {
       select: {

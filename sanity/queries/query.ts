@@ -25,9 +25,7 @@ const BANNER_QUERY = defineQuery(`*[_type == "banner" && isActive == true]{
   _id,
   title,
   image{
-    asset->{
-      _ref
-    },
+    asset,
     alt
   },
   description

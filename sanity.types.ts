@@ -340,8 +340,24 @@ export type BlockContent = Array<{
 
 export type Banner = {
   _id: string;
-  title: string;
-  description: Array<{
+  _type: "banner";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  image: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  description?: Array<{
     _key: string;
     _type: "block";
     style: string;
@@ -353,12 +369,7 @@ export type Banner = {
     }>;
     markDefs: any[]; // Nếu muốn an toàn hơn, bạn có thể định nghĩa rõ hơn cho markDefs
   }>;
-  image: {
-    alt: string;
-    asset: {
-      _ref: string | null;
-    };
-  };
+  isActive?: boolean;
 };
 
 export type Category = {
