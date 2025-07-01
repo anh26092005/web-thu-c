@@ -19,6 +19,14 @@
   --color-deal-bg: #f1f3f8;
 }
 
+/* Ẩn thanh cuộn ngang cho class scrollbar-hide */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Webkit */
+}
 
 :root {
   --font-poppins: "Poppins", sans-serif;

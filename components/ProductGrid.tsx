@@ -10,8 +10,10 @@ import Container from "./Container";
 import HomeTabbar from "./HomeTabbar";
 import { productType } from "@/constants/data";
 import { Product } from "@/sanity.types";
+import { useRouter } from "next/navigation";
 
 const ProductGrid = () => {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(productType[0]?.title || "");
@@ -45,7 +47,9 @@ const queryAll = `*[_type == "product"] | order(name asc){
     variant = "cham-soc-ca-nhan";
   }
   
-
+  if(selectedTab === "Tất cả"){
+    router.push("/shop")
+  }
   const params = { variant };
   console.log(params);
 
@@ -53,13 +57,13 @@ const queryAll = `*[_type == "product"] | order(name asc){
     const fetchData = async () => {
       setLoading(true);
       try {
-        if (selectedTab === "Tất cả") {
-          const response = await client.fetch(queryAll);
-          setProducts(await response);
-        } else {
+        // if (selectedTab === "Tất cả") {
+        //   const response = await client.fetch(queryAll);
+        //   setProducts(await response);
+        // } else {
           const response = await client.fetch(query, params);
           setProducts(await response);
-        }
+        // }
       } catch (error) {
         console.log("Product fetching Error", error);
       } finally {
@@ -70,7 +74,8 @@ const queryAll = `*[_type == "product"] | order(name asc){
   }, [selectedTab]);
 
   return (
-    <Container className="flex flex-col lg:px-0 my-10">
+    <>
+    <Container className="lg:px-0 my-10">
       <HomeTabbar selectedTab={selectedTab} onTabSelect={setSelectedTab} />
       {loading ? (
         <div className="flex flex-col items-center justify-center py-10 min-h-80 space-y-4 text-center bg-gray-100 rounded-lg w-full mt-10">
@@ -100,6 +105,7 @@ const queryAll = `*[_type == "product"] | order(name asc){
         <NoProductAvailable selectedTab={selectedTab} />
       )}
     </Container>
+    </>
   );
 };
 

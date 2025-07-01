@@ -8,9 +8,9 @@ interface Props {
 
 const HomeTabbar = ({ selectedTab, onTabSelect }: Props) => {
   return (
-    <div className="flex items-center flex-wrap gap-5 justify-between">
-      <div className="flex items-center gap-1.5 text-sm font-semibold">
-        <div className="flex items-center gap-1.5 md:gap-3">
+    <>
+    <div className="flex items-center">
+      <div className="flex items-center gap-1.5 md:gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold min-w-0 scrollbar-hide">
           {productType?.map((item) => (
             <button
               onClick={() => onTabSelect(item?.title)}
@@ -20,15 +20,18 @@ const HomeTabbar = ({ selectedTab, onTabSelect }: Props) => {
               {item?.title}
             </button>
           ))}
-        </div>
       </div>
-      <Link
-        href={"/shop"}
-        className="border border-darkColor px-4 py-1 rounded-full hover:bg-shop_light_green hover:text-white hover:border-shop_light_green hoverEffect"
-      >
-        See all
-      </Link>
     </div>
+    <div className="mt-4">
+
+      {/* <Link
+        href={"/shop"}
+        className="border border-shop_light_green px-3 py-2 rounded-full hover:bg-shop_light_green hover:text-white hover:border-shop_light_green hoverEffect"
+      >
+        Xem tất cả
+      </Link> */}
+    </div>
+    </>
   );
 };
 
