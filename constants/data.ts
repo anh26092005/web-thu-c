@@ -23,6 +23,7 @@ export const categoriesData = [
   { title: "Sinh lý", href: "sinh-ly" },
 ];
 export const productType = [
+  { title: "Tất cả", value: "all" },
   { title: "Thuốc", value: "thuoc" },
   { title: "Thực phẩm chức năng", value: "thuc-pham-chuc-nang" },
   { title: "Dược mỹ phẩm", value: "duoc-my-pham" },
@@ -30,7 +31,6 @@ export const productType = [
   { title: "Trang thiết bị y tế", value: "trang-thiet-bi-y-te" },
   { title: "Dinh dưỡng", value: "dinh-duong-thuc-pham-chuc-nang" },
   { title: "Sinh lý", value: "sinh-ly" },
-  { title: "Tất cả", value: "all" },
 ];
 
 import { banner1, banner2 } from "@/images";

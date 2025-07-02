@@ -16,7 +16,7 @@ const ProductGrid = () => {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedTab, setSelectedTab] = useState(productType[0]?.title || "");
+  const [selectedTab, setSelectedTab] = useState("Thuốc");
   const query = `*[_type == "product" && variant == $variant] | order(name asc){
   ...,"categories": categories[]->title
 }`;
@@ -47,9 +47,6 @@ const ProductGrid = () => {
     variant = "cham-soc-ca-nhan";
   }
   
-  if(selectedTab === "Tất cả"){
-    router.push("/shop")
-  }
   const params = { variant };
   console.log(params);
 
@@ -73,9 +70,15 @@ const ProductGrid = () => {
     fetchData();
   }, [selectedTab]);
 
+  useEffect(() => {
+    if(selectedTab === "Tất cả"){
+      router.push("/shop");
+    }
+  }, [selectedTab, router]);
+
   return (
     <>
-    <Container className="lg:px-0 my-10">
+    <Container className="lg:px-0 my-10 px-0">
       <HomeTabbar selectedTab={selectedTab} onTabSelect={setSelectedTab} />
       {loading ? (
         <div className="flex flex-col items-center justify-center py-10 min-h-80 space-y-4 text-center bg-gray-100 rounded-lg w-full mt-10">
@@ -85,7 +88,7 @@ const ProductGrid = () => {
           </motion.div>
         </div>
       ) : products?.length ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 mt-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-10">
           <>
             {products?.map((product) => (
               <AnimatePresence key={product?._id}>

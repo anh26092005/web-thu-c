@@ -25,7 +25,7 @@ interface HomeBannerClientProps {
 const HomeBannerClient = ({ bannerData }: HomeBannerClientProps) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
-  const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const plugin = useRef(Autoplay({ delay: 2000}));
 
   // Xử lý carousel API
   React.useEffect(() => {
@@ -58,6 +58,7 @@ const HomeBannerClient = ({ bannerData }: HomeBannerClientProps) => {
   console.log('Valid banners:', validBanners.length);
   console.log('Banner data:', bannerData);
   console.log('Valid banners data:', validBanners);
+  console.log('Số lượng slide hợp lệ:', validBanners.length);
 
   // Kiểm tra nếu không có dữ liệu hoặc không có banner hợp lệ
   if (bannerData.length === 0 || validBanners.length === 0) {
@@ -128,7 +129,7 @@ const HomeBannerClient = ({ bannerData }: HomeBannerClientProps) => {
         plugins={[plugin.current]}
         opts={{
           align: "start",
-          loop: true,
+          loop: true
         }}
         className="w-full"
       >
@@ -154,8 +155,8 @@ const HomeBannerClient = ({ bannerData }: HomeBannerClientProps) => {
                   <Image
                     src={urlFor(item.image).url()}
                     alt={item.image.alt || item.title || 'Banner image'}
-                    width={400}
-                    height={300}
+                    width={1248}
+                    height={382}
                     className="w-full h-auto rounded-lg"
                   />
                 </div>

@@ -19,7 +19,7 @@ const ProductCharacteristics = async ({
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
-        <AccordionTrigger>{product?.name}: Thông tin sản phẩm</AccordionTrigger>
+        <AccordionTrigger>Thông tin sản phẩm: {product?.name}</AccordionTrigger>
         <AccordionContent>
           <p className="flex items-center justify-between">
             Nhà sản xuất:{" "}

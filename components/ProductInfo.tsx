@@ -252,18 +252,18 @@ const ProductInfo = ({ info }: Props) => {
           <div ref={sectionRefs.compositionSection} id="compositionSection" className="mb-8 scroll-mt-24">
             <h2 className="font-bold text-xl mb-4">{info.drugName}</h2>
             <div className="text-gray-600/80 mb-4 font-semibold">{info.compositionSection?.subtitle}</div>
-            <table className="w-2/3 mb-4 overflow-hidden rounded-md">
+            <table className="lg:w-2/3 w-full mb-4 overflow-hidden rounded-md">
               <thead>
                 <tr className="bg-gray-300 overflow-hidden rounded-full border-b-2 border-white">
-                  <th className="p-2 text-left">Thông tin thành phần</th>
-                  <th className="p-2 text-right border-l-2 border-white">Hàm lượng</th>
+                  <th className="p-2 pl-4 text-left">Thông tin thành phần</th>
+                  <th className="p-2 pr-4 text-right border-l-2 border-white">Hàm lượng</th>
                 </tr>
               </thead>
               <tbody>
                 {info.compositionSection?.ingredientsTable?.map((row: IngredientRow) => (
                   <tr key={row._key} className="border-b-2 border-white bg-[#edf0f2]">
-                    <td className="p-2">{row.ingredientName}</td>
-                    <td className="p-2 text-right border-l-2 border-white">{row.amount}</td>
+                    <td className="p-2 pl-4">{row.ingredientName}</td>
+                    <td className="p-2 pr-4 text-right border-l-2 border-white">{row.amount}</td>
                   </tr>
                 ))}
               </tbody>

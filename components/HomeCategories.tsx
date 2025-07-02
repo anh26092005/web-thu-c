@@ -7,13 +7,13 @@ import Link from "next/link";
 
 const HomeCategories = ({ categories }: { categories: Category[] }) => {
   return (
-    <div className="bg-white border border-shop_light_green/20 my-10 md:my-20 p-5 lg:p-7 rounded-md">
+    <div className="bg-white border border-shop_light_green/20 my-10 p-9 lg:p-7 rounded-2xl">
       <Title className="border-b pb-3">Danh mục phổ biến</Title>
       <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {categories?.map((category) => (
           <div
             key={category?._id}
-            className="bg-shop_light_bg p-5 flex items-center gap-3 group"
+            className="bg-shop_light_bg p-5 flex items-center gap-3 rounded-2xl group"
           >
             {category?.image && (
               <div className="overflow-hidden border border-shop_orange/30 hover:border-shop_orange hoverEffect w-20 h-20 p-1">

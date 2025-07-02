@@ -4,11 +4,11 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 
 const priceArray = [
-  { title: "Dưới 100.000đ", value: "0-100" },
-  { title: "100.000đ - 200.000đ", value: "100-200" },
-  { title: "200.000đ - 300.000đ", value: "200-300" },
-  { title: "300.000đ - 500.000đ", value: "300-500" },
-  { title: "Trên 500.000đ", value: "500-10000" },
+  { title: "Dưới 100.000đ", value: "0-100000" },
+  { title: "100.000đ - 200.000đ", value: "100000-200000" },
+  { title: "200.000đ - 300.000đ", value: "200000-300000" },
+  { title: "300.000đ - 500.000đ", value: "300000-500000" },
+  { title: "Trên 500.000đ", value: "500000-1000000" },
 ];
 
 interface Props {
@@ -45,7 +45,7 @@ const PriceList = ({ selectedPrice, setSelectedPrice }: Props) => {
           onClick={() => setSelectedPrice(null)}
           className="text-sm font-medium mt-2 underline underline-offset-2 decoration-[1px] hover:text-shop_dark_green hoverEffect"
         >
-          Reset selection
+          Đặt lại
         </button>
       )}
     </div>

@@ -100,18 +100,18 @@ const CartPage = () => {
     }
   };
   return (
-    <div className="bg-gray-50 pb-52 md:pb-10">
+    <div className="bg-shop_light_pink pb-52 md:pb-10">
       {isSignedIn ? (
-        <Container>
+        <Container >
           {groupedItems?.length ? (
             <>
               <div className="flex items-center gap-2 py-5">
                 <ShoppingBag className="text-darkColor" />
-                <Title>Giỏ hàng</Title>
+                <Title className="text-xl font-bold">Danh sách sản phẩm</Title>
               </div>
               <div className="grid lg:grid-cols-3 md:gap-8">
                 <div className="lg:col-span-2 rounded-lg">
-                  <div className="border bg-white rounded-md">
+                  <div className="p-4 bg-white rounded-xl">
                     {groupedItems?.map(({ product }) => {
                       const itemCount = getItemCount(product?._id);
                       return (
@@ -142,7 +142,7 @@ const CartPage = () => {
                                   {product?.name}
                                 </h2>
                                 <p className="text-sm capitalize">
-                                  Phiên bản:{" "}
+                                  Danh mục:{" "}
                                   <span className="font-semibold">
                                     {product?.variant}
                                   </span>
@@ -199,7 +199,7 @@ const CartPage = () => {
                     })}
                     <Button
                       onClick={handleResetCart}
-                      className="m-5 font-semibold"
+                      className="m-5 ml-3 font-semibold"
                       variant="destructive"
                     >
                       Xóa tất cả
@@ -209,7 +209,7 @@ const CartPage = () => {
                 <div>
                   <div className="lg:col-span-1">
                     <div className="hidden md:inline-block w-full bg-white p-6 rounded-lg border">
-                      <h2 className="text-xl font-semibold mb-4">
+                      <h2 className="text-xl font-semibold mb-8">
                         Tóm tắt đơn hàng
                       </h2>
                       <div className="space-y-4">
@@ -232,7 +232,7 @@ const CartPage = () => {
                           />
                         </div>
                         <Button
-                          className="w-full rounded-full font-semibold tracking-wide hoverEffect"
+                          className="w-full rounded-full font-semibold tracking-wide hoverEffect bg-shop_light_green text-white"
                           size="lg"
                           disabled={loading}
                           onClick={handleCheckout}
@@ -242,8 +242,8 @@ const CartPage = () => {
                       </div>
                     </div>
                     {addresses && (
-                      <div className="bg-white rounded-md mt-5">
-                        <Card>
+                      <div className="bg-white rounded-xl mt-5">
+                        <Card className="border-none shadow-none">
                           <CardHeader>
                             <CardTitle>Địa chỉ giao hàng</CardTitle>
                           </CardHeader>
@@ -289,7 +289,7 @@ const CartPage = () => {
                 {/* Order summary for mobile view */}
                 <div className="md:hidden fixed bottom-0 left-0 w-full bg-white pt-2">
                   <div className="bg-white p-4 rounded-lg border mx-4">
-                    <h2>Tóm tắt đơn hàng</h2>
+                    <h2 className="mb-4">Tóm tắt đơn hàng</h2>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span>Tổng phụ</span>
@@ -310,7 +310,7 @@ const CartPage = () => {
                         />
                       </div>
                       <Button
-                        className="w-full rounded-full font-semibold tracking-wide hoverEffect"
+                        className="w-full rounded-full font-semibold tracking-wide hoverEffect hover:bg-shop_light_green text-white"
                         size="lg"
                         disabled={loading}
                         onClick={handleCheckout}

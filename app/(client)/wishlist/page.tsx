@@ -10,7 +10,7 @@ const WishListPage = async () => {
       {user ? (
         <WishListProducts />
       ) : (
-        <NoAccess details="Log in to view your wishlist items. Don’t miss out on your cart products to make the payment!" />
+        <NoAccess details=" Đăng nhập để xem các sản phẩm trong danh sách yêu thích của bạn. Đừng bỏ lỡ các sản phẩm trong giỏ hàng để tiến hành thanh toán!" />
       )}
     </>
   );

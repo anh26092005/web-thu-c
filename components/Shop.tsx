@@ -89,9 +89,9 @@ const Shop = ({ categories, brands }: Props) => {
             )}
           </div>
         </div>
-        <div className="flex flex-col md:flex-row gap-5 border-t border-t-shop_dark_green/50">
+        <div className="flex flex-col md:flex-row gap-5 border-t border-t-shop_dark_green/50 mb-5">
           {/* <div className="md:sticky md:top-20 md:self-start md:h-full md:min-w-64 pb-5 md:border-r border-r-shop_btn_dark_green/50 scrollbar-hide"> */}
-          <div className="md:sticky md:top-20 md:mt-5 md:self-start md:h-[calc(100vh-150px)] md:overflow-y-auto md:min-w-64 pb-5 shadow-sm scrollbar-hide rounded-lg max-w-[240px]">
+          <div className="md:sticky md:top-20 md:mt-5 md:self-start md:h-[calc(100vh-150px)] md:overflow-y-auto md:min-w-60 lg:min-w-64 pb-5 shadow-sm scrollbar-hide rounded-lg md:max-w-[240px] bg-white">
             <CategoryList
               categories={categories}
               selectedCategory={selectedCategory}
@@ -107,7 +107,7 @@ const Shop = ({ categories, brands }: Props) => {
               selectedPrice={selectedPrice}
             />
           </div>
-          <div className="flex-1 pt-5">
+          <div className="flex-1 pt-5 mb-5">
             {/* <div className="h-full pr-2 scrollbar-hide"> */}
             <div className="h-full overflow-y-auto pr-2 scrollbar-hide">
               {loading ? (

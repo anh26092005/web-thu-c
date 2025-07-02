@@ -29,6 +29,7 @@ const WishListProducts = () => {
       toast.success("Đã xóa tất cả sản phẩm yêu thích");
     }
   };
+  console.log("product variant", favoriteProduct);
 
   return (
     <Container>
@@ -39,9 +40,9 @@ const WishListProducts = () => {
               <thead className="border-b">
                 <tr className="bg-black/5">
                   <th className="p-2 text-left">Hình ảnh</th>
-                  <th className="p-2 text-left hidden md:table-cell">
+                  {/* <th className="p-2 text-left hidden md:table-cell">
                     Danh mục
-                  </th>
+                  </th> */}
                   <th className="p-2 text-left hidden md:table-cell">Loại</th>
                   <th className="p-2 text-left hidden md:table-cell">Trạng thái</th>
                   <th className="p-2 text-left">Giá</th>
@@ -72,19 +73,19 @@ const WishListProducts = () => {
                               alt={"product image"}
                               width={80}
                               height={80}
-                              className="rounded-md group-hover:scale-105 hoverEffect h-20 w-20 object-contain"
+                              className="rounded-md group-hover:scale-105 hoverEffect w-20 object-contain"
                             />
                           </Link>
                         )}
                         <p className="line-clamp-1">{product?.name}</p>
                       </td>
-                      <td className="p-2 capitalize hidden md:table-cell">
+                      {/* <td className="p-2 capitalize hidden md:table-cell">
                         {product?.categories && (
                           <p className="uppercase line-clamp-1 text-xs font-medium">
                             {product.categories.map((cat) => cat).join(", ")}
                           </p>
                         )}
-                      </td>
+                      </td> */}
                       <td className="p-2 capitalize hidden md:table-cell">
                         {product?.variant}
                       </td>
@@ -132,7 +133,7 @@ const WishListProducts = () => {
           {favoriteProduct?.length > 0 && (
             <Button
               onClick={handleResetWishlist}
-              className="mb-5 font-semibold"
+              className="my-5 font-semibold"
               variant="destructive"
               size="lg"
             >

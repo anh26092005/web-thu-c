@@ -22,7 +22,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               width={500}
               height={500}
               priority
-              className={`w-full h-57 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500 
+              className={`w-full h-57 object-contain overflow-hidden transition-transform bg-white duration-500 
               ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
             />
           </Link>
@@ -82,7 +82,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           className="text-sm"
         />
         <div className="flex justify-center mt-2 p-0">
-          <AddToCartButton product={product} className="w-52 rounded-full" />
+          <AddToCartButton product={product} className="w-full rounded-full" />
         </div>
       </div>
     </div>

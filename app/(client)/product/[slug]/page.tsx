@@ -28,11 +28,13 @@ const SingleProductPage = async ({
   
   return (
     <>
+    <div className="flex flex-col justify-between bg-white rounded-xl">
     <Container className="flex flex-col md:flex-row gap-10 py-5 bg-white rounded-xl mt-10">
       {product?.images && (
         <ImageView images={product?.images} isStock={product?.stock} />
         
       )}
+      
       <div className="w-full md:w-1/2 flex flex-col gap-5">
         <div className="space-y-1">
           <h2 className="text-3xl font-medium mb-4">{product?.name}</h2>
@@ -86,7 +88,7 @@ const SingleProductPage = async ({
             <p>Share</p>
           </div> */}
         </div>
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between md:hidden lg:flex">
           <div className="p-3 flex flex items-center gap-2.5">
             <Truck size={30} className="text-shop_light_green" />
             <div>
@@ -106,7 +108,6 @@ const SingleProductPage = async ({
               </p>
               <p className="text-sm text-gray-500 ">
                 Trả hàng miễn phí trong 30 ngày
-                <span className="underline underline-offset-2 pl-1">Chi tiết</span>
               </p>
             </div>
           </div>
@@ -114,6 +115,31 @@ const SingleProductPage = async ({
         
       </div>
     </Container>
+    <div className="flex flex-row justify-center max-md:hidden lg:hidden">
+          <div className="p-4 m-0 flex flex items-center gap-2.5">
+            <Truck size={30} className="text-shop_light_green" />
+            <div>
+              <p className="text-base font-semibold text-black">
+                Giao hàng miễn phí
+              </p>
+              <p className="text-sm text-gray-500 underline underline-offset-2">
+                theo chính sách giao hàng
+              </p>
+            </div>
+          </div>
+          <div className=" p-3 flex items-center gap-2.5">
+            <CornerDownLeft size={30} className="text-shop_light_green" />
+            <div>
+              <p className="text-base font-semibold text-black">
+                Trả hàng miễn phí
+              </p>
+              <p className="text-sm text-gray-500 ">
+                Trả hàng miễn phí trong 30 ngày
+              </p>
+            </div>
+          </div>
+        </div>
+    </div>
       <div className="flex flex-col md:flex-row gap-10 py-10 max-w-screen-xl mx-auto">
         <ProductInfo info={product?.drugInfo}/>
       </div>
