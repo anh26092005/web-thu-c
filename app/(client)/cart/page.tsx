@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  createCheckoutSession,
-  Metadata,
-} from "@/actions/createCheckoutSession";
+
 import Container from "@/components/Container";
 import EmptyCart from "@/components/EmptyCart";
 import NoAccess from "@/components/NoAccess";
@@ -22,7 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Address } from "@/sanity.types";
+import { Address, ProvinceData, WardData } from "@/sanity.types";
 import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 import useStore from "@/store";
@@ -31,7 +28,31 @@ import { ShoppingBag, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { PROVINCES_QUERY, WARDS_BY_PROVINCE_QUERY } from "@/sanity/queries/query";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
+
+interface VietnameseAddress {
+  _id: string;
+  _type: "address";
+  name?: string;
+  email?: string;
+  streetAddress: string;
+  province: {
+    _id: string;
+    name: string;
+    code: string;
+  };
+  ward: {
+    _id: string;
+    name: string;
+    code: string;
+  };
+  default?: boolean;
+  createdAt?: string;
+}
 
 const CartPage = () => {
   const {
@@ -45,30 +66,43 @@ const CartPage = () => {
   const groupedItems = useStore((state) => state.getGroupedItems());
   const { isSignedIn } = useAuth();
   const { user } = useUser();
-  const [addresses, setAddresses] = useState<Address[] | null>(null);
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"cod" | "momo">("cod");
+  const [newStreetAddress, setNewStreetAddress] = useState("");
+  const [provinces, setProvinces] = useState<ProvinceData[] | null>(null);
+  const [wards, setWards] = useState<WardData[] | null>(null);
+  const [selectedNewProvince, setSelectedNewProvince] = useState<ProvinceData | null>(null);
+  const [selectedNewWard, setSelectedNewWard] = useState<WardData | null>(null);
+  const router = useRouter();
 
-  const fetchAddresses = async () => {
-    setLoading(true);
+  const fetchProvinces = async () => {
     try {
-      const query = `*[_type=="address"] | order(publishedAt desc)`;
-      const data = await client.fetch(query);
-      setAddresses(data);
-      const defaultAddress = data.find((addr: Address) => addr.default);
-      if (defaultAddress) {
-        setSelectedAddress(defaultAddress);
-      } else if (data.length > 0) {
-        setSelectedAddress(data[0]); // Optional: select first address if no default
-      }
+      const data = await client.fetch(PROVINCES_QUERY);
+      setProvinces(data);
     } catch (error) {
-      console.log("Addresses fetching error:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error fetching provinces:", error);
     }
   };
+
+  const fetchWards = async (provinceId: string) => {
+    try {
+      const data = await client.fetch(WARDS_BY_PROVINCE_QUERY, { provinceId });
+      setWards(data);
+    } catch (error) {
+      console.error("Error fetching wards:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchAddresses();
+    fetchProvinces();
   }, []);
+
+  useEffect(() => {
+    if (selectedNewProvince) {
+      fetchWards(selectedNewProvince._id);
+      setSelectedNewWard(null);
+    }
+  }, [selectedNewProvince]);
+
   const handleResetCart = () => {
     const confirmed = window.confirm(
       "Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng?"
@@ -82,19 +116,74 @@ const CartPage = () => {
   const handleCheckout = async () => {
     setLoading(true);
     try {
-      const metadata: Metadata = {
-        orderNumber: crypto.randomUUID(),
-        customerName: user?.fullName ?? "Unknown",
-        customerEmail: user?.emailAddresses[0]?.emailAddress ?? "Unknown",
-        clerkUserId: user?.id,
-        address: selectedAddress,
+      if (!newStreetAddress || !selectedNewProvince || !selectedNewWard) {
+        toast.error("Vui lòng nhập đầy đủ thông tin địa chỉ giao hàng.");
+        return;
+      }
+      const customerInfo = {
+        name: user?.fullName ?? "Unknown",
+        email: user?.emailAddresses[0]?.emailAddress ?? "Unknown",
+        phone: user?.phoneNumbers?.[0]?.phoneNumber ?? "Unknown",
       };
-      const checkoutUrl = await createCheckoutSession(groupedItems, metadata);
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
+      const shippingAddressPayload = {
+        street: newStreetAddress,
+        provinceId: selectedNewProvince._id,
+        wardId: selectedNewWard._id,
+      };
+
+      if (selectedPaymentMethod === "cod") {
+        const response = await fetch("/api/cod", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cart: groupedItems.map(item => ({
+              _id: item.product?._id,
+              quantity: item.quantity,
+            })),
+            totalPrice: getTotalPrice(),
+            customerInfo,
+            shippingAddress: shippingAddressPayload,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          toast.success("Đơn hàng COD đã được tạo thành công!");
+          resetCart();
+          router.push("/orders");
+        } else {
+          toast.error(`Lỗi tạo đơn hàng COD: ${result.message || "Unknown error"}`);
+        }
+      } else if (selectedPaymentMethod === "momo") {
+        const response = await fetch("/api/momo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cart: groupedItems.map(item => ({
+              _id: item.product?._id,
+              quantity: item.quantity,
+            })),
+            totalPrice: getTotalPrice(),
+            customerInfo,
+            shippingAddress: shippingAddressPayload,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.payUrl) {
+          window.location.href = result.payUrl;
+        } else {
+          toast.error(`Lỗi tạo yêu cầu thanh toán MoMo: ${result.message || "Unknown error"}`);
+        }
       }
     } catch (error) {
-      console.error("Error creating checkout session:", error);
+      console.error("Error during checkout:", error);
     } finally {
       setLoading(false);
     }
@@ -241,49 +330,77 @@ const CartPage = () => {
                         </Button>
                       </div>
                     </div>
-                    {addresses && (
-                      <div className="bg-white rounded-xl mt-5">
-                        <Card className="border-none shadow-none">
-                          <CardHeader>
-                            <CardTitle>Địa chỉ giao hàng</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <RadioGroup
-                              defaultValue={addresses
-                                ?.find((addr) => addr.default)
-                                ?._id.toString()}
+                    <div className="bg-white rounded-xl mt-5">
+                      <Card className="border-none shadow-none">
+                        <CardHeader>
+                          <CardTitle>Địa chỉ giao hàng</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid gap-4">
+                            <Input
+                              type="text"
+                              placeholder="Số nhà, tên đường..."
+                              value={newStreetAddress}
+                              onChange={(e) => setNewStreetAddress(e.target.value)}
+                              className="w-full"
+                            />
+                            <Select
+                              onValueChange={(value: string) => {
+                                const prov = provinces?.find(p => p._id === value);
+                                setSelectedNewProvince(prov || null);
+                              }}
+                              value={selectedNewProvince?._id || ""}
                             >
-                              {addresses?.map((address) => (
-                                <div
-                                  key={address?._id}
-                                  onClick={() => setSelectedAddress(address)}
-                                  className={`flex items-center space-x-2 mb-4 cursor-pointer ${selectedAddress?._id === address?._id && "text-shop_dark_green"}`}
-                                >
-                                  <RadioGroupItem
-                                    value={address?._id.toString()}
-                                  />
-                                  <Label
-                                    htmlFor={`address-${address?._id}`}
-                                    className="grid gap-1.5 flex-1"
-                                  >
-                                    <span className="font-semibold">
-                                      {address?.name}
-                                    </span>
-                                    <span className="text-sm text-black/60">
-                                      {address.address}, {address.city},{" "}
-                                      {address.state} {address.zip}
-                                    </span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                            <Button variant="outline" className="w-full mt-4">
-                              Thêm địa chỉ mới
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    )}
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Chọn Tỉnh / Thành phố" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {provinces?.map(prov => (
+                                  <SelectItem key={prov._id} value={prov._id}>
+                                    {prov.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Select
+                              onValueChange={(value: string) => {
+                                const w = wards?.find(wa => wa._id === value);
+                                setSelectedNewWard(w || null);
+                              }}
+                              value={selectedNewWard?._id || ""}
+                              disabled={!selectedNewProvince}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Chọn Phường / Xã" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {wards?.map(w => (
+                                  <SelectItem key={w._id} value={w._id}>
+                                    {w.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Separator className="my-4" />
+
+                          <CardTitle className="mb-4">Phương thức thanh toán</CardTitle>
+                          <RadioGroup
+                            defaultValue="cod"
+                            onValueChange={(value: "cod" | "momo") => setSelectedPaymentMethod(value)}
+                          >
+                            <div className="flex items-center space-x-2 mb-2">
+                              <RadioGroupItem value="cod" id="cod" />
+                              <Label htmlFor="cod">Thanh toán khi nhận hàng (COD)</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="momo" id="momo" />
+                              <Label htmlFor="momo">Thanh toán qua MoMo</Label>
+                            </div>
+                          </RadioGroup>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </div>
                 </div>
                 {/* Order summary for mobile view */}

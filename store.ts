@@ -22,6 +22,7 @@ interface StoreState {
   addToFavorite: (product: Product) => Promise<void>;
   removeFromFavorite: (productId: string) => void;
   resetFavorite: () => void;
+  _hasHydrated: boolean; // New state to track hydration
 }
 
 const useStore = create<StoreState>()(
@@ -29,6 +30,7 @@ const useStore = create<StoreState>()(
     (set, get) => ({
       items: [],
       favoriteProduct: [],
+      _hasHydrated: false, // Initialize to false
       addItem: (product) =>
         set((state) => {
           const existingItem = state.items.find(
@@ -115,6 +117,11 @@ const useStore = create<StoreState>()(
     }),
     {
       name: "cart-store",
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state._hasHydrated = true;
+        }
+      },
     }
   )
 );

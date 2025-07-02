@@ -9,6 +9,10 @@ import { blogCategoryType } from "./blogCategoryType";
 import { authorType } from "./authorType";
 import { addressType } from "./addressType";
 import { bannerType } from "./bannerType";
+import { provinceType } from "./provinceType";
+import { wardType } from "./wardType";
+import { vietnameseAddressType } from "./vietnameseAddressType";
+
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     categoryType,
@@ -21,5 +25,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     authorType,
     addressType,
     bannerType,
+    provinceType,
+    wardType,
+    vietnameseAddressType,
   ],
 };

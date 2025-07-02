@@ -893,6 +893,40 @@ export type OTHERS_BLOG_QUERYResult = Array<{
   categories: null;
 }>;
 
+
+// Kiểu dữ liệu để fetch từ Sanity
+export interface ProvinceData {
+  _id: string;
+  name: string;
+  code: string;
+  _type: "province";
+}
+
+export interface WardData {
+  _id: string;
+  name: string;
+  code: string;
+  province: { _ref: string; _type: 'reference' };
+  _type: "ward";
+}
+
+// Kiểu dữ liệu sẽ được gửi ra bên ngoài (parent component)
+// và dùng để gửi lên Sanity (lưu trữ _ref của các reference)
+export interface SubmittedAddress {
+  streetAddress: string;
+  province: { _ref: string; _type: 'reference' }; // Lưu tham chiếu ID của province
+  ward: { _ref: string; _type: 'reference' };     // Lưu tham chiếu ID của ward
+  _type: "address";
+}
+
+// Kiểu dữ liệu cho initialAddress props (có thể chứa full object hoặc chỉ _id)
+// Chúng ta sẽ dùng full object để tiện hiển thị/set giá trị ban đầu
+export interface InitialSelectedAddress {
+  streetAddress?: string;
+  province?: ProvinceData;
+  ward?: WardData;
+}
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {

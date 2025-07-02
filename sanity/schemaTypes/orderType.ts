@@ -3,63 +3,51 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const orderType = defineType({
   name: "order",
-  title: "Order",
+  title: "Đơn hàng",
   type: "document",
   icon: BasketIcon,
   fields: [
     defineField({
       name: "orderNumber",
-      title: "Order Number",
+      title: "Mã đơn hàng",
       type: "string",
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().unique(),
     }),
-    {
-      name: "invoice",
-      type: "object",
-      fields: [
-        { name: "id", type: "string" },
-        { name: "number", type: "string" },
-        { name: "hosted_invoice_url", type: "url" },
-      ],
-    },
-    defineField({
-      name: "stripeCheckoutSessionId",
-      title: "Stripe Checkout Session ID",
-      type: "string",
-    }),
-    defineField({
-      name: "stripeCustomerId",
-      title: "Stripe Customer ID",
-      type: "string",
-      validation: (Rule) => Rule.required(),
-    }),
+    // User and Customer Info
     defineField({
       name: "clerkUserId",
       title: "Store User ID",
       type: "string",
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "customerName",
-      title: "Customer Name",
+      title: "Tên khách hàng",
       type: "string",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "email",
-      title: "Customer Email",
+      title: "Email khách hàng",
       type: "string",
       validation: (Rule) => Rule.required().email(),
     }),
     defineField({
-      name: "stripePaymentIntentId",
-      title: "Stripe Payment Intent ID",
+      name: "phone",
+      title: "Số điện thoại",
       type: "string",
       validation: (Rule) => Rule.required(),
     }),
+    // Shipping Address
+    defineField({
+      name: "shippingAddress",
+      title: "Địa chỉ giao hàng",
+      type: "vietnameseAddress", // Using the new address schema
+      validation: (Rule) => Rule.required(),
+    }),
+    // Products
     defineField({
       name: "products",
-      title: "Products",
+      title: "Sản phẩm",
       type: "array",
       of: [
         defineArrayMember({
@@ -67,13 +55,13 @@ export const orderType = defineType({
           fields: [
             defineField({
               name: "product",
-              title: "Product Bought",
+              title: "Sản phẩm đã mua",
               type: "reference",
               to: [{ type: "product" }],
             }),
             defineField({
               name: "quantity",
-              title: "Quantity Purchased",
+              title: "Số lượng",
               type: "number",
             }),
           ],
@@ -82,13 +70,10 @@ export const orderType = defineType({
               product: "product.name",
               quantity: "quantity",
               image: "product.image",
-              price: "product.price",
-              currency: "product.currency",
             },
             prepare(select) {
               return {
                 title: `${select.product} x ${select.quantity}`,
-                subtitle: `${select.price * select.quantity}`,
                 media: select.image,
               };
             },
@@ -96,55 +81,66 @@ export const orderType = defineType({
         }),
       ],
     }),
+    // Pricing and Payment
     defineField({
       name: "totalPrice",
-      title: "Total Price",
+      title: "Tổng tiền",
       type: "number",
       validation: (Rule) => Rule.required().min(0),
     }),
     defineField({
       name: "currency",
-      title: "Currency",
+      title: "Đơn vị tiền tệ",
       type: "string",
+      initialValue: "VND",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "amountDiscount",
-      title: "Amount Discount",
+      title: "Số tiền giảm giá",
       type: "number",
+      initialValue: 0,
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "address",
-      title: "Shipping Address",
-      type: "object",
-      fields: [
-        defineField({ name: "state", title: "State", type: "string" }),
-        defineField({ name: "zip", title: "Zip Code", type: "string" }),
-        defineField({ name: "city", title: "City", type: "string" }),
-        defineField({ name: "address", title: "Address", type: "string" }),
-        defineField({ name: "name", title: "Name", type: "string" }),
-      ],
-    }),
-    defineField({
-      name: "status",
-      title: "Order Status",
+      name: "paymentMethod",
+      title: "Phương thức thanh toán",
       type: "string",
       options: {
         list: [
-          { title: "Pending", value: "pending" },
-          { title: "Processing", value: "processing" },
-          { title: "Paid", value: "paid" },
-          { title: "Shipped", value: "shipped" },
-          { title: "Out for Delivery", value: "out_for_delivery" },
-          { title: "Delivered", value: "delivered" },
-          { title: "Cancelled", value: "cancelled" },
+          { title: "Thanh toán khi nhận hàng (COD)", value: "cod" },
+          { title: "Thanh toán qua MoMo", value: "momo" },
         ],
       },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "isPaid",
+      title: "Đã thanh toán?",
+      type: "boolean",
+      initialValue: false,
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "status",
+      title: "Trạng thái đơn hàng",
+      type: "string",
+      options: {
+        list: [
+          { title: "Đang chờ xử lý", value: "pending" },
+          { title: "Đang xử lý", value: "processing" },
+          { title: "Đã giao cho vận chuyển", value: "shipped" },
+          { title: "Đang giao hàng", value: "out_for_delivery" },
+          { title: "Đã giao thành công", value: "delivered" },
+          { title: "Đã hủy", value: "cancelled" },
+        ],
+      },
+      initialValue: "pending",
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "orderDate",
-      title: "Order Date",
+      title: "Ngày đặt hàng",
       type: "datetime",
       validation: (Rule) => Rule.required(),
     }),
@@ -155,13 +151,14 @@ export const orderType = defineType({
       amount: "totalPrice",
       currency: "currency",
       orderId: "orderNumber",
-      email: "email",
+      status: "status",
+      isPaid: "isPaid",
     },
     prepare(select) {
-      const orderIdSnippet = `${select.orderId.slice(0, 5)}...${select.orderId.slice(-5)}`;
+      const orderIdSnippet = select.orderId ? `${select.orderId.slice(0, 5)}...${select.orderId.slice(-5)}` : "";
       return {
         title: `${select.name} (${orderIdSnippet})`,
-        subtitle: `${select.amount} ${select.currency}, ${select.email}`,
+        subtitle: `${select.amount} ${select.currency} - ${select.status} (${select.isPaid ? 'Đã trả' : 'Chưa trả'})`,
         media: BasketIcon,
       };
     },

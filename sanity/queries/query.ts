@@ -91,6 +91,11 @@ const OTHERS_BLOG_QUERY = defineQuery(`*[
     "slug": slug.current,
   }
 }`);
+
+const PROVINCES_QUERY = defineQuery(`*[_type == 'province'] | order(name asc)`);
+
+const WARDS_BY_PROVINCE_QUERY = defineQuery(`*[_type == 'ward' && province->_id == $provinceId] | order(name asc)`);
+
 export {
   BRANDS_QUERY,
   LATEST_BLOG_QUERY,
@@ -103,4 +108,6 @@ export {
   BLOG_CATEGORIES,
   OTHERS_BLOG_QUERY,
   BANNER_QUERY,
+  PROVINCES_QUERY,
+  WARDS_BY_PROVINCE_QUERY,
 };
