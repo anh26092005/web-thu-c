@@ -1,71 +1,85 @@
 import { NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
 // IMPORTANT: Move these to .env.local in a real application
-const MOMO_PARTNER_CODE = process.env.MOMO_PARTNER_CODE || "";
-const MOMO_ACCESS_KEY = process.env.MOMO_ACCESS_KEY || "";
-const MOMO_SECRET_KEY = process.env.MOMO_SECRET_KEY || "";
-const MOMO_API_ENDPOINT = "https://test-payment.momo.vn/v2/gateway/api/create";
-const REDIRECT_URL = process.env.NEXT_PUBLIC_BASE_URL + "/momo-return"; // URL for MoMo to redirect to after payment
-const IPN_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/webhook/momo"; // URL for MoMo to send IPN
+const accessKey = process.env.MOMO_ACCESS_KEY || "";
+const secretKey = process.env.MOMO_SECRET_KEY || "";
+const partnerCode = process.env.MOMO_PARTNER_CODE || "";
+const endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
 
 export async function POST(req: Request) {
   try {
-    const { cart, totalPrice, customerInfo, shippingAddress } = await req.json();
+    const { products, amount } = await req.json();
 
-    if (!cart || !totalPrice || !customerInfo || !shippingAddress) {
-      return new NextResponse("Missing required fields", { status: 400 });
+    if (!products || !amount) {
+      return new NextResponse("Missing products or amount", { status: 400 });
     }
 
-    const orderId = uuidv4();
-    const requestId = uuidv4();
-    const orderInfo = `Thanh toan don hang ${orderId}`;
-    const amount = totalPrice.toString();
+    const orderInfo = "pay with MoMo";
+    const redirectUrl = process.env.MOMO_REDIRECT_URL || "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+    const ipnUrl = process.env.MOMO_IPN_URL || "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+    const requestType = "payWithMethod";
+    const orderId = partnerCode + Date.now();
+    const requestId = orderId;
+    const orderGroupId = "";
+    const autoCapture = true;
+    const lang = "vi";
 
-    const extraData = Buffer.from(
-      JSON.stringify({ customerInfo, shippingAddress, cart })
-    ).toString("base64");
+    const extraData = Buffer.from(JSON.stringify({ items: products })).toString("base64");
 
-    const rawSignature = `partnerCode=${MOMO_PARTNER_CODE}&accessKey=${MOMO_ACCESS_KEY}&requestId=${requestId}&amount=${amount}&orderId=${orderId}&orderInfo=${orderInfo}&redirectUrl=${REDIRECT_URL}&ipnUrl=${IPN_URL}&extraData=${extraData}`;
+    const amountStr = amount.toString();
 
-    const signature = crypto
-      .createHmac("sha256", MOMO_SECRET_KEY)
-      .update(rawSignature)
-      .digest("hex");
+    const rawSignature =
+      `accessKey=${accessKey}` +
+      `&amount=${amountStr}` +
+      `&extraData=${extraData}` +
+      `&ipnUrl=${ipnUrl}` +
+      `&orderId=${orderId}` +
+      `&orderInfo=${orderInfo}` +
+      `&partnerCode=${partnerCode}` +
+      `&redirectUrl=${redirectUrl}` +
+      `&requestId=${requestId}` +
+      `&requestType=${requestType}`;
+
+    const signature = crypto.createHmac("sha256", secretKey).update(rawSignature).digest("hex");
 
     const requestBody = JSON.stringify({
-      partnerCode: MOMO_PARTNER_CODE,
-      accessKey: MOMO_ACCESS_KEY,
+      partnerCode,
+      partnerName: "Test",
+      storeId: "MomoTestStore",
       requestId,
-      amount,
+      amount: amountStr,
       orderId,
       orderInfo,
-      redirectUrl: REDIRECT_URL,
-      ipnUrl: IPN_URL,
+      redirectUrl,
+      ipnUrl,
+      lang,
+      requestType,
+      autoCapture,
       extraData,
-      requestType: "captureWallet",
-      signature,
-      lang: "vi",
+      orderGroupId,
+      signature
     });
 
-    const response = await fetch(MOMO_API_ENDPOINT, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(requestBody).toString(),
       },
       body: requestBody,
     });
 
     const result = await response.json();
 
-    if (result.resultCode !== 0) {
-      return new NextResponse(`MoMo Error: ${result.message}`, { status: 500 });
+    if (result && result.payUrl) {
+      return NextResponse.json({ payUrl: result.payUrl });
+    } else {
+      console.error("MoMo Error Response:", result);
+      return new NextResponse(JSON.stringify(result), { status: 400 });
     }
-
-    return NextResponse.json({ payUrl: result.payUrl });
   } catch (error) {
-    console.error("Error creating MoMo payment:", error);
+    console.error("MoMo payment error:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

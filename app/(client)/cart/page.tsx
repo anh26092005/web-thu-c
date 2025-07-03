@@ -66,7 +66,7 @@ const CartPage = () => {
   const groupedItems = useStore((state) => state.getGroupedItems());
   const { isSignedIn } = useAuth();
   const { user } = useUser();
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"cod" | "momo">("cod");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"cod" | "vnpay">("cod");
   const [newStreetAddress, setNewStreetAddress] = useState("");
   const [provinces, setProvinces] = useState<ProvinceData[] | null>(null);
   const [wards, setWards] = useState<WardData[] | null>(null);
@@ -157,29 +157,28 @@ const CartPage = () => {
         } else {
           toast.error(`Lỗi tạo đơn hàng COD: ${result.message || "Unknown error"}`);
         }
-      } else if (selectedPaymentMethod === "momo") {
-        const response = await fetch("/api/momo", {
+      } else if (selectedPaymentMethod === "vnpay") {
+        const response = await fetch("/api/vnpay/create-payment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            cart: groupedItems.map(item => ({
-              _id: item.product?._id,
-              quantity: item.quantity,
-            })),
-            totalPrice: getTotalPrice(),
-            customerInfo,
-            shippingAddress: shippingAddressPayload,
+            amount: getTotalPrice(),
+            orderInfo: `Thanh toan cho don hang`,
           }),
         });
 
-        const result = await response.json();
+        if (!response.ok) {
+          toast.error("Lỗi tạo yêu cầu thanh toán VNPAY");
+          return;
+        }
 
-        if (response.ok && result.payUrl) {
-          window.location.href = result.payUrl;
+        const result = await response.json();
+        if (result.paymentUrl) {
+          window.location.href = result.paymentUrl;
         } else {
-          toast.error(`Lỗi tạo yêu cầu thanh toán MoMo: ${result.message || "Unknown error"}`);
+          toast.error(`Lỗi tạo yêu cầu thanh toán VNPAY: ${result.message || "Unknown error"}`);
         }
       }
     } catch (error) {
@@ -387,15 +386,15 @@ const CartPage = () => {
                           <CardTitle className="mb-4">Phương thức thanh toán</CardTitle>
                           <RadioGroup
                             defaultValue="cod"
-                            onValueChange={(value: "cod" | "momo") => setSelectedPaymentMethod(value)}
+                            onValueChange={(value: "cod" | "vnpay") => setSelectedPaymentMethod(value)}
                           >
                             <div className="flex items-center space-x-2 mb-2">
                               <RadioGroupItem value="cod" id="cod" />
                               <Label htmlFor="cod">Thanh toán khi nhận hàng (COD)</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="momo" id="momo" />
-                              <Label htmlFor="momo">Thanh toán qua MoMo</Label>
+                              <RadioGroupItem value="vnpay" id="vnpay" />
+                              <Label htmlFor="vnpay">Thanh toán qua VNPAY</Label>
                             </div>
                           </RadioGroup>
                         </CardContent>
