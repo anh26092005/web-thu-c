@@ -35,29 +35,73 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
         </DialogHeader>
         <div className="mt-4">
           <p>
-            <strong>Customer:</strong> {order.customerName}
+            <strong>Khách hàng:</strong> {order.customerName}
           </p>
           <p>
             <strong>Email:</strong> {order.email}
           </p>
           <p>
-            <strong>Date:</strong>{" "}
-            {order.orderDate && new Date(order.orderDate).toLocaleDateString()}
+            <strong>Số điện thoại:</strong> {(order as any).phone}
           </p>
           <p>
-            <strong>Status:</strong>{" "}
-            <span className="capitalize text-green-600 font-medium">
-              {order.status}
+            <strong>Ngày đặt hàng:</strong>{" "}
+            {order.orderDate && new Date(order.orderDate).toLocaleDateString("vi-VN")}
+          </p>
+          {(order as any).estimatedDeliveryDate && (
+            <p>
+              <strong>Thời gian giao hàng dự kiến:</strong>{" "}
+              {new Date((order as any).estimatedDeliveryDate).toLocaleDateString("vi-VN")}
+            </p>
+          )}
+          <p>
+            <strong>Phương thức thanh toán:</strong>{" "}
+            <span className="capitalize font-medium">
+              {(order as any).paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : 
+               (order as any).paymentMethod === 'vnpay' ? 'VNPay' : 
+               (order as any).paymentMethod === 'momo' ? 'MoMo' : (order as any).paymentMethod}
             </span>
           </p>
           <p>
-            <strong>Invoice Number:</strong> {order?.invoice?.number}
+            <strong>Trạng thái:</strong>{" "}
+            <span className="capitalize text-green-600 font-medium">
+              {order.status === 'pending' ? 'Đang chờ xử lý' :
+               order.status === 'processing' ? 'Đang xử lý' :
+               order.status === 'shipped' ? 'Đã giao cho vận chuyển' :
+               order.status === 'out_for_delivery' ? 'Đang giao hàng' :
+               order.status === 'delivered' ? 'Đã giao thành công' :
+               order.status === 'cancelled' ? 'Đã hủy' : order.status}
+            </span>
+          </p>
+          <p>
+            <strong>Trạng thái thanh toán:</strong>{" "}
+            <span className={`font-medium ${(order as any).isPaid ? 'text-green-600' : 'text-orange-600'}`}>
+              {(order as any).isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+            </span>
+          </p>
+          {(order as any).orderNotes && (
+            <div className="mt-3">
+              <strong>Ghi chú đơn hàng:</strong>
+              <p className="mt-1 p-2 bg-gray-50 rounded border text-sm">
+                {(order as any).orderNotes}
+              </p>
+            </div>
+          )}
+          {(order as any).shippingAddress && (
+            <div className="mt-3">
+              <strong>Địa chỉ giao hàng:</strong>
+              <p className="mt-1 text-sm">
+                {(order as any).shippingAddress.streetAddress}, {(order as any).shippingAddress.ward?.name}, {(order as any).shippingAddress.province?.name}
+              </p>
+            </div>
+          )}
+          <p>
+            <strong>Mã hóa đơn:</strong> {order?.invoice?.number || 'Chưa có'}
           </p>
           {order?.invoice && (
             <Button className="bg-transparent border text-darkColor/80 mt-2 hover:text-darkColor hover:border-darkColor hover:bg-darkColor/10 hoverEffect ">
               {order?.invoice?.hosted_invoice_url && (
                 <Link href={order?.invoice?.hosted_invoice_url} target="_blank">
-                  Download Invoice
+                  Tải hóa đơn
                 </Link>
               )}
             </Button>

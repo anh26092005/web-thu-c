@@ -4,7 +4,12 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: Request) {
   try {
-    const { cart, totalPrice, customerInfo, shippingAddress } = await req.json();
+    const { cart, totalPrice, customerInfo, shippingAddress, orderNotes } = await req.json();
+
+    // Debug dữ liệu nhận được
+    console.log("Received data in COD API:");
+    console.log("CustomerInfo:", customerInfo);
+    console.log("Email specifically:", customerInfo?.email);
 
     if (!cart || !totalPrice || !customerInfo || !shippingAddress) {
       return new NextResponse("Missing required fields", { status: 400 });
@@ -12,12 +17,22 @@ export async function POST(req: Request) {
 
     const orderNumber = uuidv4();
 
+    // Tính thời gian giao hàng dự kiến (3-5 ngày làm việc)
+    const estimatedDeliveryDate = new Date();
+    estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 4); // 4 ngày sau
+
+    // Debug dữ liệu sẽ lưu vào Sanity
+    console.log("Order data to be saved:");
+    console.log("Email to save:", customerInfo.email);
+
     const order = await backendClient.create({
       _type: "order",
       orderNumber,
+      clerkUserId: customerInfo.clerkUserId,
       customerName: customerInfo.name,
       email: customerInfo.email,
       phone: customerInfo.phone,
+      orderNotes: orderNotes || "",
       shippingAddress: {
         _type: "vietnameseAddress",
         streetAddress: shippingAddress.street,
@@ -41,6 +56,8 @@ export async function POST(req: Request) {
       totalPrice,
       currency: "VND",
       amountDiscount: 0, // Handle discount logic if needed
+      shippingFee: 0, // Miễn phí vận chuyển cho COD
+      estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
       paymentMethod: "cod",
       isPaid: false,
       status: "pending",

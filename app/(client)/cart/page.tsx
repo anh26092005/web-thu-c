@@ -24,6 +24,7 @@ import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 import useStore from "@/store";
 import { useAuth, useUser } from "@clerk/nextjs";
+import { useUserEmail } from "@/hooks/useUserEmail";
 import { ShoppingBag, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -65,13 +66,15 @@ const CartPage = () => {
   const [loading, setLoading] = useState(false);
   const groupedItems = useStore((state) => state.getGroupedItems());
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
+  const { extractUserEmail, user } = useUserEmail();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"cod" | "vnpay">("cod");
   const [newStreetAddress, setNewStreetAddress] = useState("");
   const [provinces, setProvinces] = useState<ProvinceData[] | null>(null);
   const [wards, setWards] = useState<WardData[] | null>(null);
   const [selectedNewProvince, setSelectedNewProvince] = useState<ProvinceData | null>(null);
   const [selectedNewWard, setSelectedNewWard] = useState<WardData | null>(null);
+  const [orderNotes, setOrderNotes] = useState("");
+  const [manualEmail, setManualEmail] = useState("");
   const router = useRouter();
 
   const fetchProvinces = async () => {
@@ -120,11 +123,29 @@ const CartPage = () => {
         toast.error("Vui lòng nhập đầy đủ thông tin địa chỉ giao hàng.");
         return;
       }
+
+      // Trích xuất email từ Clerk user
+      const { email: extractedEmail, source } = extractUserEmail();
+      console.log("Email source:", source);
+      
+      // Sử dụng email thủ công nếu có, nếu không dùng email từ Clerk
+      const finalEmail = manualEmail || extractedEmail || "Unknown";
+      
+      // Cảnh báo nếu không tìm thấy email
+      if (!extractedEmail && !manualEmail) {
+        toast.error("Không thể lấy email từ tài khoản. Vui lòng nhập email thủ công.");
+        return;
+      }
+
       const customerInfo = {
-        name: user?.fullName ?? "Unknown",
-        email: user?.emailAddresses[0]?.emailAddress ?? "Unknown",
+        clerkUserId: user?.id,
+        name: user?.fullName ?? user?.firstName + " " + user?.lastName ?? "Unknown",
+        email: finalEmail,
         phone: user?.phoneNumbers?.[0]?.phoneNumber ?? "Unknown",
       };
+
+      console.log("=== THÔNG TIN KHÁCH HÀNG CUỐI CÙNG ===");
+      console.log("Customer info being sent:", customerInfo);
       const shippingAddressPayload = {
         street: newStreetAddress,
         provinceId: selectedNewProvince._id,
@@ -145,6 +166,7 @@ const CartPage = () => {
             totalPrice: getTotalPrice(),
             customerInfo,
             shippingAddress: shippingAddressPayload,
+            orderNotes,
           }),
         });
 
@@ -158,6 +180,21 @@ const CartPage = () => {
           toast.error(`Lỗi tạo đơn hàng COD: ${result.message || "Unknown error"}`);
         }
       } else if (selectedPaymentMethod === "vnpay") {
+        // Chuẩn bị dữ liệu đơn hàng để lưu vào localStorage
+        const pendingOrderData = {
+          cart: groupedItems.map(item => ({
+            _id: item.product?._id,
+            quantity: item.quantity,
+          })),
+          totalPrice: getTotalPrice(),
+          customerInfo,
+          shippingAddress: shippingAddressPayload,
+          orderNotes,
+        };
+
+        // Lưu dữ liệu đơn hàng vào localStorage
+        localStorage.setItem('vnpayPendingOrder', JSON.stringify(pendingOrderData));
+
         const response = await fetch("/api/vnpay/create-payment", {
           method: "POST",
           headers: {
@@ -337,6 +374,13 @@ const CartPage = () => {
                         <CardContent>
                           <div className="grid gap-4">
                             <Input
+                              type="email"
+                              placeholder="Email của bạn (tùy chọn)"
+                              value={manualEmail}
+                              onChange={(e) => setManualEmail(e.target.value)}
+                              className="w-full"
+                            />
+                            <Input
                               type="text"
                               placeholder="Số nhà, tên đường..."
                               value={newStreetAddress}
@@ -381,6 +425,15 @@ const CartPage = () => {
                               </SelectContent>
                             </Select>
                           </div>
+                          <Separator className="my-4" />
+
+                          <CardTitle className="mb-4">Ghi chú đơn hàng (tùy chọn)</CardTitle>
+                          <textarea
+                            className="w-full min-h-[80px] p-3 border border-gray-300 rounded-md resize-none"
+                            placeholder="Ghi chú đặc biệt về đơn hàng (ví dụ: thời gian giao hàng, địa chỉ cụ thể...)"
+                            value={orderNotes}
+                            onChange={(e) => setOrderNotes(e.target.value)}
+                          />
                           <Separator className="my-4" />
 
                           <CardTitle className="mb-4">Phương thức thanh toán</CardTitle>

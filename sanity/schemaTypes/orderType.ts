@@ -11,7 +11,7 @@ export const orderType = defineType({
       name: "orderNumber",
       title: "Mã đơn hàng",
       type: "string",
-      validation: (Rule) => Rule.required().unique(),
+      validation: (Rule) => Rule.required(),
     }),
     // User and Customer Info
     defineField({
@@ -36,6 +36,13 @@ export const orderType = defineType({
       title: "Số điện thoại",
       type: "string",
       validation: (Rule) => Rule.required(),
+    }),
+    // Additional customer info
+    defineField({
+      name: "orderNotes",
+      title: "Ghi chú đơn hàng",
+      type: "text",
+      description: "Ghi chú đặc biệt từ khách hàng về đơn hàng",
     }),
     // Shipping Address
     defineField({
@@ -103,6 +110,19 @@ export const orderType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "shippingFee",
+      title: "Phí vận chuyển",
+      type: "number",
+      initialValue: 0,
+      validation: (Rule) => Rule.min(0),
+    }),
+    defineField({
+      name: "estimatedDeliveryDate",
+      title: "Thời gian giao hàng dự kiến",
+      type: "datetime",
+      description: "Thời gian dự kiến giao hàng đến khách hàng",
+    }),
+    defineField({
       name: "paymentMethod",
       title: "Phương thức thanh toán",
       type: "string",
@@ -110,6 +130,7 @@ export const orderType = defineType({
         list: [
           { title: "Thanh toán khi nhận hàng (COD)", value: "cod" },
           { title: "Thanh toán qua MoMo", value: "momo" },
+          { title: "Thanh toán qua VNPay", value: "vnpay" },
         ],
       },
       validation: (Rule) => Rule.required(),
@@ -143,6 +164,49 @@ export const orderType = defineType({
       title: "Ngày đặt hàng",
       type: "datetime",
       validation: (Rule) => Rule.required(),
+    }),
+    // VNPay response data
+    defineField({
+      name: "vnpayResponse",
+      title: "Dữ liệu phản hồi VNPay",
+      type: "object",
+      description: "Dữ liệu trả về từ VNPay sau khi thanh toán",
+      fields: [
+        {
+          name: "vnp_Amount",
+          title: "Số tiền",
+          type: "string",
+        },
+        {
+          name: "vnp_BankCode",
+          title: "Mã ngân hàng",
+          type: "string",
+        },
+        {
+          name: "vnp_ResponseCode",
+          title: "Mã phản hồi",
+          type: "string",
+        },
+        {
+          name: "vnp_TxnRef",
+          title: "Mã giao dịch",
+          type: "string",
+        },
+        {
+          name: "vnp_TransactionNo",
+          title: "Số giao dịch VNPay",
+          type: "string",
+        },
+        {
+          name: "vnp_PayDate",
+          title: "Thời gian thanh toán",
+          type: "string",
+        },
+      ],
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
     }),
   ],
   preview: {
