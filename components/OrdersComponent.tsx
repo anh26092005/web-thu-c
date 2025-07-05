@@ -12,7 +12,7 @@ import PriceFormatter from "./PriceFormatter";
 import { format } from "date-fns";
 import { X } from "lucide-react";
 import { useState } from "react";
-import OrderDetailDialog from "./OrderDetailDialog";
+import { OrderDetailDialog } from "./OrderDetailDialog";
 import toast from "react-hot-toast";
 
 const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {

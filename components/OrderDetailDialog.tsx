@@ -15,8 +15,93 @@ import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import PriceFormatter from "./PriceFormatter";
 
+interface ExtendedOrder {
+  _id: string;
+  _type: "order";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  orderNumber?: string;
+  invoice?: {
+    id?: string;
+    number?: string;
+    hosted_invoice_url?: string;
+  };
+  stripeCheckoutSessionId?: string;
+  stripeCustomerId?: string;
+  clerkUserId?: string;
+  customerName?: string;
+  email?: string;
+  stripePaymentIntentId?: string;
+  products: Array<{
+    product: {
+      _id: string;
+      _type: "product";
+      _createdAt: string;
+      _updatedAt: string;
+      _rev: string;
+      name?: string;
+      slug?: any;
+      images?: Array<{
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+        };
+        hotspot?: any;
+        crop?: any;
+        _type: "image";
+        _key: string;
+      }>;
+      description?: string;
+      price?: number;
+      discount?: number;
+      categories?: Array<{
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        _key: string;
+      }>;
+      stock?: number;
+      brand?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+      };
+      status?: "hot" | "new" | "sale";
+      variant?: "thuc-pham-chuc-nang" | "gadget" | "others" | "refrigerators";
+      isFeatured?: boolean;
+    } | null;
+    quantity?: number;
+    _key: string;
+  }> | null;
+  totalPrice?: number;
+  currency?: string;
+  amountDiscount?: number;
+  address?: {
+    state?: string;
+    zip?: string;
+    city?: string;
+    address?: string;
+    name?: string;
+  };
+  status?: "cancelled" | "delivered" | "out_for_delivery" | "paid" | "pending" | "processing" | "shipped";
+  orderDate?: string;
+  phone?: string;
+  estimatedDeliveryDate?: string;
+  paymentMethod?: string;
+  isPaid?: boolean;
+  orderNotes?: string;
+  shippingAddress?: {
+    streetAddress?: string;
+    ward?: { name?: string };
+    province?: { name?: string };
+  };
+  vnpayResponse?: any;
+}
+
 interface OrderDetailsDialogProps {
-  order: MY_ORDERS_QUERYResult[number] | null;
+  order: ExtendedOrder | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -41,24 +126,24 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
             <strong>Email:</strong> {order.email}
           </p>
           <p>
-            <strong>Số điện thoại:</strong> {(order as any).phone}
+            <strong>Số điện thoại:</strong> {order.phone}
           </p>
           <p>
             <strong>Ngày đặt hàng:</strong>{" "}
             {order.orderDate && new Date(order.orderDate).toLocaleDateString("vi-VN")}
           </p>
-          {(order as any).estimatedDeliveryDate && (
+          {order.estimatedDeliveryDate && (
             <p>
               <strong>Thời gian giao hàng dự kiến:</strong>{" "}
-              {new Date((order as any).estimatedDeliveryDate).toLocaleDateString("vi-VN")}
+              {new Date(order.estimatedDeliveryDate).toLocaleDateString("vi-VN")}
             </p>
           )}
           <p>
             <strong>Phương thức thanh toán:</strong>{" "}
             <span className="capitalize font-medium">
-              {(order as any).paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : 
-               (order as any).paymentMethod === 'vnpay' ? 'VNPay' : 
-               (order as any).paymentMethod === 'momo' ? 'MoMo' : (order as any).paymentMethod}
+              {order.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : 
+               order.paymentMethod === 'vnpay' ? 'VNPay' : 
+               order.paymentMethod === 'momo' ? 'MoMo' : order.paymentMethod}
             </span>
           </p>
           <p>
@@ -74,23 +159,23 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
           </p>
           <p>
             <strong>Trạng thái thanh toán:</strong>{" "}
-            <span className={`font-medium ${(order as any).isPaid ? 'text-green-600' : 'text-orange-600'}`}>
-              {(order as any).isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+            <span className={`font-medium ${order.isPaid ? 'text-green-600' : 'text-orange-600'}`}>
+              {order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
             </span>
           </p>
-          {(order as any).orderNotes && (
+          {order.orderNotes && (
             <div className="mt-3">
               <strong>Ghi chú đơn hàng:</strong>
               <p className="mt-1 p-2 bg-gray-50 rounded border text-sm">
-                {(order as any).orderNotes}
+                {order.orderNotes}
               </p>
             </div>
           )}
-          {(order as any).shippingAddress && (
+          {order.shippingAddress && (
             <div className="mt-3">
               <strong>Địa chỉ giao hàng:</strong>
               <p className="mt-1 text-sm">
-                {(order as any).shippingAddress.streetAddress}, {(order as any).shippingAddress.ward?.name}, {(order as any).shippingAddress.province?.name}
+                {order.shippingAddress.streetAddress}, {order.shippingAddress.ward?.name}, {order.shippingAddress.province?.name}
               </p>
             </div>
           )}
@@ -179,4 +264,4 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
   );
 };
 
-export default OrderDetailDialog;
+export { OrderDetailDialog };
