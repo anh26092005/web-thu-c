@@ -22,7 +22,13 @@ const Header = async () => {
   }
 
   return (
-    <header className=" top-0 z-50 pt-3 backdrop-blur-md bg-[#f6f6f6] max-lg:pb-5 max-lg:px-5">
+    <>
+    
+    <div className="absolute top-2 left-0 w-full z-100 items-center bg-[#f6f6f6] justify-between px-5">
+    <p className="text-shop_light_green text-sm text-center font-bold">Tra cứu nguồn gốc xuất xứ hàng hóa <a href="https://dichvucong.dav.gov.vn/congbothuoc/index" className=" ml-1 text-shop_light_green underline">Kiểm tra ngay</a></p>
+      </div> 
+    <header className=" top-0 z-50 pt-5 backdrop-blur-md bg-[#f6f6f6] max-lg:pb-5 max-lg:px-5">
+      
       <div className="md:hidden flex items-center justify-between px-5 mt-5" >
            <MobileMenu/>
            <Logo className="sm:mr-15 mr-5 text-xl"/> 
@@ -70,6 +76,7 @@ const Header = async () => {
        <HeaderMenu />
        </div>
     </header>
+    </>
   );
 };
 

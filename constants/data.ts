@@ -3,11 +3,9 @@ export const headerData = [
   { title: "Cửa hàng", href: "/shop" },
   { title: "Blog", href: "/blog" },
   { title: "Khuyến mãi", href: "/deal" },
-  { title: "Liên hệ", href: "/contact" },
 ];
 export const quickLinksData = [
   { title: "Về chúng tôi", href: "/about" },
-  { title: "Liên hệ", href: "/contact" },
   { title: "Điều khoản & Điều kiện", href: "/terms" },
   { title: "Chính sách bảo mật", href: "/privacy" },
   { title: "Câu hỏi thường gặp", href: "/faqs" },

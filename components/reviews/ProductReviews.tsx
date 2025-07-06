@@ -19,6 +19,7 @@ interface ReviewData {
   reviews: any[];
   stats: {
     total: number;
+    filteredTotal: number;
     average: number;
     ratingBreakdown: {
       "5": number;
@@ -75,6 +76,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
       
       const result = await response.json();
       console.log("API response:", result);
+      console.log("Current filters:", { ratingFilter, sortBy });
 
       if (result.success) {
         setReviewData(prev => {
@@ -105,7 +107,8 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
             "3": 0,
             "2": 0,
             "1": 0
-          }
+          },
+          filteredTotal: 0 // Initialize filteredTotal
         },
         pagination: {
           limit: 10,
@@ -162,20 +165,14 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
   }, [productId, ratingFilter, sortBy]);
 
   return (
-    <div className="w-full space-y-6">
+    <div className="max-w-full space-y-6 ">
       {/* Header section */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Đánh giá sản phẩm</h2>
-          {reviewData && (
-            <p className="text-gray-600 mt-1">
-              {reviewData.stats.total} đánh giá • Trung bình {reviewData.stats.average.toFixed(1)}/5
-              <ReviewStars rating={reviewData.stats.average} size="sm" className="inline-flex ml-2" />
-            </p>
-          )}
         </div>
 
-        <Button onClick={() => setShowReviewForm(true)} className="gap-2">
+        <Button onClick={() => setShowReviewForm(true)} className="gap-2 bg-shop_light_green text-white">
           <Edit className="w-4 h-4" />
           Viết đánh giá
         </Button>
@@ -188,8 +185,8 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
 
       {/* Review Form Modal */}
       {showReviewForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 backdrop-blur-sm drop-shadow-md h-screen bg-opacity-50 flex items-center justify-center p-4 z-50 ">
+          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide">
             <ReviewForm
               productId={productId}
               productName={productName}
@@ -201,15 +198,15 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
         </div>
       )}
 
-      {/* Filters and Controls */}
-      <div className="flex flex-wrap items-center gap-4 p-4 bg-gray-50 rounded-lg">
+      {/* Filters and Controls - Luôn hiển thị */}
+      <div className="flex flex-wrap items-center gap-4 p-4 bg-white drop-shadow-md rounded-lg">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-gray-600" />
           <span className="text-sm font-medium text-gray-700">Lọc:</span>
         </div>
 
         {/* Rating filter */}
-        <Select value={ratingFilter} onValueChange={setRatingFilter}>
+        <Select value={ratingFilter} onValueChange={setRatingFilter} disabled={loading}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Tất cả đánh giá" />
           </SelectTrigger>
@@ -224,7 +221,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
         </Select>
 
         {/* Sort by */}
-        <Select value={sortBy} onValueChange={setSortBy}>
+        <Select value={sortBy} onValueChange={setSortBy} disabled={loading}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Sắp xếp theo" />
           </SelectTrigger>
@@ -237,6 +234,31 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
           </SelectContent>
         </Select>
 
+        {/* Active filter indicator */}
+        {reviewData && !loading && (
+          <div className="text-sm text-gray-600">
+            {ratingFilter !== "all" ? (
+              <>
+                Hiển thị {reviewData.reviews.length} trên {reviewData.stats.filteredTotal} đánh giá {ratingFilter} sao
+                <span className="text-gray-400 ml-2">
+                  (Tổng cộng: {reviewData.stats.total} đánh giá)
+                </span>
+              </>
+            ) : (
+              <>
+                Hiển thị {reviewData.reviews.length} trên {reviewData.stats.total} đánh giá
+              </>
+            )}
+          </div>
+        )}
+
+        {loading && (
+          <div className="text-sm text-gray-500 flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+            Đang tải...
+          </div>
+        )}
+
         {/* Filter tags */}
         <div className="flex flex-wrap gap-2 ml-auto">
           {ratingFilter !== "all" && (
@@ -246,6 +268,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
               <button
                 onClick={() => setRatingFilter("all")}
                 className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                disabled={loading}
               >
                 ×
               </button>
@@ -261,41 +284,6 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
         hasMore={reviewData?.pagination.hasMore || false}
         onLoadMore={handleLoadMore}
       />
-
-      {/* Quick stats */}
-      {reviewData && reviewData.stats.total > 0 && (
-        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">
-                {reviewData.stats.average.toFixed(1)}
-              </div>
-              <div className="text-sm text-gray-600">Điểm trung bình</div>
-            </div>
-            
-            <div>
-              <div className="text-2xl font-bold text-green-600">
-                {Math.round(((reviewData.stats.ratingBreakdown["5"] + reviewData.stats.ratingBreakdown["4"]) / reviewData.stats.total) * 100)}%
-              </div>
-              <div className="text-sm text-gray-600">Đánh giá tích cực</div>
-            </div>
-            
-            <div>
-              <div className="text-2xl font-bold text-indigo-600">
-                {reviewData.stats.total}
-              </div>
-              <div className="text-sm text-gray-600">Tổng đánh giá</div>
-            </div>
-            
-            <div>
-              <div className="text-2xl font-bold text-purple-600">
-                {reviewData.reviews.filter(r => r.verified).length}
-              </div>
-              <div className="text-sm text-gray-600">Đã mua hàng</div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

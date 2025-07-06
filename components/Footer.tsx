@@ -18,8 +18,7 @@ const Footer = () => {
           <div className="space-y-4">
             <Logo />
             <SubText>
-              Khám phá bộ sưu tập nội thất được tuyển chọn tại Shopcartyt, kết hợp
-              phong cách và sự thoải mái để nâng cao không gian sống của bạn.
+            Giải pháp nhà thuốc online tiện lợi cho cả gia đình. Cung cấp sản phẩm chính hãng, giao hàng nhanh chóng và tư vấn sức khỏe chuyên nghiệp ngay tại nhà.
             </SubText>
             <SocialMedia
               className="text-darkColor/60"
@@ -65,14 +64,14 @@ const Footer = () => {
             </SubText>
             <form className="space-y-3">
               <Input placeholder="Nhập email của bạn" type="email" required />
-              <Button className="w-full">Đăng ký</Button>
+              <Button className="w-full bg-shop_light_green text-white hover:bg-shop_light_green/80">Đăng ký</Button>
             </form>
           </div>
         </div>
         <div className="py-6 border-t text-center text-sm text-gray-600">
           <div>
-            © {new Date().getFullYear()} <Logo className="text-sm" />. Tất cả
-            quyền được bảo lưu.
+            © {new Date().getFullYear()} <Logo className="text-sm" />. <a href="https://thilq0939.github.io/PortfolioGroup/" className="hover:text-shop_light_green hoverEffect font-medium">Tất cả
+            quyền được bảo lưu.</a>
           </div>
         </div>
       </Container>

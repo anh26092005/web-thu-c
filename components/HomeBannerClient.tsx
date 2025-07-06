@@ -90,7 +90,7 @@ const HomeBannerClient = ({ bannerData }: HomeBannerClientProps) => {
     <>
     <div className="relative py-8 overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-shop_orange via-shop_dark_green to-shop_light_green opacity-10"></div>
+      {/* <div className="absolute inset-0 bg-gradient-to-r from-shop_orange via-shop_dark_green to-shop_light_green opacity-10"></div> */}
       
       {/* Animated background elements */}
       <div className="absolute top-0 left-0 w-20 h-20 bg-shop_orange/20 rounded-full animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }}></div>
@@ -101,7 +101,7 @@ const HomeBannerClient = ({ bannerData }: HomeBannerClientProps) => {
       <div className="relative z-10 text-center">
         <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold py-4 animate-pulse">
           <span className="bg-gradient-to-r from-shop_orange via-shop_dark_green to-shop_light_green bg-clip-text text-transparent animate-gradient-x">
-            🎉 Các chương trình khuyến mãi đang diễn ra tại Khủng Long Châu 🎉
+            Các chương trình khuyến mãi hấp dẫn đang diễn ra tại Khủng Long Châu
           </span>
         </h2>
         

@@ -10,7 +10,7 @@ import PriceList from "./shop/PriceList";
 import { client } from "@/sanity/lib/client";
 import { Loader2 } from "lucide-react";
 import NoProductAvailable from "./NoProductAvailable";
-import ProductCard from "./ProductCard";
+import ProductCardWrapper from "./ProductCardWrapper";
 
 interface Props {
   categories: Category[];
@@ -120,7 +120,7 @@ const Shop = ({ categories, brands }: Props) => {
               ) : products?.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {products?.map((product) => (
-                    <ProductCard key={product?._id} product={product} />
+                    <ProductCardWrapper key={product?._id} product={product} />
                   ))}
                 </div>
               ) : (

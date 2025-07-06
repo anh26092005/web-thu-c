@@ -1,7 +1,10 @@
+"use client";
+
 import { Product } from "@/sanity.types";
+import { useState, useEffect } from "react";
+import { getProductReviewSummaryClient } from "@/sanity/queries/client";
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
-import React from "react";
 import Link from "next/link";
 import { Flame } from "lucide-react";
 import PriceView from "./PriceView";
@@ -9,11 +12,33 @@ import Title from "./Title";
 import ProductSideMenu from "./ProductSideMenu";
 import AddToCartButton from "./AddToCartButton";
 import ReviewStars from "./reviews/ReviewStars";
-import { getProductReviewSummary } from "@/sanity/queries";
 
-const ProductCard = async ({ product }: { product: Product }) => {
-  // Lấy thống kê đánh giá sản phẩm
-  const reviewSummary = await getProductReviewSummary(product._id);
+interface ReviewSummary {
+  total: number;
+  average: number;
+}
+
+const ProductCardWrapper = ({ product }: { product: Product }) => {
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({
+    total: 0,
+    average: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviewSummary = async () => {
+      try {
+        const summary = await getProductReviewSummaryClient(product._id);
+        setReviewSummary(summary);
+      } catch (error) {
+        console.error("Error fetching review summary:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviewSummary();
+  }, [product._id]);
 
   return (
     <div className="text-sm border-[1px] rounded-2xl border-white group bg-white hover:border-shop_light_green/80 transition-all duration-300">
@@ -60,13 +85,26 @@ const ProductCard = async ({ product }: { product: Product }) => {
         
         {/* Phần đánh giá sản phẩm */}
         <div className="flex items-center gap-2">
-          <ReviewStars rating={reviewSummary.average} size="sm" />
-          <p className="text-lightText text-xs tracking-wide">
-            {reviewSummary.total > 0 
-              ? `${reviewSummary.average}/5 (${reviewSummary.total} đánh giá)`
-              : "Chưa có đánh giá"
-            }
-          </p>
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-3 h-3 bg-gray-200 rounded animate-pulse" />
+                ))}
+              </div>
+              <div className="w-20 h-3 bg-gray-200 rounded animate-pulse" />
+            </div>
+          ) : (
+            <>
+              <ReviewStars rating={reviewSummary.average} size="sm" />
+              <p className="text-lightText text-xs tracking-wide">
+                {reviewSummary.total > 0 
+                  ? `${reviewSummary.average}/5 (${reviewSummary.total} đánh giá)`
+                  : "Chưa có đánh giá"
+                }
+              </p>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -91,4 +129,4 @@ const ProductCard = async ({ product }: { product: Product }) => {
   );
 };
 
-export default ProductCard;
+export default ProductCardWrapper; 

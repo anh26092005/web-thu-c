@@ -148,7 +148,7 @@ const SingleProductPage = async ({
       </div>
 
       {/* Hệ thống đánh giá sản phẩm */}
-      <div className="max-w-screen-xl mx-auto py-10 px-5">
+      <div className="max-w-screen-xl bg-white rounded-xl mx-auto py-10 px-5 mb-10">
         <ProductReviews 
           productId={product._id} 
           productName={product.name} 

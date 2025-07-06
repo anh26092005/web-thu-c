@@ -52,7 +52,7 @@ const ReviewItem = ({ review }: { review: Review }) => {
   });
 
   return (
-    <Card className="border border-gray-200">
+    <Card className="border border-gray-200 py-0">
       <CardContent className="p-6">
         {/* Header thông tin reviewer */}
         <div className="flex items-start justify-between mb-4">
@@ -185,18 +185,6 @@ const ReviewItem = ({ review }: { review: Review }) => {
             </p>
           </div>
         )}
-
-        {/* Actions */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t">
-          <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
-            <ThumbsUp className="w-4 h-4 mr-1" />
-            Hữu ích ({review.helpfulCount})
-          </Button>
-          
-          <span className="text-xs text-gray-500">
-            ID: {review._id.slice(-6)}
-          </span>
-        </div>
       </CardContent>
     </Card>
   );
@@ -252,7 +240,7 @@ const ReviewList = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="space-y-4">
         {reviews.map((review) => (
           <ReviewItem key={review._id} review={review} />

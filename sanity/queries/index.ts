@@ -18,9 +18,10 @@ import {
   PRODUCT_REVIEW_STATS_QUERY,
   CREATE_REVIEW_QUERY,
   ALL_REVIEWS_QUERY,
+  PRODUCT_REVIEW_SUMMARY_QUERY,
 } from "./query";
 
-// Existing functions
+// Existing functions cho Server Components
 export const getBrands = async () => {
   const { data } = await sanityFetch({
     query: BRANDS_QUERY,
@@ -127,7 +128,7 @@ export const getWardsByProvince = async (provinceId: string) => {
   return data || [];
 };
 
-// Reviews functions - Các hàm xử lý đánh giá sản phẩm
+// Reviews functions cho Server Components
 export const getReviewsByProduct = async (productId: string) => {
   const { data } = await sanityFetch({
     query: REVIEWS_BY_PRODUCT_QUERY,
@@ -158,4 +159,36 @@ export const getAllReviews = async (limit: number = 10) => {
     params: { limit },
   });
   return data || [];
+};
+
+// Function cho Server Components sử dụng sanityFetch
+export const getProductReviewSummary = async (productId: string) => {
+  try {
+    const { data } = await sanityFetch({
+      query: PRODUCT_REVIEW_SUMMARY_QUERY,
+      params: { productId },
+    });
+    
+    if (!data || data.length === 0) {
+      return {
+        total: 0,
+        average: 0
+      };
+    }
+
+    const total = data.length;
+    const sum = data.reduce((acc: number, review: any) => acc + review.rating, 0);
+    const average = sum / total;
+
+    return {
+      total,
+      average: Math.round(average * 10) / 10 // Làm tròn 1 chữ số thập phân
+    };
+  } catch (error) {
+    console.error("Error fetching product review summary:", error);
+    return {
+      total: 0,
+      average: 0
+    };
+  }
 };

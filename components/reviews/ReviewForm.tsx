@@ -110,9 +110,10 @@ const ReviewForm = ({
   };
 
   return (
+    <>
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">
+        <CardTitle className="text-xl font-semibold ">
           Viết đánh giá cho: {productName}
         </CardTitle>
         <p className="text-sm text-gray-600">
@@ -120,7 +121,7 @@ const ReviewForm = ({
         </p>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="scrollbar-hide">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Thông tin cá nhân */}
           <div className="grid md:grid-cols-2 gap-4">
@@ -229,7 +230,7 @@ const ReviewForm = ({
                 placeholder="Nhập điểm mạnh..."
                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addPro())}
               />
-              <Button type="button" size="sm" onClick={addPro}>
+              <Button type="button" size="sm" onClick={addPro} className="bg-shop_light_green text-white">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -261,7 +262,7 @@ const ReviewForm = ({
                 placeholder="Nhập điểm yếu..."
                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addCon())}
               />
-              <Button type="button" size="sm" onClick={addCon}>
+              <Button type="button" size="sm" onClick={addCon} className="bg-shop_light_green text-white">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -302,7 +303,7 @@ const ReviewForm = ({
             <Button
               type="submit"
               disabled={!isFormValid() || loading}
-              className="flex-1"
+              className="flex-1 bg-shop_light_green text-white"
             >
               {loading ? "Đang gửi..." : "Gửi đánh giá"}
             </Button>
@@ -318,6 +319,7 @@ const ReviewForm = ({
         </form>
       </CardContent>
     </Card>
+    </>
   );
 };
 

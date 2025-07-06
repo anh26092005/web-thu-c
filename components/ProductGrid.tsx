@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ProductCard from "./ProductCard";
+import ProductCardWrapper from "./ProductCardWrapper";
 import { motion, AnimatePresence } from "motion/react";
 import { client } from "@/sanity/lib/client";
 import NoProductAvailable from "./NoProductAvailable";
@@ -98,7 +98,7 @@ const ProductGrid = () => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <ProductCard key={product?._id} product={product} />
+                  <ProductCardWrapper key={product?._id} product={product} />
                 </motion.div>
               </AnimatePresence>
             ))}

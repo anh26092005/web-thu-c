@@ -79,9 +79,12 @@ const BLOG_CATEGORIES = defineQuery(
   }`
 );
 
-// Categories query - Query lấy danh sách categories sản phẩm
+// Categories query - Query lấy danh sách categories sản phẩm với số lượng sản phẩm
 const CATEGORIES_QUERY = defineQuery(
-  `*[_type == "category"] | order(title asc)`
+  `*[_type == "category"] | order(title asc) {
+    ...,
+    "productCount": count(*[_type == "product" && references(^._id)])
+  }`
 );
 
 const OTHERS_BLOG_QUERY = defineQuery(`*[
@@ -156,6 +159,13 @@ const ALL_REVIEWS_QUERY = defineQuery(
   }`
 );
 
+// Query cho thống kê review nhanh trong ProductCard
+const PRODUCT_REVIEW_SUMMARY_QUERY = defineQuery(
+  `*[_type == "review" && product._ref == $productId && isApproved == true]{
+    rating
+  }`
+);
+
 export {
   BRANDS_QUERY,
   LATEST_BLOG_QUERY,
@@ -175,4 +185,5 @@ export {
   PRODUCT_REVIEW_STATS_QUERY,
   CREATE_REVIEW_QUERY,
   ALL_REVIEWS_QUERY,
+  PRODUCT_REVIEW_SUMMARY_QUERY,
 };

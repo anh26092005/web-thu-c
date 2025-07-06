@@ -51,10 +51,10 @@ const ReviewSummary = ({ stats }: ReviewSummaryProps) => {
   }
 
   return (
-    <div className="bg-white border rounded-lg p-6">
+    <div className="bg-white rounded-lg p-6">
       <div className="grid md:grid-cols-2 gap-6">
         {/* Tổng quan đánh giá */}
-        <div className="text-center">
+        <div className="text-center mt-5">
           <div className="text-4xl font-bold text-gray-900 mb-2">
             {average.toFixed(1)}
           </div>
@@ -87,30 +87,6 @@ const ReviewSummary = ({ stats }: ReviewSummaryProps) => {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* Thống kê bổ sung */}
-      <div className="mt-6 pt-6 border-t grid grid-cols-3 gap-4 text-center">
-        <div>
-          <div className="text-lg font-semibold text-green-600">
-            {getPercentage(ratingBreakdown["5"] + ratingBreakdown["4"])}%
-          </div>
-          <div className="text-xs text-gray-600">Đánh giá tích cực</div>
-        </div>
-        
-        <div>
-          <div className="text-lg font-semibold text-orange-600">
-            {getPercentage(ratingBreakdown["3"])}%
-          </div>
-          <div className="text-xs text-gray-600">Đánh giá trung bình</div>
-        </div>
-        
-        <div>
-          <div className="text-lg font-semibold text-red-600">
-            {getPercentage(ratingBreakdown["2"] + ratingBreakdown["1"])}%
-          </div>
-          <div className="text-xs text-gray-600">Đánh giá tiêu cực</div>
         </div>
       </div>
     </div>

@@ -28,8 +28,10 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get("productId");
     const limit = parseInt(searchParams.get("limit") || "10");
     const offset = parseInt(searchParams.get("offset") || "0");
+    const ratingFilter = searchParams.get("rating"); // Filter theo rating
+    const sortBy = searchParams.get("sort") || "newest"; // Sort theo tiêu chí
 
-    console.log("Params:", { productId, limit, offset });
+    console.log("Params:", { productId, limit, offset, ratingFilter, sortBy });
 
     if (!productId) {
       console.log("Error: Missing productId");
@@ -44,8 +46,38 @@ export async function GET(request: NextRequest) {
     const allReviews = await client.fetch(allReviewsQuery);
     console.log("Total reviews in database:", allReviews.length);
 
-    // Query lấy đánh giá theo sản phẩm  
-    const query = `*[_type == "review" && product._ref == $productId] | order(reviewDate desc) [${offset}...${offset + limit}] {
+    // Xây dựng filter conditions
+    let filterConditions = `_type == "review" && product._ref == $productId && isApproved == true`;
+    
+    // Thêm filter theo rating nếu có
+    if (ratingFilter && ratingFilter !== "all") {
+      filterConditions += ` && rating == ${parseInt(ratingFilter)}`;
+    }
+
+    // Xây dựng sort conditions
+    let sortConditions = "reviewDate desc"; // Mặc định
+    switch (sortBy) {
+      case "newest":
+        sortConditions = "reviewDate desc";
+        break;
+      case "oldest":
+        sortConditions = "reviewDate asc";
+        break;
+      case "highest":
+        sortConditions = "rating desc, reviewDate desc";
+        break;
+      case "lowest":
+        sortConditions = "rating asc, reviewDate desc";
+        break;
+      case "helpful":
+        sortConditions = "helpfulCount desc, reviewDate desc";
+        break;
+      default:
+        sortConditions = "reviewDate desc";
+    }
+
+    // Query lấy đánh giá theo sản phẩm với filter và sort
+    const query = `*[${filterConditions}] | order(${sortConditions}) [${offset}...${offset + limit}] {
       _id,
       customerName,
       rating,
@@ -66,17 +98,18 @@ export async function GET(request: NextRequest) {
     const reviews = await client.fetch(query, { productId });
     console.log("Found reviews:", reviews.length);
 
-    // Query lấy thống kê đánh giá - sửa lỗi avg()
+    // Query lấy thống kê đánh giá - tất cả reviews cho sản phẩm (không filter)
     const statsQuery = `{
-      "total": count(*[_type == "review" && product._ref == $productId]),
-      "ratings": *[_type == "review" && product._ref == $productId].rating,
+      "total": count(*[_type == "review" && product._ref == $productId && isApproved == true]),
+      "ratings": *[_type == "review" && product._ref == $productId && isApproved == true].rating,
       "ratingBreakdown": {
-        "5": count(*[_type == "review" && product._ref == $productId && rating == 5]),
-        "4": count(*[_type == "review" && product._ref == $productId && rating == 4]),
-        "3": count(*[_type == "review" && product._ref == $productId && rating == 3]),
-        "2": count(*[_type == "review" && product._ref == $productId && rating == 2]),
-        "1": count(*[_type == "review" && product._ref == $productId && rating == 1])
-      }
+        "5": count(*[_type == "review" && product._ref == $productId && isApproved == true && rating == 5]),
+        "4": count(*[_type == "review" && product._ref == $productId && isApproved == true && rating == 4]),
+        "3": count(*[_type == "review" && product._ref == $productId && isApproved == true && rating == 3]),
+        "2": count(*[_type == "review" && product._ref == $productId && isApproved == true && rating == 2]),
+        "1": count(*[_type == "review" && product._ref == $productId && isApproved == true && rating == 1])
+      },
+      "filteredTotal": count(*[${filterConditions}])
     }`;
 
     const stats = await client.fetch(statsQuery, { productId });
@@ -93,6 +126,7 @@ export async function GET(request: NextRequest) {
         reviews,
         stats: {
           total: stats.total || 0,
+          filteredTotal: stats.filteredTotal || 0,
           average: Math.round(average * 10) / 10, // Làm tròn 1 chữ số thập phân
           ratingBreakdown: stats.ratingBreakdown || {
             "5": 0, "4": 0, "3": 0, "2": 0, "1": 0
@@ -103,6 +137,10 @@ export async function GET(request: NextRequest) {
           offset,
           hasMore: reviews.length === limit,
         },
+        filters: {
+          rating: ratingFilter,
+          sort: sortBy
+        }
       },
     };
 

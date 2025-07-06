@@ -216,9 +216,9 @@ const ProductInfo = ({ info }: Props) => {
   };
 
   return (
-    <div className="flex bg-white rounded-xl p-5">
+    <div className="flex bg-white rounded-xl p-5 max-md:pl-0">
       {/* Sidebar chỉ mục */}
-      <div className="w-48 flex-shrink-0 sticky top-4 h-fit">
+      <div className="w-48 flex-shrink-0 sticky top-4 h-fit hidden md:block">
         <ul className="flex flex-col gap-2">
           {TABS.map((t) => (
             <li

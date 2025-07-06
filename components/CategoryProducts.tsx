@@ -7,7 +7,7 @@ import { client } from "@/sanity/lib/client";
 import { AnimatePresence, motion } from "motion/react";
 import { Loader2 } from "lucide-react";
 import NoProductAvailable from "./NoProductAvailable";
-import ProductCard from "./ProductCard";
+import ProductCardWrapper from "./ProductCardWrapper";
 interface Props {
   categories: Category[];
   slug: string;
@@ -70,7 +70,7 @@ const CategoryProducts = ({ categories, slug }: Props) => {
             {products?.map((product: Product) => (
               <AnimatePresence key={product._id}>
                 <motion.div>
-                  <ProductCard product={product} />
+                  <ProductCardWrapper product={product} />
                 </motion.div>
               </AnimatePresence>
             ))}

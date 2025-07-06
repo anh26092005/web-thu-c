@@ -5,7 +5,12 @@ import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 
-const HomeCategories = ({ categories }: { categories: Category[] }) => {
+// Interface mở rộng Category với productCount
+interface CategoryWithCount extends Category {
+  productCount: number;
+}
+
+const HomeCategories = ({ categories }: { categories: CategoryWithCount[] }) => {
   return (
     <div className="bg-white border border-shop_light_green/20 my-10 p-9 lg:p-7 rounded-2xl">
       <Title className="border-b pb-3">Danh mục phổ biến</Title>
@@ -31,7 +36,7 @@ const HomeCategories = ({ categories }: { categories: Category[] }) => {
             <div className="space-y-1">
               <h3 className="text-base font-semibold">{category?.title}</h3>
               <p className="text-sm">
-                <span className="font-bold text-shop_dark_green">{`(${category?.productCount})`}</span>{" "}
+                <span className="font-bold text-shop_dark_green">{`(${category?.productCount || 0})`}</span>{" "}
                 sản phẩm có sẵn
               </p>
             </div>
