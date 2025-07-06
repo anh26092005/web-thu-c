@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
+import CustomChat from "@/components/CustomChat";
 
 export const metadata: Metadata = {
   title: {
@@ -22,6 +23,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1 bg-shop_light_pink">{children}</main>
         <Footer />
+        <CustomChat />
       </div>
     </ClerkProvider>
   );

@@ -4,8 +4,93 @@ import { X } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
 import PriceFormatter from "./PriceFormatter";
 
+interface ExtendedOrder {
+  _id: string;
+  _type: "order";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  orderNumber?: string;
+  invoice?: {
+    id?: string;
+    number?: string;
+    hosted_invoice_url?: string;
+  };
+  stripeCheckoutSessionId?: string;
+  stripeCustomerId?: string;
+  clerkUserId?: string;
+  customerName?: string;
+  email?: string;
+  stripePaymentIntentId?: string;
+  products: Array<{
+    product: {
+      _id: string;
+      _type: "product";
+      _createdAt: string;
+      _updatedAt: string;
+      _rev: string;
+      name?: string;
+      slug?: any;
+      images?: Array<{
+        asset?: {
+          _ref: string;
+          _type: "reference";
+          _weak?: boolean;
+        };
+        hotspot?: any;
+        crop?: any;
+        _type: "image";
+        _key: string;
+      }>;
+      description?: string;
+      price?: number;
+      discount?: number;
+      categories?: Array<{
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        _key: string;
+      }>;
+      stock?: number;
+      brand?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+      };
+      status?: "hot" | "new" | "sale";
+      variant?: "thuc-pham-chuc-nang" | "gadget" | "others" | "refrigerators";
+      isFeatured?: boolean;
+    } | null;
+    quantity?: number;
+    _key: string;
+  }> | null;
+  totalPrice?: number;
+  currency?: string;
+  amountDiscount?: number;
+  address?: {
+    state?: string;
+    zip?: string;
+    city?: string;
+    address?: string;
+    name?: string;
+  };
+  status?: "cancelled" | "delivered" | "out_for_delivery" | "paid" | "pending" | "processing" | "shipped";
+  orderDate?: string;
+  phone?: string;
+  estimatedDeliveryDate?: string;
+  paymentMethod?: string;
+  isPaid?: boolean;
+  orderNotes?: string;
+  shippingAddress?: {
+    streetAddress?: string;
+    ward?: { name?: string };
+    province?: { name?: string };
+  };
+  vnpayResponse?: any;
+}
+
 interface OrderDetailsDialogProps {
-  order: MY_ORDERS_QUERYResult[number] | null;
+  order: ExtendedOrder | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -285,4 +370,4 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
   );
 };
 
-export default OrderDetailDialog;
+export { OrderDetailDialog };
