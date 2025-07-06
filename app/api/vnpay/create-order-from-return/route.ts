@@ -23,6 +23,8 @@ export async function POST(req: NextRequest) {
       console.log("VNPay - Pending order data from localStorage:");
       console.log("CustomerInfo:", pendingOrderData.customerInfo);
       console.log("Email specifically:", pendingOrderData.customerInfo?.email);
+      console.log("Coupon info:", pendingOrderData.appliedCoupon);
+      console.log("Discount amount:", pendingOrderData.discountAmount);
 
       // Tạo orderNumber mới
       const orderNumber = uuidv4();
@@ -66,8 +68,16 @@ export async function POST(req: NextRequest) {
         })),
         totalPrice: pendingOrderData.totalPrice,
         currency: 'VND',
-        amountDiscount: 0,
-        shippingFee: 0, // Miễn phí vận chuyển cho VNPay
+        amountDiscount: pendingOrderData.discountAmount || 0,
+        // Thêm thông tin mã giảm giá nếu có
+        ...(pendingOrderData.appliedCoupon && {
+          appliedCoupon: {
+            _type: "reference",
+            _ref: pendingOrderData.appliedCoupon._id,
+          },
+          couponCode: pendingOrderData.appliedCoupon.code,
+        }),
+        shippingFee: pendingOrderData.shippingDiscount ? 0 : 30000, // Miễn phí vận chuyển nếu có mã giảm giá shipping
         estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
         paymentMethod: 'vnpay',
         isPaid: true,
@@ -78,6 +88,28 @@ export async function POST(req: NextRequest) {
 
       try {
         const order = await backendClient.create(newOrder);
+        
+        // Cập nhật số lần sử dụng mã giảm giá nếu có
+        if (pendingOrderData.appliedCoupon) {
+          try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/coupon/update-usage`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                couponId: pendingOrderData.appliedCoupon._id,
+              }),
+            });
+            
+            if (!response.ok) {
+              console.error("Lỗi cập nhật usage mã giảm giá:", await response.text());
+            }
+          } catch (updateError) {
+            console.error("Lỗi khi gọi API cập nhật usage mã giảm giá:", updateError);
+          }
+        }
+        
         return NextResponse.json({ success: true, message: 'Order created successfully.', order }, { status: 200 });
       } catch (sanityError) {
         console.error('Error creating order in Sanity:', sanityError);

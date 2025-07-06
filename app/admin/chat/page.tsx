@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@sanity/client";
 import { apiVersion, dataset, projectId } from "@/sanity/env";
+import { MessageSquare, UserCircle, Search, MoreVertical, Dot } from "lucide-react";
 
 const client = createClient({
   apiVersion,
@@ -195,88 +196,155 @@ const AdminChatInterface = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Session List */}
-      <div className="w-1/4 bg-white border-r border-gray-200 p-4 overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Chat Sessions</h2>
-        {sessions.length === 0 && (
-          <p className="text-gray-500">No active sessions.</p>
-        )}
-        <ul>
-          {sessions.map((session) => (
-            <li
-              key={session.sessionId}
-              className={`p-3 mb-2 rounded-lg cursor-pointer ${
-                selectedSessionId === session.sessionId
-                  ? "bg-blue-100"
-                  : "hover:bg-gray-50"
-              }`}
-              onClick={() => setSelectedSessionId(session.sessionId)}
-            >
-              <p className="font-semibold">Phone: {session.phoneNumber}</p>
-              <p className="text-sm text-gray-600 truncate">
-                {session.lastMessageText}
-              </p>
-              <p className="text-xs text-gray-400">
-                {new Date(session.lastMessageTime).toLocaleString()}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Chat Window */}
-      <div className="flex-1 flex flex-col">
-        <div className="bg-blue-600 text-white p-4 shadow-md">
-          <h3 className="font-bold">
-            {selectedSessionId
-              ? `Chat with ${sessions.find((s) => s.sessionId === selectedSessionId)?.phoneNumber || selectedSessionId}`
-              : "Select a session"}
-          </h3>
+    <>
+      {/* CSS cho background pattern của khu vực chat */}
+      <style jsx>{`
+        .chat-bg {
+          background-color: #f8fafc; /* bg-slate-50 */
+          opacity: 1;
+          background-image: linear-gradient(#e2e8f0 1px, transparent 1px),
+            linear-gradient(to right, #e2e8f0 1px, #f8fafc 1px);
+          background-size: 20px 20px;
+        }
+      `}</style>
+      
+      <div className="flex h-screen bg-slate-100 font-sans text-slate-800">
+        {/* ======================= */}
+        {/* Danh sách Session    */}
+        {/* ======================= */}
+        <div className="flex flex-col w-full max-w-xs bg-white border-r border-slate-200">
+          <div className="p-4 border-b border-slate-200">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <MessageSquare className="w-6 h-6 text-sky-500" />
+              Cuộc hội thoại
+            </h2>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {sessions.length === 0 ? (
+              <p className="p-4 text-sm text-slate-500">Chưa có phiên chat nào.</p>
+            ) : (
+              <ul>
+                {sessions.map((session) => (
+                  <li
+                    key={session.sessionId}
+                    className={`p-3 border-l-4 transition-colors cursor-pointer ${
+                      selectedSessionId === session.sessionId
+                        ? "bg-sky-50 border-sky-500"
+                        : "border-transparent hover:bg-slate-50"
+                    }`}
+                    onClick={() => setSelectedSessionId(session.sessionId)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-sm text-slate-900">
+                        {session.phoneNumber}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                         {new Date(session.lastMessageTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-sm text-slate-500 truncate w-5/6">
+                        {session.lastMessageText}
+                      </p>
+                      {/* Gợi ý vị trí cho chỉ báo tin nhắn chưa đọc */}
+                      <Dot className="w-8 h-8 text-sky-500" />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-        <div className="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col">
+
+        {/* ======================= */}
+        {/* Cửa sổ Chat       */}
+        {/* ======================= */}
+        <div className="flex-1 flex flex-col">
           {!selectedSessionId ? (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Please select a chat session to view messages.
+             <div className="flex items-center justify-center h-full text-slate-500 bg-slate-50">
+                <div className="text-center">
+                    <MessageSquare className="w-16 h-16 mx-auto text-slate-300" />
+                    <h3 className="mt-2 text-lg font-medium">Chọn một hội thoại</h3>
+                    <p className="text-sm">Bắt đầu xem và trả lời tin nhắn của khách hàng.</p>
+                </div>
             </div>
           ) : (
-            messages.map((msg) => (
-              <div
-                key={msg._key}
-                className={`mb-3 p-2 rounded-lg max-w-[70%] ${
-                  msg.from === "user"
-                    ? "bg-gray-200 text-black self-start mr-auto"
-                    : "bg-blue-500 text-white self-end ml-auto"
-                }`}
-              >
-                <p className="text-xs text-gray-700 mb-1">
-                  {msg.from === "user" ? "User" : "Admin"}
-                </p>
-                {msg.text}
-                <p className="text-xs text-gray-400 text-right mt-1">
-                  {new Date(msg._createdAt || "").toLocaleTimeString()}
-                </p>
+            <>
+              {/* Header của cửa sổ chat */}
+              <div className="bg-white text-slate-900 p-3 flex items-center justify-between border-b border-slate-200 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <UserCircle className="w-10 h-10 text-slate-400" />
+                  <div>
+                    <h3 className="font-bold">
+                      {sessions.find((s) => s.sessionId === selectedSessionId)?.phoneNumber}
+                    </h3>
+                    <p className="text-xs text-green-500 flex items-center gap-1">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      Online
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
+                        <Search className="w-5 h-5"/>
+                    </Button>
+                     <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
+                        <MoreVertical className="w-5 h-5"/>
+                    </Button>
+                </div>
               </div>
-            ))
+
+              {/* Khu vực hiển thị tin nhắn */}
+              <div className="flex-1 p-6 overflow-y-auto chat-bg">
+                <div className="flex flex-col gap-4">
+                  {messages.map((msg) => (
+                    <div
+                        key={msg._key}
+                        className={`flex items-end gap-2 max-w-[75%] ${
+                            msg.from === "user" ? "self-start" : "self-end"
+                        }`}
+                    >
+                        {msg.from === "user" && <UserCircle className="w-8 h-8 text-slate-400 flex-shrink-0"/>}
+                        <div
+                            className={`p-3 rounded-2xl shadow-sm ${
+                                msg.from === "user"
+                                ? "bg-white text-slate-800 rounded-bl-none"
+                                : "bg-sky-500 text-white rounded-br-none"
+                            }`}
+                        >
+                            <p className="text-sm">{msg.text}</p>
+                            <p className={`text-xs mt-2 ${
+                                msg.from === "user" ? "text-slate-400" : "text-sky-100"
+                            } text-right`}>
+                                {new Date(msg._createdAt || "").toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                        </div>
+                    </div>
+                  ))}
+                </div>
+                <div ref={messagesEndRef} />
+              </div>
+              
+              {/* Khung nhập liệu */}
+              <div className="p-4 border-t border-slate-200 bg-white">
+                 <div className="relative">
+                    <Input
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                        placeholder="Nhập tin nhắn..."
+                        className="rounded-full pl-4 pr-12 py-6 border-slate-300 focus-visible:ring-sky-500"
+                    />
+                    <Button onClick={handleSendMessage} size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-sky-500 hover:bg-sky-600">
+                        <Send className="w-5 h-5" />
+                    </Button>
+                 </div>
+              </div>
+            </>
           )}
-          <div ref={messagesEndRef} />
         </div>
-        {selectedSessionId && (
-          <div className="p-4 border-t bg-white flex">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              placeholder="Type your message..."
-              className="flex-1"
-            />
-            <Button onClick={handleSendMessage} className="ml-2">
-              <Send className="w-5 h-5" /> Send
-            </Button>
-          </div>
-        )}
       </div>
-    </div>
+    </>
   );
 };
 

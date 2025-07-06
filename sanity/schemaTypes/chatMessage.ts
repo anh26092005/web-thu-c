@@ -6,8 +6,7 @@ export default defineType({
   type: "document",
   fields: [
     defineField({
-      name: "sess
-      ionId",
+      name: "sessionId",
       title: "Session ID",
       type: "string",
     }),

@@ -426,6 +426,33 @@ export type Slug = {
 
 export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityFileAsset | Geopoint | Address | Blogcategory | Blog | Author | Order | Product | Brand | BlockContent | Category | SanityImageCrop | SanityImageHotspot | SanityImageAsset | SanityAssetSourceData | SanityImageMetadata | Slug;
 export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./sanity/queries/couponQueries.ts
+// Variable: GET_COUPON_BY_CODE
+// Query: *[_type == "coupon" && code == $code && isActive == true][0]{    _id,    code,    name,    description,    discountType,    discountValue,    maxDiscountAmount,    minOrderAmount,    usageLimit,    usageCount,    userLimit,    startDate,    endDate,    isActive,    applicableCategories[]->{      _id,      title    },    applicableProducts[]->{      _id,      name,      slug    },    excludedProducts[]->{      _id,      name,      slug    }  }
+export type GET_COUPON_BY_CODEResult = null;
+// Variable: GET_ACTIVE_COUPONS
+// Query: *[_type == "coupon" && isActive == true] | order(_createdAt desc){    _id,    code,    name,    description,    discountType,    discountValue,    maxDiscountAmount,    minOrderAmount,    usageLimit,    usageCount,    userLimit,    startDate,    endDate,    isActive,    _createdAt  }
+export type GET_ACTIVE_COUPONSResult = Array<never>;
+// Variable: GET_USER_COUPON_USAGE
+// Query: count(*[_type == "order" && appliedCoupon._ref == $couponId && clerkUserId == $userId])
+export type GET_USER_COUPON_USAGEResult = number;
+// Variable: GET_COUPON_USAGE_HISTORY
+// Query: *[_type == "order" && appliedCoupon._ref == $couponId] | order(orderDate desc){    _id,    orderNumber,    customerName,    email,    totalPrice,    amountDiscount,    couponCode,    orderDate,    status  }
+export type GET_COUPON_USAGE_HISTORYResult = Array<{
+  _id: string;
+  orderNumber: string | null;
+  customerName: string | null;
+  email: string | null;
+  totalPrice: number | null;
+  amountDiscount: number | null;
+  couponCode: null;
+  orderDate: string | null;
+  status: "cancelled" | "delivered" | "out_for_delivery" | "paid" | "pending" | "processing" | "shipped" | null;
+}>;
+// Variable: UPDATE_COUPON_USAGE_COUNT
+// Query: *[_type == "coupon" && _id == $couponId][0]{    usageCount  }
+export type UPDATE_COUPON_USAGE_COUNTResult = null;
+
 // Source: ./sanity/queries/query.ts
 // Variable: BRANDS_QUERY
 // Query: *[_type=='brand'] | order(name asc)
@@ -872,6 +899,11 @@ export type WARDS_BY_PROVINCE_QUERYResult = Array<never>;
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    "\n  *[_type == \"coupon\" && code == $code && isActive == true][0]{\n    _id,\n    code,\n    name,\n    description,\n    discountType,\n    discountValue,\n    maxDiscountAmount,\n    minOrderAmount,\n    usageLimit,\n    usageCount,\n    userLimit,\n    startDate,\n    endDate,\n    isActive,\n    applicableCategories[]->{\n      _id,\n      title\n    },\n    applicableProducts[]->{\n      _id,\n      name,\n      slug\n    },\n    excludedProducts[]->{\n      _id,\n      name,\n      slug\n    }\n  }\n": GET_COUPON_BY_CODEResult;
+    "\n  *[_type == \"coupon\" && isActive == true] | order(_createdAt desc){\n    _id,\n    code,\n    name,\n    description,\n    discountType,\n    discountValue,\n    maxDiscountAmount,\n    minOrderAmount,\n    usageLimit,\n    usageCount,\n    userLimit,\n    startDate,\n    endDate,\n    isActive,\n    _createdAt\n  }\n": GET_ACTIVE_COUPONSResult;
+    "\n  count(*[_type == \"order\" && appliedCoupon._ref == $couponId && clerkUserId == $userId])\n": GET_USER_COUPON_USAGEResult;
+    "\n  *[_type == \"order\" && appliedCoupon._ref == $couponId] | order(orderDate desc){\n    _id,\n    orderNumber,\n    customerName,\n    email,\n    totalPrice,\n    amountDiscount,\n    couponCode,\n    orderDate,\n    status\n  }\n": GET_COUPON_USAGE_HISTORYResult;
+    "\n  *[_type == \"coupon\" && _id == $couponId][0]{\n    usageCount\n  }\n": UPDATE_COUPON_USAGE_COUNTResult;
     "*[_type=='brand'] | order(name asc) ": BRANDS_QUERYResult;
     " *[_type == 'blog' && isLatest == true]|order(name asc){\n      ...,\n      blogcategories[]->{\n      title\n    }\n    }": LATEST_BLOG_QUERYResult;
     "*[_type == 'product' && status == 'hot'] | order(name asc){\n    ...,\"categories\": categories[]->title\n  }": DEAL_PRODUCTSResult;

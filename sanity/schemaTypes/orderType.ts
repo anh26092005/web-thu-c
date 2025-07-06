@@ -110,6 +110,19 @@ export const orderType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "appliedCoupon",
+      title: "Mã giảm giá đã áp dụng",
+      type: "reference",
+      to: [{ type: "coupon" }],
+      description: "Mã giảm giá đã được sử dụng cho đơn hàng này",
+    }),
+    defineField({
+      name: "couponCode",
+      title: "Mã giảm giá",
+      type: "string",
+      description: "Mã giảm giá mà khách hàng đã nhập",
+    }),
+    defineField({
       name: "shippingFee",
       title: "Phí vận chuyển",
       type: "number",

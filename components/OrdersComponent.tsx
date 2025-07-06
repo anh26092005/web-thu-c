@@ -70,7 +70,7 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
                         {
                           order.status === 'pending' ? 'Đang chờ xử lý' :
                           order.status === 'processing' ? 'Đang xử lý' :
-                          order.status === 'shipped' ? 'Đã giao đơn hàng' :
+                          order.status === 'shipped' ? 'Đã giao cho đvvc' :
                           order.status === 'out_for_delivery' ? 'Đang giao hàng' :
                           order.status === 'delivered' ? 'Đã giao thành công' :
                           order.status === 'cancelled' ? 'Đã hủy' : order.status
@@ -108,7 +108,7 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
         </TooltipProvider>
       </TableBody>
       <OrderDetailDialog
-        order={selectedOrder}
+        order={selectedOrder as any}
         isOpen={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
       />

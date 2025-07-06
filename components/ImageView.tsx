@@ -44,8 +44,8 @@ const ImageView = ({ images = [], isStock }: Props) => {
           <Image
             src={urlFor(active).url()}
             alt="productImage"
-            width={700}
-            height={700}
+            width={1000}
+            height={1000}
             priority
             className={`w-full h-auto max-h-[550px] min-h-[500px] object-contain group-hover:scale-110 hoverEffect rounded-md ${
               isStock === 0 ? "opacity-50" : ""

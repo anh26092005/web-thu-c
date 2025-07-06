@@ -8,6 +8,7 @@ import PriceFormatter from "@/components/PriceFormatter";
 import ProductSideMenu from "@/components/ProductSideMenu";
 import QuantityButtons from "@/components/QuantityButtons";
 import Title from "@/components/Title";
+import CouponInput from "@/components/CouponInput";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -75,7 +76,61 @@ const CartPage = () => {
   const [emailError, setEmailError] = useState("");
   const [manualPhone, setManualPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  
+  // State cho mã giảm giá
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [shippingDiscount, setShippingDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  
   const router = useRouter();
+
+  // Hàm tính tổng tiền sau khi trừ mã giảm giá
+  const getFinalTotalPrice = () => {
+    const subtotal = getSubTotalPrice();
+    const totalAfterCoupon = Math.max(0, subtotal - couponDiscount);
+    return totalAfterCoupon;
+  };
+
+  // Hàm xử lý khi áp dụng mã giảm giá thành công
+  const handleCouponApplied = (discountAmount: number, shippingDiscountAmount: number, coupon: any) => {
+    setCouponDiscount(discountAmount);
+    setShippingDiscount(shippingDiscountAmount);
+    setAppliedCoupon(coupon);
+    toast.success(`Áp dụng mã giảm giá thành công! Tiết kiệm ${discountAmount.toLocaleString()}đ`);
+  };
+
+  // Hàm xử lý khi xóa mã giảm giá
+  const handleCouponRemoved = () => {
+    setCouponDiscount(0);
+    setShippingDiscount(0);
+    setAppliedCoupon(null);
+    toast.success("Đã xóa mã giảm giá");
+  };
+
+  // Chuyển đổi groupedItems thành CartItem format cho CouponInput
+  const getCartItemsForCoupon = () => {
+    const cartItems = Object.values(groupedItems).map((item: any) => {
+      // Debug: Kiểm tra dữ liệu sản phẩm
+      console.log("=== DEBUG PRODUCT DATA ===");
+      console.log("Product:", item.product);
+      console.log("Categories:", item.product.categories);
+      console.log("Variant:", item.product.variant);
+      
+      return {
+        _id: item.product._id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        categories: item.product.categories?.map((cat: any) => cat.title) || [],
+        variant: item.product.variant, // Thêm variant để backup
+      };
+    });
+    
+    console.log("=== CART ITEMS FOR COUPON ===");
+    console.log("Cart Items:", cartItems);
+    
+    return cartItems;
+  };
 
   const fetchProvinces = async () => {
     try {
@@ -206,7 +261,17 @@ const CartPage = () => {
               _id: item.product?._id,
               quantity: item.quantity,
             })),
-            totalPrice: getTotalPrice(),
+            totalPrice: getFinalTotalPrice(),
+            originalPrice: getSubTotalPrice(),
+            discountAmount: couponDiscount,
+            shippingDiscount: shippingDiscount,
+            appliedCoupon: appliedCoupon ? {
+              _id: appliedCoupon._id,
+              code: appliedCoupon.code,
+              name: appliedCoupon.name,
+              discountType: appliedCoupon.discountType,
+              discountValue: appliedCoupon.discountValue,
+            } : null,
             customerInfo,
             shippingAddress: shippingAddressPayload,
             orderNotes,
@@ -217,6 +282,22 @@ const CartPage = () => {
 
         if (response.ok) {
           toast.success("Đơn hàng COD đã được tạo thành công!");
+          // Cập nhật số lần sử dụng mã giảm giá nếu có
+          if (appliedCoupon) {
+            try {
+              await fetch("/api/coupon/update-usage", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  couponId: appliedCoupon._id,
+                }),
+              });
+            } catch (error) {
+              console.error("Lỗi cập nhật usage mã giảm giá:", error);
+            }
+          }
           resetCart();
           router.push("/orders");
         } else {
@@ -229,7 +310,17 @@ const CartPage = () => {
             _id: item.product?._id,
             quantity: item.quantity,
           })),
-          totalPrice: getTotalPrice(),
+          totalPrice: getFinalTotalPrice(),
+          originalPrice: getSubTotalPrice(),
+          discountAmount: couponDiscount,
+          shippingDiscount: shippingDiscount,
+          appliedCoupon: appliedCoupon ? {
+            _id: appliedCoupon._id,
+            code: appliedCoupon.code,
+            name: appliedCoupon.name,
+            discountType: appliedCoupon.discountType,
+            discountValue: appliedCoupon.discountValue,
+          } : null,
           customerInfo,
           shippingAddress: shippingAddressPayload,
           orderNotes,
@@ -244,7 +335,7 @@ const CartPage = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            amount: getTotalPrice(),
+            amount: getFinalTotalPrice(),
             orderInfo: `Thanh toan cho don hang`,
           }),
         });
@@ -274,8 +365,10 @@ const CartPage = () => {
           {groupedItems?.length ? (
             <>
               <div className="flex items-center gap-2 py-5">
-                <ShoppingBag className="text-darkColor" />
-                <Title className="text-xl font-bold">Danh sách sản phẩm</Title>
+                <div className="flex items-center gap-1 bg-white rounded-full px-5 py-2">
+                <ShoppingBag className="text-shop_light_green" />
+                <Title className="text-xl font-bold text-shop_light_green">Danh sách sản phẩm</Title>
+                </div>
               </div>
               <div className="grid lg:grid-cols-3 md:gap-8">
                 <div className="lg:col-span-2 rounded-lg">
@@ -297,8 +390,8 @@ const CartPage = () => {
                                 <Image
                                   src={urlFor(product?.images[0]).url()}
                                   alt="productImage"
-                                  width={500}
-                                  height={500}
+                                  width={5000}
+                                  height={5000}
                                   loading="lazy"
                                   className="w-32 md:w-40 h-32 md:h-40 object-cover group-hover:scale-105 hoverEffect"
                                 />
@@ -312,13 +405,24 @@ const CartPage = () => {
                                 <p className="text-sm capitalize">
                                   Danh mục:{" "}
                                   <span className="font-semibold">
-                                    {product?.variant}
+                                  {
+                                    product?.variant === "thuc-pham-chuc-nang" ? "Thực phẩm chức năng" :
+                                    product?.variant as any === "thuoc" ? "Thuốc" :
+                                    product?.variant as any === "sinh-ly" ? "Sinh lý" :
+                                    product?.variant as any === "trang-thiet-bi-y-te" ? "Trang thiết bị y tế" :
+                                    product?.variant as any === "dinh-duong" ? "Dinh dưỡng" :
+                                    product?.variant as any === "duoc-my-pham" ? "Dược mỹ phẩm" :
+                                    product?.variant as any === "cham-soc-ca-nhan" ? "Chăm sóc cá nhân" :
+                                    product?.variant // Giá trị dự phòng nếu không khớp
+                                  }
                                   </span>
                                 </p>
                                 <p className="text-sm capitalize">
                                   Trạng thái:{" "}
                                   <span className="font-semibold">
-                                    {product?.status}
+                                  {(product?.stock as number) > 0
+                          ? "Còn hàng"
+                          : "Hết hàng"}
                                   </span>
                                 </p>
                               </div>
@@ -367,16 +471,45 @@ const CartPage = () => {
                     })}
                     <Button
                       onClick={handleResetCart}
-                      className="m-5 ml-3 font-semibold"
+                      className="mt-2 ml-3 font-semibold bg-red-500 hover:bg-red-600 text-white rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
                       variant="destructive"
-                    >
+                      >
                       Xóa tất cả
                     </Button>
                   </div>
                 </div>
                 <div>
+                {/* lagre view */}
+                <style jsx>{`
+                /* CSS cho hiệu ứng viền răng cưa */
+                .invoice-summary-box {
+                  position: relative;
+                }
+
+                /* Tạo hiệu ứng răng cưa ở trên và dưới.
+                  Chúng ta sẽ dùng linear-gradient thay vì radial-gradient để tạo hiệu ứng cắt ngang.
+                */
+                .invoice-summary-box::before,
+                .invoice-summary-box::after {
+                  content: '';
+                  position: absolute;
+                  left: 0;
+                  right: 0;
+                  height: 15px; /* Chiều cao của phần răng cưa */
+                  background-size: 16px 16px; /* Kích thước của mỗi "răng" */
+                  background-position: center;
+                }
+
+                /* Răng cưa ở dưới */
+                .invoice-summary-box::after {
+                  bottom: -8px; /* Đẩy xuống dưới */
+                  background-image: linear-gradient(135deg, #fff 50%, transparent 50%),
+                                    linear-gradient(-135deg, #fff 50%, transparent 50%);
+                }   
+                `}
+                </style>
                   <div className="lg:col-span-1">
-                    <div className="hidden md:inline-block w-full bg-white p-6 rounded-lg">
+                    <div className="hidden md:inline-block w-full bg-white p-6 rounded-lg invoice-summary-box">
                       <h2 className="text-xl font-semibold mb-8">
                         Tóm tắt đơn hàng
                       </h2>
@@ -385,20 +518,44 @@ const CartPage = () => {
                           <span>Tổng phụ</span>
                           <PriceFormatter amount={getSubTotalPrice()} />
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span>Giảm giá</span>
-                          <PriceFormatter
-                            amount={getSubTotalPrice() - getTotalPrice()}
-                          />
-                        </div>
+                        
+                        {/* Hiển thị mã giảm giá nếu có */}
+                        {couponDiscount > 0 && (
+                          <div className="flex items-center justify-between text-green-600">
+                            <span>Giảm giá ({appliedCoupon?.code})</span>
+                            <span>-<PriceFormatter amount={couponDiscount} /></span>
+                          </div>
+                        )}
+                        
+                        {/* Hiển thị giảm giá vận chuyển nếu có */}
+                        {shippingDiscount > 0 && (
+                          <div className="flex items-center justify-between text-green-600">
+                            <span>Miễn phí vận chuyển</span>
+                            <span>-<PriceFormatter amount={shippingDiscount} /></span>
+                          </div>
+                        )}
+                        
                         <Separator />
+                        
                         <div className="flex items-center justify-between font-semibold text-lg">
-                          <span>Tổng cộng</span>
+                          <span>Thành tiền</span>
                           <PriceFormatter
-                            amount={getTotalPrice()}
+                            amount={getFinalTotalPrice()}
                             className="text-lg font-bold text-black"
                           />
                         </div>
+                        
+                        {/* Component nhập mã giảm giá */}
+                        <div className="pt-4 border-t">
+                          <CouponInput
+                            cartItems={getCartItemsForCoupon()}
+                            subtotal={getSubTotalPrice()}
+                            userId={user?.id}
+                            onCouponApplied={handleCouponApplied}
+                            onCouponRemoved={handleCouponRemoved}
+                          />
+                        </div>
+                        
                         <Button
                           className="w-full rounded-full font-semibold tracking-wide hoverEffect bg-shop_light_green text-white"
                           size="lg"
@@ -544,39 +701,63 @@ const CartPage = () => {
                   </div>
                 </div>
                 {/* Order summary for mobile view */}
-                <div className="md:hidden fixed bottom-0 left-0 w-full bg-white pt-2">
-                  <div className="bg-white p-4 rounded-lg border mx-4">
-                    <h2 className="mb-4">Tóm tắt đơn hàng</h2>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span>Tổng phụ</span>
-                        <PriceFormatter amount={getSubTotalPrice()} />
+                <div className="md:hidden fixed bottom-0 left-0 right-0 w-full bg-white p-6 rounded-2xl drop-shadow-lg">
+                      <h2 className="text-lg font-semibold mb-2 text-shop_light_green">
+                        Tóm tắt đơn hàng
+                      </h2>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span>Tổng phụ</span>
+                          <PriceFormatter amount={getSubTotalPrice()} />
+                        </div>
+                        
+                        {/* Hiển thị mã giảm giá nếu có */}
+                        {couponDiscount > 0 && (
+                          <div className="flex items-center justify-between text-green-600">
+                            <span>Giảm giá ({appliedCoupon?.code})</span>
+                            <span>-<PriceFormatter amount={couponDiscount} /></span>
+                          </div>
+                        )}
+                        
+                        {/* Hiển thị giảm giá vận chuyển nếu có */}
+                        {shippingDiscount > 0 && (
+                          <div className="flex items-center justify-between text-green-600">
+                            <span>Miễn phí vận chuyển</span>
+                            <span>-<PriceFormatter amount={shippingDiscount} /></span>
+                          </div>
+                        )}
+                        
+                        <Separator />
+                        
+                        <div className="flex items-center py-0 justify-between font-semibold text-lg">
+                          <span>Thành tiền</span>
+                          <PriceFormatter
+                            amount={getFinalTotalPrice()}
+                            className="text-lg font-bold text-black"
+                          />
+                        </div>
+                        
+                        {/* Component nhập mã giảm giá */}
+                        <div className="pt-4 border-t">
+                          <CouponInput
+                            cartItems={getCartItemsForCoupon()}
+                            subtotal={getSubTotalPrice()}
+                            userId={user?.id}
+                            onCouponApplied={handleCouponApplied}
+                            onCouponRemoved={handleCouponRemoved}
+                          />
+                        </div>
+                        
+                        <Button
+                          className="w-full rounded-full font-semibold mt-2 tracking-wide hoverEffect bg-shop_light_green text-white"
+                          size="lg"
+                          disabled={loading}
+                          onClick={handleCheckout}
+                        >
+                          {loading ? "Vui lòng chờ..." : "Tiến hành thanh toán"}
+                        </Button>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span>Giảm giá</span>
-                        <PriceFormatter
-                          amount={getSubTotalPrice() - getTotalPrice()}
-                        />
-                      </div>
-                      <Separator />
-                      <div className="flex items-center justify-between font-semibold text-lg">
-                        <span>Tổng cộng</span>
-                        <PriceFormatter
-                          amount={getTotalPrice()}
-                          className="text-lg font-bold text-black"
-                        />
-                      </div>
-                      <Button
-                        className="w-full rounded-full font-semibold tracking-wide hoverEffect hover:bg-shop_light_green text-white"
-                        size="lg"
-                        disabled={loading}
-                        onClick={handleCheckout}
-                      >
-                        {loading ? "Vui lòng chờ..." : "Tiến hành thanh toán"}
-                      </Button>
                     </div>
-                  </div>
-                </div>
               </div>
             </>
           ) : (

@@ -12,6 +12,7 @@ import { bannerType } from "./bannerType";
 import { provinceType } from "./provinceType";
 import { wardType } from "./wardType";
 import { vietnameseAddressType } from "./vietnameseAddressType";
+import { couponType } from "./couponType";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -28,5 +29,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     provinceType,
     wardType,
     vietnameseAddressType,
+    couponType,
   ],
 };

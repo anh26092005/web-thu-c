@@ -4,12 +4,24 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: Request) {
   try {
-    const { cart, totalPrice, customerInfo, shippingAddress, orderNotes } = await req.json();
+    const { 
+      cart, 
+      totalPrice, 
+      originalPrice,
+      discountAmount,
+      shippingDiscount,
+      appliedCoupon,
+      customerInfo, 
+      shippingAddress, 
+      orderNotes 
+    } = await req.json();
 
     // Debug dữ liệu nhận được
     console.log("Received data in COD API:");
     console.log("CustomerInfo:", customerInfo);
     console.log("Email specifically:", customerInfo?.email);
+    console.log("Coupon info:", appliedCoupon);
+    console.log("Discount amount:", discountAmount);
 
     if (!cart || !totalPrice || !customerInfo || !shippingAddress) {
       return new NextResponse("Missing required fields", { status: 400 });
@@ -55,8 +67,16 @@ export async function POST(req: Request) {
       })),
       totalPrice,
       currency: "VND",
-      amountDiscount: 0, // Handle discount logic if needed
-      shippingFee: 0, // Miễn phí vận chuyển cho COD
+      amountDiscount: discountAmount || 0,
+      // Thêm thông tin mã giảm giá nếu có
+      ...(appliedCoupon && {
+        appliedCoupon: {
+          _type: "reference",
+          _ref: appliedCoupon._id,
+        },
+        couponCode: appliedCoupon.code,
+      }),
+      shippingFee: shippingDiscount ? 0 : 30000, // Miễn phí vận chuyển nếu có mã giảm giá shipping
       estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
       paymentMethod: "cod",
       isPaid: false,

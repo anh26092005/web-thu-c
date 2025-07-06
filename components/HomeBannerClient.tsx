@@ -155,8 +155,9 @@ const HomeBannerClient = ({ bannerData }: HomeBannerClientProps) => {
                   <Image
                     src={urlFor(item.image).url()}
                     alt={item.image.alt || item.title || 'Banner image'}
-                    width={1248}
-                    height={382}
+                    width={2496}
+                    height={764}
+                    quality={100}
                     className="w-full h-auto rounded-lg"
                   />
                 </div>

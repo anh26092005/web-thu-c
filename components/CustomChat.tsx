@@ -120,14 +120,14 @@ const CustomChat = () => {
       {!isOpen ? (
         <Button
           onClick={toggleChat}
-          className="rounded-full w-16 h-16 bg-blue-600 hover:bg-blue-700"
+          className="rounded-full w-14 h-14 bg-blue-600 hover:bg-blue-700"
         >
           <MessageSquare className="w-8 h-8 text-white" />
         </Button>
       ) : (
         <div className="w-80 h-[450px] bg-white rounded-lg shadow-xl flex flex-col">
-          <div className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h3 className="font-bold">Tư vấn trực tuyến</h3>
+          <div className="bg-blue-600 text-white px-4 py-2 rounded-t-lg flex justify-between items-center">
+            <h3 className="font-bold">Chat với dược sĩ</h3>
             <Button
               variant="ghost"
               size="icon"
@@ -154,23 +154,55 @@ const CustomChat = () => {
                 {phoneError && (
                   <p className="text-red-500 text-sm mb-2">{phoneError}</p>
                 )}
-                <Button onClick={handlePhoneNumberSubmit}>
+                <Button onClick={handlePhoneNumberSubmit} className="bg-shop_light_green hover:bg-shop_light_green/80">
                   Bắt đầu trò chuyện
                 </Button>
               </div>
             ) : (
               messages.map((msg) => (
-                <div
-                  key={msg._key}
-                  className={`mb-3 p-2 rounded-lg max-w-[80%] ${
-                    msg.from === "bot" ||
-                    msg.from === "agent" ||
-                    msg.from === "admin"
-                      ? "bg-gray-200 text-black self-start"
-                      : "bg-blue-500 text-white self-end ml-auto"
-                  }`}
-                >
-                  {msg.text}
+                // <div
+                //   key={msg._key}
+                //   className={`mb-3 p-2 rounded-lg max-w-[80%] ${
+                //     msg.from === "bot" ||
+                //     msg.from === "agent" ||
+                //     msg.from === "admin"
+                //       ? "bg-gray-200 text-black self-start"
+                //       : "bg-blue-500 text-white self-end ml-auto"
+                //   }`}
+                // >
+                //   {msg.text}
+                // </div>
+                <div>
+                  {/* Bọc tin nhắn và thời gian trong một div để căn chỉnh */}
+<div 
+    key={msg._key}
+    className={`flex items-end gap-2 ${
+        msg.from === "bot" || msg.from === "agent" || msg.from === "admin"
+            ? "justify-start"
+            : "justify-end"
+    }`}
+>
+    {/* Tin nhắn của bot/agent có thể có avatar
+    {(msg.from === "bot" || msg.from === "agent") && (
+        <img src="/path-to-bot-avatar.png" alt="bot" className="w-8 h-8 rounded-full" />
+    )} */}
+
+    {/* Nội dung tin nhắn */}
+    <div
+        className={`p-3 rounded-2xl max-w-[80%] ${
+            msg.from === "bot" || msg.from === "agent" || msg.from === "admin"
+                ? "bg-slate-200 text-slate-800 rounded-bl-none" // bo góc dưới bên trái = 0
+                : "bg-blue-600 text-white rounded-br-none ml-auto" // bo góc dưới bên phải = 0
+        }`}
+    >
+        <p className="text-sm">{msg.text}</p>
+    </div>
+</div>
+
+            {/* Thời gian gửi tin nhắn
+            <span className={`text-xs text-gray-400 flex mx-auto text-center`}>
+                {new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+            </span> */}
                 </div>
               ))
             )}
@@ -183,9 +215,9 @@ const CustomChat = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Nhập tin nhắn..."
-                className="flex-1"
+                className="flex-1 rounded-full focus-visible:ring-0"
               />
-              <Button onClick={handleSendMessage} className="ml-2">
+              <Button onClick={handleSendMessage} className="ml-2 bg-shop_light_green hover:bg-shop_light_green/80">
                 <Send className="w-5 h-5" />
               </Button>
             </div>

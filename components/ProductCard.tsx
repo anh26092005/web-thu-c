@@ -19,8 +19,9 @@ const ProductCard = ({ product }: { product: Product }) => {
             <Image
               src={urlFor(product.images[0]).url()}
               alt="productImage"
-              width={500}
-              height={500}
+              width={1000}
+              height={1000}
+              quality={100}
               priority
               className={`w-full h-57 object-contain overflow-hidden transition-transform bg-white duration-500 
               ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
@@ -70,7 +71,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         <div className="flex items-center gap-1.5">
           <p className="font-medium">Còn hàng</p>
           <p
-            className={`${product?.stock === 0 ? "text-red-600" : "text-shop_dark_green/80 font-semibold mt-[2.5px]"}`}
+            className={`${product?.stock === 0 ? "text-red-600" : "text-shop_dark_green/80 font-semibold mt-[1.5px]"}`}
           >
             {(product?.stock as number) > 0 ? product?.stock : "Hết hàng"}
           </p>
