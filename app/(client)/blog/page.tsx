@@ -1,7 +1,7 @@
 import Container from "@/components/Container";
 import Title from "@/components/Title";
 import { urlFor } from "@/sanity/lib/image";
-import { getAllBlogs } from "@/sanity/queries";
+import { getAllBlog } from "@/sanity/queries";
 import dayjs from "dayjs";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
@@ -9,7 +9,7 @@ import Link from "next/link";
 import React from "react";
 
 const BlogPage = async () => {
-  const blogs = await getAllBlogs(6);
+  const blogs = await getAllBlog(6);
 
   return (
     <div className="my-10">
@@ -18,7 +18,7 @@ const BlogPage = async () => {
           <h1 className="text-shop_light_green text-xl font-bold text-center"> Góc sức khỏe </h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 md:mt-10">
-          {blogs?.map((blog) => (
+          {blogs?.map((blog: any) => (
             <div key={blog?._id} className="rounded-xl overflow-hidden group bg-white">
               {blog?.mainImage && (
                 <Image
@@ -32,7 +32,7 @@ const BlogPage = async () => {
               <div className="bg-white p-5">
                 <div className="text-xs flex items-center gap-5">
                   <div className="flex items-center relative group cursor-pointer">
-                    {blog?.blogcategories?.map((item, index) => (
+                    {blog?.blogcategories?.map((item: any, index: number) => (
                       <p
                         key={index}
                         className="font-semibold text-shop_dark_green tracking-wider"

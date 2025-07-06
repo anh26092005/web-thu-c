@@ -12,7 +12,7 @@ import React from "react";
 import CustomChat from "@/components/CustomChat";
 
 const Home = async () => {
-  const categories = await getCategories(6);
+  const categories = await getCategories();
 
   return (
     <Container className="bg-shop_light_pink">

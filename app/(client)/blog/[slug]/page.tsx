@@ -215,7 +215,7 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
           ))}
         </div>
       </div>
-      <div className="shadow-md p-5 rounded-md mt-10 bg-white">
+      <div className="shadow-md p-5 rounded-md mt-10 bg-white ">
         <Title className="text-base">Bài viết mới nhất</Title>
         <div className="space-y-4 mt-4">
           {blogs?.map((blog: Blog, index: number) => (

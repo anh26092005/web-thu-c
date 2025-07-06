@@ -5,6 +5,7 @@ import ImageView from "@/components/ImageView";
 import PriceView from "@/components/PriceView";
 import ProductCharacteristics from "@/components/ProductCharacteristics";
 import ProductInfo from "@/components/ProductInfo";
+import ProductReviews from "@/components/reviews/ProductReviews";
 import { getProductBySlug } from "@/sanity/queries";
 import { CornerDownLeft, StarIcon, Truck } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -28,7 +29,7 @@ const SingleProductPage = async ({
   
   return (
     <>
-    <div className="flex flex-col justify-between bg-white rounded-xl">
+    <div className="flex flex-col justify-between bg-white rounded-xl max-w-screen-xl mx-auto p-5">
     <Container className="flex flex-col md:flex-row gap-10 py-5 bg-white rounded-xl mt-10">
       {product?.images && (
         <ImageView images={product?.images} isStock={product?.stock} />
@@ -140,8 +141,18 @@ const SingleProductPage = async ({
           </div>
         </div>
     </div>
+      
+      {/* Thông tin chi tiết sản phẩm */}
       <div className="flex flex-col md:flex-row gap-10 py-10 max-w-screen-xl mx-auto">
         <ProductInfo info={product?.drugInfo}/>
+      </div>
+
+      {/* Hệ thống đánh giá sản phẩm */}
+      <div className="max-w-screen-xl mx-auto py-10 px-5">
+        <ProductReviews 
+          productId={product._id} 
+          productName={product.name} 
+        />
       </div>
     </>
   );

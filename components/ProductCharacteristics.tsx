@@ -1,5 +1,5 @@
 import { Product } from "@/sanity.types";
-import { getBrand } from "@/sanity/queries";
+import { getBrandBySlug } from "@/sanity/queries";
 import React from "react";
 import {
   Accordion,
@@ -13,7 +13,7 @@ const ProductCharacteristics = async ({
 }: {
   product: Product | null | undefined;
 }) => {
-  const brand = await getBrand(product?.slug?.current as string);
+  const brand = await getBrandBySlug(product?.slug?.current as string);
   console.log("product", product);
 
   return (
@@ -48,7 +48,7 @@ const ProductCharacteristics = async ({
           <p className="flex items-center justify-between">
             Xuất xứ:{" "}
             <span className="font-semibold tracking-wide">
-              {product?.origin}
+              {(product as any)?.origin || "Không rõ"}
             </span>
           </p>
         </AccordionContent>
