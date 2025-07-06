@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { backendClient } from "@/sanity/lib/backendClient";
 import { v4 as uuidv4 } from "uuid";
+import { sendOrderConfirmationEmail, OrderData } from "@/lib/email-service";
 
 export async function POST(req: Request) {
   try {
@@ -83,6 +84,73 @@ export async function POST(req: Request) {
       status: "pending",
       orderDate: new Date().toISOString(),
     });
+
+    // Gửi email xác nhận đơn hàng
+    try {
+      // Lấy thông tin chi tiết sản phẩm từ cart
+      const productDetails = await Promise.all(
+        cart.map(async (item: any) => {
+          const product = await backendClient.fetch(
+            `*[_type == "product" && _id == $productId][0]{ name, price }`,
+            { productId: item._id }
+          );
+          return {
+            name: product?.name || "Sản phẩm",
+            quantity: item.quantity,
+            price: product?.price || 0,
+          };
+        })
+      );
+
+      // Lấy thông tin địa chỉ chi tiết
+      const addressDetails = await backendClient.fetch(
+        `{
+          "province": *[_type == "province" && _id == $provinceId][0]{ name },
+          "ward": *[_type == "ward" && _id == $wardId][0]{ name }
+        }`,
+        { 
+          provinceId: shippingAddress.provinceId,
+          wardId: shippingAddress.wardId 
+        }
+      );
+
+      // Chuẩn bị dữ liệu email
+      const emailData: OrderData = {
+        orderNumber: orderNumber,
+        customerInfo: {
+          name: customerInfo.name,
+          email: customerInfo.email,
+          phone: customerInfo.phone,
+        },
+        products: productDetails,
+        totalPrice: totalPrice,
+        originalPrice: originalPrice || totalPrice,
+        discountAmount: discountAmount || 0,
+        shippingDiscount: shippingDiscount || 0,
+        paymentMethod: "cod",
+        shippingAddress: {
+          street: shippingAddress.street,
+          ward: addressDetails.ward?.name || "Không xác định",
+          province: addressDetails.province?.name || "Không xác định",
+        },
+        orderDate: new Date().toISOString(),
+        estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
+      };
+
+      // Gửi email xác nhận
+      const emailResult = await sendOrderConfirmationEmail(emailData);
+      
+      if (emailResult.success) {
+        console.log("Email xác nhận đã được gửi thành công");
+      } else {
+        console.error("Lỗi gửi email xác nhận:", emailResult.message);
+        // Không throw error để không ảnh hưởng đến việc tạo đơn hàng
+      }
+
+    } catch (emailError) {
+      console.error("Lỗi trong quá trình gửi email:", emailError);
+      // Không throw error để không ảnh hưởng đến việc tạo đơn hàng
+    }
 
     return NextResponse.json({ order });
   } catch (error) {

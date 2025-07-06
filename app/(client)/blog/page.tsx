@@ -12,12 +12,14 @@ const BlogPage = async () => {
   const blogs = await getAllBlogs(6);
 
   return (
-    <div>
-      <Container>
-        <Title>Blog page</Title>
+    <div className="my-10">
+      <Container className="">
+        <div className="px-4 py-2 rounded-full bg-white ">
+          <h1 className="text-shop_light_green text-xl font-bold text-center"> Góc sức khỏe </h1>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 md:mt-10">
           {blogs?.map((blog) => (
-            <div key={blog?._id} className="rounded-md overflow-hidden group">
+            <div key={blog?._id} className="rounded-xl overflow-hidden group bg-white">
               {blog?.mainImage && (
                 <Image
                   src={urlFor(blog?.mainImage).url()}
@@ -27,7 +29,7 @@ const BlogPage = async () => {
                   className="w-full max-h-80 object-cover"
                 />
               )}
-              <div className="bg-gray-100 p-5">
+              <div className="bg-white p-5">
                 <div className="text-xs flex items-center gap-5">
                   <div className="flex items-center relative group cursor-pointer">
                     {blog?.blogcategories?.map((item, index) => (

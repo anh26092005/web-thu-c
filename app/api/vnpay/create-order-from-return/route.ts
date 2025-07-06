@@ -1,126 +1,161 @@
 // Khối 1: Import các thư viện cần thiết
-import { NextRequest, NextResponse } from 'next/server';
-import { backendClient } from '@/sanity/lib/backendClient';
-import { v4 as uuidv4 } from 'uuid';
+import { NextResponse } from "next/server";
+import { backendClient } from "@/sanity/lib/backendClient";
+import { v4 as uuidv4 } from "uuid";
+import { sendOrderConfirmationEmail, OrderData } from "@/lib/email-service";
 
-// Khối 2: Xử lý POST tạo đơn hàng từ dữ liệu trả về của VNPay
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    // Lấy dữ liệu từ body (các tham số trả về của VNPay và thông tin đơn hàng từ localStorage)
-    const { vnpayParams, pendingOrderData } = await req.json();
+    const { vnpayData } = await req.json();
 
-    // Lấy các trường cơ bản từ VNPay
-    const responseCode = vnpayParams.vnp_ResponseCode;
-    const amount = parseInt(vnpayParams.vnp_Amount) / 100;
+    if (!vnpayData) {
+      return new NextResponse("Missing VNPay data", { status: 400 });
+    }
 
-    if (responseCode === '00') {
-      // Kiểm tra có dữ liệu đơn hàng tạm thời không
-      if (!pendingOrderData || !pendingOrderData.cart || !pendingOrderData.customerInfo || !pendingOrderData.shippingAddress) {
-        return NextResponse.json({ success: false, message: 'Missing order data from localStorage' }, { status: 400 });
-      }
+    // Lấy dữ liệu đơn hàng từ localStorage (được gửi từ frontend)
+    const pendingOrderData = vnpayData.pendingOrderData;
 
-      // Debug dữ liệu nhận được từ localStorage
-      console.log("VNPay - Pending order data from localStorage:");
-      console.log("CustomerInfo:", pendingOrderData.customerInfo);
-      console.log("Email specifically:", pendingOrderData.customerInfo?.email);
-      console.log("Coupon info:", pendingOrderData.appliedCoupon);
-      console.log("Discount amount:", pendingOrderData.discountAmount);
+    if (!pendingOrderData) {
+      return new NextResponse("Missing pending order data", { status: 400 });
+    }
 
-      // Tạo orderNumber mới
-      const orderNumber = uuidv4();
+    // Debug dữ liệu nhận được từ localStorage
+    console.log("VNPay - Pending order data from localStorage:");
+    console.log("CustomerInfo:", pendingOrderData.customerInfo);
+    console.log("Email specifically:", pendingOrderData.customerInfo?.email);
+    console.log("Coupon info:", pendingOrderData.appliedCoupon);
+    console.log("Discount amount:", pendingOrderData.discountAmount);
 
-      // Tính thời gian giao hàng dự kiến (2-3 ngày làm việc cho thanh toán online)
-      const estimatedDeliveryDate = new Date();
-      estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3); // 3 ngày sau
+    // Tạo orderNumber mới
+    const orderNumber = uuidv4();
 
-      // Debug dữ liệu sẽ lưu vào Sanity
-      console.log("VNPay - Order data to be saved:");
-      console.log("Email to save:", pendingOrderData.customerInfo.email);
+    // Tính thời gian giao hàng dự kiến (2-3 ngày làm việc cho thanh toán online)
+    const estimatedDeliveryDate = new Date();
+    estimatedDeliveryDate.setDate(estimatedDeliveryDate.getDate() + 3); // 3 ngày sau
 
-      // Thanh toán thành công, tạo đơn hàng trong Sanity giống như COD
-      const newOrder = {
-        _type: 'order',
-        orderNumber,
-        clerkUserId: pendingOrderData.customerInfo.clerkUserId,
-        customerName: pendingOrderData.customerInfo.name,
-        email: pendingOrderData.customerInfo.email,
-        phone: pendingOrderData.customerInfo.phone,
-        orderNotes: pendingOrderData.orderNotes || "",
-        shippingAddress: {
-          _type: "vietnameseAddress",
-          streetAddress: pendingOrderData.shippingAddress.street,
-          province: {
-            _type: "reference",
-            _ref: pendingOrderData.shippingAddress.provinceId,
-          },
-          ward: {
-            _type: "reference",
-            _ref: pendingOrderData.shippingAddress.wardId,
-          },
+    // Debug dữ liệu sẽ lưu vào Sanity
+    console.log("VNPay - Order data to be saved:");
+    console.log("Email to save:", pendingOrderData.customerInfo?.email);
+
+    const order = await backendClient.create({
+      _type: "order",
+      orderNumber,
+      clerkUserId: pendingOrderData.customerInfo?.clerkUserId,
+      customerName: pendingOrderData.customerInfo?.name,
+      email: pendingOrderData.customerInfo?.email,
+      phone: pendingOrderData.customerInfo?.phone,
+      orderNotes: pendingOrderData.orderNotes || "",
+      shippingAddress: {
+        _type: "vietnameseAddress",
+        streetAddress: pendingOrderData.shippingAddress?.street,
+        province: {
+          _type: "reference",
+          _ref: pendingOrderData.shippingAddress?.provinceId,
         },
-        products: pendingOrderData.cart.map((item: any) => ({
-          _key: item._id,
-          product: {
-            _type: "reference",
-            _ref: item._id,
-          },
-          quantity: item.quantity,
-        })),
+        ward: {
+          _type: "reference",
+          _ref: pendingOrderData.shippingAddress?.wardId,
+        },
+      },
+      products: pendingOrderData.cart?.map((item: any) => ({
+        _key: item._id,
+        product: {
+          _type: "reference",
+          _ref: item._id,
+        },
+        quantity: item.quantity,
+      })),
+      totalPrice: pendingOrderData.totalPrice,
+      currency: "VND",
+      amountDiscount: pendingOrderData.discountAmount || 0,
+      // Thêm thông tin mã giảm giá nếu có
+      ...(pendingOrderData.appliedCoupon && {
+        appliedCoupon: {
+          _type: "reference",
+          _ref: pendingOrderData.appliedCoupon._id,
+        },
+        couponCode: pendingOrderData.appliedCoupon.code,
+      }),
+      shippingFee: pendingOrderData.shippingDiscount ? 0 : 30000, // Miễn phí vận chuyển nếu có mã giảm giá shipping
+      estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
+      paymentMethod: "vnpay",
+      isPaid: true, // VNPay đã thanh toán
+      status: "processing", // Trạng thái processing cho đơn hàng đã thanh toán
+      orderDate: new Date().toISOString(),
+      vnpayTransactionId: vnpayData.vnp_TransactionNo,
+      vnpayPaymentDate: vnpayData.vnp_PayDate,
+    });
+
+    // Gửi email xác nhận đơn hàng
+    try {
+      // Lấy thông tin chi tiết sản phẩm từ cart
+      const productDetails = await Promise.all(
+        pendingOrderData.cart.map(async (item: any) => {
+          const product = await backendClient.fetch(
+            `*[_type == "product" && _id == $productId][0]{ name, price }`,
+            { productId: item._id }
+          );
+          return {
+            name: product?.name || "Sản phẩm",
+            quantity: item.quantity,
+            price: product?.price || 0,
+          };
+        })
+      );
+
+      // Lấy thông tin địa chỉ chi tiết
+      const addressDetails = await backendClient.fetch(
+        `{
+          "province": *[_type == "province" && _id == $provinceId][0]{ name },
+          "ward": *[_type == "ward" && _id == $wardId][0]{ name }
+        }`,
+        { 
+          provinceId: pendingOrderData.shippingAddress.provinceId,
+          wardId: pendingOrderData.shippingAddress.wardId 
+        }
+      );
+
+      // Chuẩn bị dữ liệu email
+      const emailData: OrderData = {
+        orderNumber: orderNumber,
+        customerInfo: {
+          name: pendingOrderData.customerInfo.name,
+          email: pendingOrderData.customerInfo.email,
+          phone: pendingOrderData.customerInfo.phone,
+        },
+        products: productDetails,
         totalPrice: pendingOrderData.totalPrice,
-        currency: 'VND',
-        amountDiscount: pendingOrderData.discountAmount || 0,
-        // Thêm thông tin mã giảm giá nếu có
-        ...(pendingOrderData.appliedCoupon && {
-          appliedCoupon: {
-            _type: "reference",
-            _ref: pendingOrderData.appliedCoupon._id,
-          },
-          couponCode: pendingOrderData.appliedCoupon.code,
-        }),
-        shippingFee: pendingOrderData.shippingDiscount ? 0 : 30000, // Miễn phí vận chuyển nếu có mã giảm giá shipping
-        estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
-        paymentMethod: 'vnpay',
-        isPaid: true,
-        status: 'processing',
+        originalPrice: pendingOrderData.originalPrice || pendingOrderData.totalPrice,
+        discountAmount: pendingOrderData.discountAmount || 0,
+        shippingDiscount: pendingOrderData.shippingDiscount || 0,
+        paymentMethod: "vnpay",
+        shippingAddress: {
+          street: pendingOrderData.shippingAddress.street,
+          ward: addressDetails.ward?.name || "Không xác định",
+          province: addressDetails.province?.name || "Không xác định",
+        },
         orderDate: new Date().toISOString(),
-        vnpayResponse: vnpayParams,
+        estimatedDeliveryDate: estimatedDeliveryDate.toISOString(),
       };
 
-      try {
-        const order = await backendClient.create(newOrder);
-        
-        // Cập nhật số lần sử dụng mã giảm giá nếu có
-        if (pendingOrderData.appliedCoupon) {
-          try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/coupon/update-usage`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                couponId: pendingOrderData.appliedCoupon._id,
-              }),
-            });
-            
-            if (!response.ok) {
-              console.error("Lỗi cập nhật usage mã giảm giá:", await response.text());
-            }
-          } catch (updateError) {
-            console.error("Lỗi khi gọi API cập nhật usage mã giảm giá:", updateError);
-          }
-        }
-        
-        return NextResponse.json({ success: true, message: 'Order created successfully.', order }, { status: 200 });
-      } catch (sanityError) {
-        console.error('Error creating order in Sanity:', sanityError);
-        return NextResponse.json({ success: false, message: 'Error creating order in Sanity.' }, { status: 500 });
+      // Gửi email xác nhận
+      const emailResult = await sendOrderConfirmationEmail(emailData);
+      
+      if (emailResult.success) {
+        console.log("Email xác nhận VNPay đã được gửi thành công");
+      } else {
+        console.error("Lỗi gửi email xác nhận VNPay:", emailResult.message);
+        // Không throw error để không ảnh hưởng đến việc tạo đơn hàng
       }
-    } else {
-      // Thanh toán thất bại hoặc bị hủy
-      return NextResponse.json({ success: false, message: 'Payment failed or cancelled.' }, { status: 200 });
+
+    } catch (emailError) {
+      console.error("Lỗi trong quá trình gửi email VNPay:", emailError);
+      // Không throw error để không ảnh hưởng đến việc tạo đơn hàng
     }
+
+    return NextResponse.json({ order });
   } catch (error) {
-    console.error('Error processing VNPay return:', error);
-    return NextResponse.json({ success: false, message: 'Unknown error.' }, { status: 500 });
+    console.error("Error creating VNPay order:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 } 

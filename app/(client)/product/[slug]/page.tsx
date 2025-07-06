@@ -95,7 +95,7 @@ const SingleProductPage = async ({
               <p className="text-base font-semibold text-black">
                 Giao hàng miễn phí
               </p>
-              <p className="text-sm text-gray-500 underline underline-offset-2">
+              <p className="text-sm text-gray-500">
                 theo chính sách giao hàng
               </p>
             </div>
@@ -122,7 +122,7 @@ const SingleProductPage = async ({
               <p className="text-base font-semibold text-black">
                 Giao hàng miễn phí
               </p>
-              <p className="text-sm text-gray-500 underline underline-offset-2">
+              <p className="text-sm text-gray-500 ">
                 theo chính sách giao hàng
               </p>
             </div>

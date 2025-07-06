@@ -13,7 +13,7 @@ const client = createClient({
   projectId,
 });
 
-const CustomChat = () => {
+const  CustomChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -116,11 +116,11 @@ const CustomChat = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-21 right-6 z-50">
       {!isOpen ? (
         <Button
           onClick={toggleChat}
-          className="rounded-full w-14 h-14 bg-blue-600 hover:bg-blue-700"
+          className="rounded-full w-13 h-13 bg-blue-600 hover:bg-blue-700"
         >
           <MessageSquare className="w-8 h-8 text-white" />
         </Button>
@@ -191,8 +191,8 @@ const CustomChat = () => {
     <div
         className={`p-3 rounded-2xl max-w-[80%] ${
             msg.from === "bot" || msg.from === "agent" || msg.from === "admin"
-                ? "bg-slate-200 text-slate-800 rounded-bl-none" // bo góc dưới bên trái = 0
-                : "bg-blue-600 text-white rounded-br-none ml-auto" // bo góc dưới bên phải = 0
+                ? "bg-slate-200 text-slate-800 rounded-bl-none mt-2" // bo góc dưới bên trái = 0
+                : "bg-blue-600 text-white rounded-br-none ml-auto mt-2" // bo góc dưới bên phải = 0
         }`}
     >
         <p className="text-sm">{msg.text}</p>

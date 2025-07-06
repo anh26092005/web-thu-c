@@ -25,8 +25,8 @@ const SingleBlogPage = async ({
   if (!blog) return notFound();
 
   return (
-    <div className="py-10">
-      <Container className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+    <div className="py-10 bg-white">
+      <Container className="grid grid-cols-1 lg:grid-cols-4 gap-5 bg-white">
         <div className="md:col-span-3">
           {blog?.mainImage && (
             <Image
@@ -44,7 +44,7 @@ const SingleBlogPage = async ({
                   (item: { title: string }, index: number) => (
                     <p
                       key={index}
-                      className="font-semibold text-shop_dark_green tracking-wider"
+                      className="font-semibold text-shop_light_green tracking-wider"
                     >
                       {item?.title}
                     </p>
@@ -72,7 +72,7 @@ const SingleBlogPage = async ({
                       components={{
                         block: {
                           normal: ({ children }) => (
-                            <p className="my-5 text-base/8 first:mt-0 last:mb-0">
+                            <p className="my-5 text-darkColor first:mt-0 last:mb-0">
                               {children}
                             </p>
                           ),
@@ -87,10 +87,14 @@ const SingleBlogPage = async ({
                             </h3>
                           ),
                           blockquote: ({ children }) => (
-                            <blockquote className="my-5 border-l-2 border-l-gray-300 pl-6 text-base/8 text-gray-950 first:mt-0 last:mb-0">
-                              {children}
+                            <blockquote className="relative my-6 rounded-xl bg-slate-100 p-8">
+
+                                {/* Nội dung trích dẫn */}
+                                <div className="relative z-10 text-base text-slate-700 border-l-4 border-l-shop_light_green/50 pl-6">
+                                    {children}
+                                </div>
                             </blockquote>
-                          ),
+                        ),
                         },
                         types: {
                           image: ({ value }) => (
@@ -176,7 +180,7 @@ const SingleBlogPage = async ({
                     <Link href="/blog" className="flex items-center gap-1">
                       <ChevronLeftIcon className="size-5" />
                       <span className="text-sm font-semibold">
-                        Back to blog
+                        Góc sức khỏe
                       </span>
                     </Link>
                   </div>
@@ -197,8 +201,8 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
 
   return (
     <div>
-      <div className="border border-lightColor p-5 rounded-md">
-        <Title className="text-base">Blog Categories</Title>
+      <div className=" shadow-md p-5 rounded-md bg-white">
+        <Title className="text-base">Danh mục bài viết</Title>
         <div className="space-y-2 mt-2">
           {categories?.map(({ blogcategories }, index) => (
             <div
@@ -211,8 +215,8 @@ const BlogLeft = async ({ slug }: { slug: string }) => {
           ))}
         </div>
       </div>
-      <div className="border border-lightColor p-5 rounded-md mt-10">
-        <Title className="text-base">Latest Blogs</Title>
+      <div className="shadow-md p-5 rounded-md mt-10 bg-white">
+        <Title className="text-base">Bài viết mới nhất</Title>
         <div className="space-y-4 mt-4">
           {blogs?.map((blog: Blog, index: number) => (
             <Link

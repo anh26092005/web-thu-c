@@ -9,6 +9,7 @@ import { getCategories } from "@/sanity/queries";
 import BackToTopButton from "@/components/BackToTopButton";
 import Chat from "@/components/Chat";
 import React from "react";
+import CustomChat from "@/components/CustomChat";
 
 const Home = async () => {
   const categories = await getCategories(6);
@@ -22,7 +23,7 @@ const Home = async () => {
       <LatestBlog />
       <Chat />
       <BackToTopButton />
-
+      <CustomChat />
     </Container>
   );
 };
