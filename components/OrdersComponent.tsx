@@ -40,7 +40,7 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
                     {order?.orderDate &&
                       format(new Date(order.orderDate), "dd/MM/yyyy")}
                   </TableCell>
-                  <TableCell>{order.customerName}</TableCell>
+                  <TableCell className="hidden md:table-cell">{order.customerName}</TableCell>
                   <TableCell className="hidden sm:table-cell">
                     {order.email}
                   </TableCell>
@@ -54,13 +54,27 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
                     {order?.status && (
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          order.status === "paid"
+                          order.status === "delivered"
                             ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
+                            : order.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : order.status === "processing"
+                            ? "bg-blue-100 text-blue-800"
+                            : order.status === "shipped"
+                            ? "bg-orange-100 text-orange-800"
+                            : order.status === "out_for_delivery"
+                            ? "bg-red-100 text-red-800"
+                            : ""
                         }`}
                       >
-                        {order?.status.charAt(0).toUpperCase() +
-                          order?.status.slice(1)}
+                        {
+                          order.status === 'pending' ? 'Đang chờ xử lý' :
+                          order.status === 'processing' ? 'Đang xử lý' :
+                          order.status === 'shipped' ? 'Đã giao đơn hàng' :
+                          order.status === 'out_for_delivery' ? 'Đang giao hàng' :
+                          order.status === 'delivered' ? 'Đã giao thành công' :
+                          order.status === 'cancelled' ? 'Đã hủy' : order.status
+                        }
                       </span>
                     )}
                   </TableCell>
@@ -87,7 +101,7 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
                 </TableRow>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Click to see order details</p>
+                <p>Nhấn để xem chi tiết đơn hàng</p>
               </TooltipContent>
             </Tooltip>
           ))}

@@ -36,9 +36,16 @@ const BRAND_QUERY = defineQuery(`*[_type == "product" && slug.current == $slug]{
   }`);
 
 const MY_ORDERS_QUERY =
-  defineQuery(`*[_type == 'order' && clerkUserId == $userId] | order(orderData desc){
-...,products[]{
-  ...,product->
+  defineQuery(`*[_type == 'order' && clerkUserId == $userId] | order(orderDate desc){
+...,
+products[]{
+  ...,
+  product->
+},
+shippingAddress{
+  ...,
+  province->,
+  ward->
 }
 }`);
 const GET_ALL_BLOG = defineQuery(

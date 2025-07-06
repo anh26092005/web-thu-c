@@ -1,4 +1,4 @@
-'''"use client";
+"use client";
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,14 +9,14 @@ import toast from 'react-hot-toast';
 const MomoReturnPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { clearCart } = useStore();
+  const { resetCart } = useStore();
 
   useEffect(() => {
     const resultCode = searchParams.get('resultCode');
 
     if (resultCode === '0') {
       toast.success('Thanh toán thành công! Đơn hàng của bạn đang được xử lý.');
-      clearCart();
+      resetCart();
     } else {
       toast.error('Thanh toán không thành công hoặc đã bị hủy.');
     }
@@ -26,7 +26,7 @@ const MomoReturnPage = () => {
       router.push('/orders');
     }, 3000);
 
-  }, [searchParams, router, clearCart]);
+  }, [searchParams, router, resetCart]);
 
   return (
     <Container className="flex items-center justify-center py-20">
@@ -39,4 +39,3 @@ const MomoReturnPage = () => {
 };
 
 export default MomoReturnPage;
-''

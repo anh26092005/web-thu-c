@@ -19,7 +19,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Address, ProvinceData, WardData } from "@/sanity.types";
+import { Address } from "@/sanity.types";
 import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 import useStore from "@/store";
@@ -35,24 +35,21 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 
-interface VietnameseAddress {
+// Local type definitions
+interface ProvinceData {
   _id: string;
-  _type: "address";
-  name?: string;
-  email?: string;
-  streetAddress: string;
+  name: string;
+  code: string;
+}
+
+interface WardData {
+  _id: string;
+  name: string;
+  code: string;
   province: {
-    _id: string;
-    name: string;
-    code: string;
+    _ref: string;
+    _type: "reference";
   };
-  ward: {
-    _id: string;
-    name: string;
-    code: string;
-  };
-  default?: boolean;
-  createdAt?: string;
 }
 
 const CartPage = () => {
@@ -75,6 +72,9 @@ const CartPage = () => {
   const [selectedNewWard, setSelectedNewWard] = useState<WardData | null>(null);
   const [orderNotes, setOrderNotes] = useState("");
   const [manualEmail, setManualEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [manualPhone, setManualPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const router = useRouter();
 
   const fetchProvinces = async () => {
@@ -121,31 +121,74 @@ const CartPage = () => {
     try {
       if (!newStreetAddress || !selectedNewProvince || !selectedNewWard) {
         toast.error("Vui lòng nhập đầy đủ thông tin địa chỉ giao hàng.");
+        setLoading(false);
         return;
       }
 
       // Trích xuất email từ Clerk user
-      const { email: extractedEmail, source } = extractUserEmail();
-      console.log("Email source:", source);
+      const extractedEmail = extractUserEmail();
       
       // Sử dụng email thủ công nếu có, nếu không dùng email từ Clerk
-      const finalEmail = manualEmail || extractedEmail || "Unknown";
+      const finalEmail = manualEmail || extractedEmail.email || "";
       
-      // Cảnh báo nếu không tìm thấy email
-      if (!extractedEmail && !manualEmail) {
-        toast.error("Không thể lấy email từ tài khoản. Vui lòng nhập email thủ công.");
+      // Validation bắt buộc cho email
+      if (!finalEmail || finalEmail === "Unknown") {
+        setEmailError("Email là bắt buộc. Vui lòng nhập email của bạn.");
+        toast.error("Email là bắt buộc. Vui lòng nhập email của bạn.");
+        setLoading(false);
         return;
       }
+
+      // Validation format email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(finalEmail)) {
+        setEmailError("Định dạng email không hợp lệ. Vui lòng nhập email đúng.");
+        toast.error("Định dạng email không hợp lệ. Vui lòng nhập email đúng.");
+        setLoading(false);
+        return;
+      }
+
+      // Clear email error nếu email hợp lệ
+      setEmailError("");
+
+      // Trích xuất số điện thoại từ Clerk user
+      const extractedPhone = user?.phoneNumbers?.[0]?.phoneNumber || "";
+      
+      // Sử dụng số điện thoại thủ công nếu có, nếu không dùng từ Clerk
+      const finalPhone = manualPhone || extractedPhone || "";
+      
+      // Validation bắt buộc cho số điện thoại
+      if (!finalPhone || finalPhone === "Unknown") {
+        setPhoneError("Số điện thoại là bắt buộc. Vui lòng nhập số điện thoại của bạn.");
+        toast.error("Số điện thoại là bắt buộc. Vui lòng nhập số điện thoại của bạn.");
+        setLoading(false);
+        return;
+      }
+
+      // Validation format số điện thoại Việt Nam
+      const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+      if (!phoneRegex.test(finalPhone.replace(/\s+/g, ''))) {
+        setPhoneError("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam đúng định dạng.");
+        toast.error("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam đúng định dạng.");
+        setLoading(false);
+        return;
+      }
+
+      // Clear phone error nếu số điện thoại hợp lệ
+      setPhoneError("");
 
       const customerInfo = {
         clerkUserId: user?.id,
         name: user?.fullName ?? user?.firstName + " " + user?.lastName ?? "Unknown",
         email: finalEmail,
-        phone: user?.phoneNumbers?.[0]?.phoneNumber ?? "Unknown",
+        phone: finalPhone,
       };
 
       console.log("=== THÔNG TIN KHÁCH HÀNG CUỐI CÙNG ===");
       console.log("Customer info being sent:", customerInfo);
+      console.log("Final email:", finalEmail);
+      console.log("Final phone:", finalPhone);
+      console.log("Extracted phone from Clerk:", extractedPhone);
       const shippingAddressPayload = {
         street: newStreetAddress,
         provinceId: selectedNewProvince._id,
@@ -333,7 +376,7 @@ const CartPage = () => {
                 </div>
                 <div>
                   <div className="lg:col-span-1">
-                    <div className="hidden md:inline-block w-full bg-white p-6 rounded-lg border">
+                    <div className="hidden md:inline-block w-full bg-white p-6 rounded-lg">
                       <h2 className="text-xl font-semibold mb-8">
                         Tóm tắt đơn hàng
                       </h2>
@@ -373,13 +416,58 @@ const CartPage = () => {
                         </CardHeader>
                         <CardContent>
                           <div className="grid gap-4">
-                            <Input
-                              type="email"
-                              placeholder="Email của bạn (tùy chọn)"
-                              value={manualEmail}
-                              onChange={(e) => setManualEmail(e.target.value)}
-                              className="w-full"
-                            />
+                            <div className="space-y-2">
+                              <label htmlFor="email" className="text-sm font-medium">
+                                Email <span className="text-red-500">*</span>
+                              </label>
+                              <Input
+                                id="email"
+                                type="email"
+                                placeholder="Nhập email của bạn (bắt buộc)"
+                                value={manualEmail}
+                                onChange={(e) => {
+                                  setManualEmail(e.target.value);
+                                  // Clear error khi user bắt đầu nhập
+                                  if (emailError) setEmailError("");
+                                }}
+                                className={`w-full ${emailError ? 'border-red-500 focus:border-red-500' : ''}`}
+                                required
+                              />
+                              {emailError && (
+                                <p className="text-xs text-red-500">{emailError}</p>
+                              )}
+                              {user?.primaryEmailAddress?.emailAddress && !manualEmail && !emailError && (
+                                <p className="text-xs text-gray-500">
+                                  Email từ tài khoản: {user.primaryEmailAddress.emailAddress}
+                                </p>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              <label htmlFor="phone" className="text-sm font-medium">
+                                Số điện thoại <span className="text-red-500">*</span>
+                              </label>
+                              <Input
+                                id="phone"
+                                type="tel"
+                                placeholder="Nhập số điện thoại của bạn (bắt buộc)"
+                                value={manualPhone}
+                                onChange={(e) => {
+                                  setManualPhone(e.target.value);
+                                  // Clear error khi user bắt đầu nhập
+                                  if (phoneError) setPhoneError("");
+                                }}
+                                className={`w-full ${phoneError ? 'border-red-500 focus:border-red-500' : ''}`}
+                                required
+                              />
+                              {phoneError && (
+                                <p className="text-xs text-red-500">{phoneError}</p>
+                              )}
+                              {user?.phoneNumbers?.[0]?.phoneNumber && !manualPhone && !phoneError && (
+                                <p className="text-xs text-gray-500">
+                                  Số điện thoại từ tài khoản: {user.phoneNumbers[0].phoneNumber}
+                                </p>
+                              )}
+                            </div>
                             <Input
                               type="text"
                               placeholder="Số nhà, tên đường..."

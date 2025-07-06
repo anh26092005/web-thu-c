@@ -249,7 +249,6 @@ export type Product = {
   _updatedAt: string;
   _rev: string;
   name?: string;
-  origin?: string;
   slug?: Slug;
   images?: Array<{
     asset?: {
@@ -337,40 +336,6 @@ export type BlockContent = Array<{
   _type: "image";
   _key: string;
 }>;
-
-export type Banner = {
-  _id: string;
-  _type: "banner";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  image: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-  };
-  description?: Array<{
-    _key: string;
-    _type: "block";
-    style: string;
-    children: Array<{
-      _key: string;
-      _type: "span";
-      text: string;
-      marks: string[];
-    }>;
-    markDefs: any[]; // Nếu muốn an toàn hơn, bạn có thể định nghĩa rõ hơn cho markDefs
-  }>;
-  isActive?: boolean;
-};
 
 export type Category = {
   _id: string;
@@ -582,11 +547,11 @@ export type DEAL_PRODUCTSResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "thuc-pham-chuc-nang" | "gadget" | "others" | "refrigerators";
+  variant?: "gadget" | "others" | "refrigerators" | "thuc-pham-chuc-nang";
   isFeatured?: boolean;
 }>;
 // Variable: PRODUCT_BY_SLUG_QUERY
-// Query: *[_type == "product" && slug.current == $slug] | order(name asc) [0]
+// Query: *[_type == "product" && slug.current == $slug][0]
 export type PRODUCT_BY_SLUG_QUERYResult = {
   _id: string;
   _type: "product";
@@ -625,16 +590,19 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "thuc-pham-chuc-nang" | "gadget" | "others" | "refrigerators";
+  variant?: "gadget" | "others" | "refrigerators" | "thuc-pham-chuc-nang";
   isFeatured?: boolean;
 } | null;
+// Variable: BANNER_QUERY
+// Query: *[_type == "banner" && isActive == true]{  _id,  title,  image{    asset,    alt  },  description}
+export type BANNER_QUERYResult = Array<never>;
 // Variable: BRAND_QUERY
 // Query: *[_type == "product" && slug.current == $slug]{  "brandName": brand->title  }
 export type BRAND_QUERYResult = Array<{
   brandName: string | null;
 }>;
 // Variable: MY_ORDERS_QUERY
-// Query: *[_type == 'order' && clerkUserId == $userId] | order(orderData desc){...,products[]{  ...,product->}}
+// Query: *[_type == 'order' && clerkUserId == $userId] | order(orderDate desc){...,products[]{  ...,  product->},shippingAddress{  ...,  province->,  ward->}}
 export type MY_ORDERS_QUERYResult = Array<{
   _id: string;
   _type: "order";
@@ -692,7 +660,7 @@ export type MY_ORDERS_QUERYResult = Array<{
         [internalGroqTypeReferenceTo]?: "brand";
       };
       status?: "hot" | "new" | "sale";
-      variant?: "thuc-pham-chuc-nang" | "gadget" | "others" | "refrigerators";
+      variant?: "gadget" | "others" | "refrigerators" | "thuc-pham-chuc-nang";
       isFeatured?: boolean;
     } | null;
     quantity?: number;
@@ -710,6 +678,7 @@ export type MY_ORDERS_QUERYResult = Array<{
   };
   status?: "cancelled" | "delivered" | "out_for_delivery" | "paid" | "pending" | "processing" | "shipped";
   orderDate?: string;
+  shippingAddress: null;
 }>;
 // Variable: GET_ALL_BLOG
 // Query: *[_type == 'blog'] | order(publishedAt desc)[0...$quantity]{  ...,       blogcategories[]->{    title}    }
@@ -892,40 +861,12 @@ export type OTHERS_BLOG_QUERYResult = Array<{
   } | null;
   categories: null;
 }>;
-
-
-// Kiểu dữ liệu để fetch từ Sanity
-export interface ProvinceData {
-  _id: string;
-  name: string;
-  code: string;
-  _type: "province";
-}
-
-export interface WardData {
-  _id: string;
-  name: string;
-  code: string;
-  province: { _ref: string; _type: 'reference' };
-  _type: "ward";
-}
-
-// Kiểu dữ liệu sẽ được gửi ra bên ngoài (parent component)
-// và dùng để gửi lên Sanity (lưu trữ _ref của các reference)
-export interface SubmittedAddress {
-  streetAddress: string;
-  province: { _ref: string; _type: 'reference' }; // Lưu tham chiếu ID của province
-  ward: { _ref: string; _type: 'reference' };     // Lưu tham chiếu ID của ward
-  _type: "address";
-}
-
-// Kiểu dữ liệu cho initialAddress props (có thể chứa full object hoặc chỉ _id)
-// Chúng ta sẽ dùng full object để tiện hiển thị/set giá trị ban đầu
-export interface InitialSelectedAddress {
-  streetAddress?: string;
-  province?: ProvinceData;
-  ward?: WardData;
-}
+// Variable: PROVINCES_QUERY
+// Query: *[_type == 'province'] | order(name asc)
+export type PROVINCES_QUERYResult = Array<never>;
+// Variable: WARDS_BY_PROVINCE_QUERY
+// Query: *[_type == 'ward' && province->_id == $provinceId] | order(name asc)
+export type WARDS_BY_PROVINCE_QUERYResult = Array<never>;
 
 // Query TypeMap
 import "@sanity/client";
@@ -934,12 +875,15 @@ declare module "@sanity/client" {
     "*[_type=='brand'] | order(name asc) ": BRANDS_QUERYResult;
     " *[_type == 'blog' && isLatest == true]|order(name asc){\n      ...,\n      blogcategories[]->{\n      title\n    }\n    }": LATEST_BLOG_QUERYResult;
     "*[_type == 'product' && status == 'hot'] | order(name asc){\n    ...,\"categories\": categories[]->title\n  }": DEAL_PRODUCTSResult;
-    "*[_type == \"product\" && slug.current == $slug] | order(name asc) [0]": PRODUCT_BY_SLUG_QUERYResult;
+    "*[_type == \"product\" && slug.current == $slug][0]": PRODUCT_BY_SLUG_QUERYResult;
+    "*[_type == \"banner\" && isActive == true]{\n  _id,\n  title,\n  image{\n    asset,\n    alt\n  },\n  description\n}": BANNER_QUERYResult;
     "*[_type == \"product\" && slug.current == $slug]{\n  \"brandName\": brand->title\n  }": BRAND_QUERYResult;
-    "*[_type == 'order' && clerkUserId == $userId] | order(orderData desc){\n...,products[]{\n  ...,product->\n}\n}": MY_ORDERS_QUERYResult;
+    "*[_type == 'order' && clerkUserId == $userId] | order(orderDate desc){\n...,\nproducts[]{\n  ...,\n  product->\n},\nshippingAddress{\n  ...,\n  province->,\n  ward->\n}\n}": MY_ORDERS_QUERYResult;
     "*[_type == 'blog'] | order(publishedAt desc)[0...$quantity]{\n  ...,  \n     blogcategories[]->{\n    title\n}\n    }\n  ": GET_ALL_BLOGResult;
     "*[_type == \"blog\" && slug.current == $slug][0]{\n  ..., \n    author->{\n    name,\n    image,\n  },\n  blogcategories[]->{\n    title,\n    \"slug\": slug.current,\n  },\n}": SINGLE_BLOG_QUERYResult;
     "*[_type == \"blog\"]{\n     blogcategories[]->{\n    ...\n    }\n  }": BLOG_CATEGORIESResult;
     "*[\n  _type == \"blog\"\n  && defined(slug.current)\n  && slug.current != $slug\n]|order(publishedAt desc)[0...$quantity]{\n...\n  publishedAt,\n  title,\n  mainImage,\n  slug,\n  author->{\n    name,\n    image,\n  },\n  categories[]->{\n    title,\n    \"slug\": slug.current,\n  }\n}": OTHERS_BLOG_QUERYResult;
+    "*[_type == 'province'] | order(name asc)": PROVINCES_QUERYResult;
+    "*[_type == 'ward' && province->_id == $provinceId] | order(name asc)": WARDS_BY_PROVINCE_QUERYResult;
   }
 }
