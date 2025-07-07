@@ -81,7 +81,7 @@ export default function AdminProductsPage() {
   // Initial load
   useEffect(() => {
     fetchProducts(1, searchTerm, filterStatus);
-  }, []);
+  }, [searchTerm, filterStatus]);
 
   // Handle search
   const handleSearch = () => {

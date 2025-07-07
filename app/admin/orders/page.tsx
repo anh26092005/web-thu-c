@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { 
@@ -124,7 +124,7 @@ export default function AdminOrdersPage() {
   // Initial load
   useEffect(() => {
     fetchOrders(1, searchTerm, filterStatus);
-  }, []);
+  }, [searchTerm, filterStatus]);
 
   // Handle search
   const handleSearch = () => {

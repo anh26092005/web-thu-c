@@ -6,17 +6,21 @@ import { sendOrderConfirmationEmail, OrderData } from "@/lib/email-service";
 
 export async function POST(req: Request) {
   try {
-    const { vnpayData } = await req.json();
+    // Sửa lại để nhận đúng structure từ frontend
+    const { vnpayParams, pendingOrderData } = await req.json();
 
-    if (!vnpayData) {
-      return new NextResponse("Missing VNPay data", { status: 400 });
+    if (!vnpayParams) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "Missing VNPay parameters" 
+      }, { status: 400 });
     }
 
-    // Lấy dữ liệu đơn hàng từ localStorage (được gửi từ frontend)
-    const pendingOrderData = vnpayData.pendingOrderData;
-
     if (!pendingOrderData) {
-      return new NextResponse("Missing pending order data", { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        message: "Missing pending order data" 
+      }, { status: 400 });
     }
 
     // Debug dữ liệu nhận được từ localStorage
@@ -82,8 +86,8 @@ export async function POST(req: Request) {
       isPaid: true, // VNPay đã thanh toán
       status: "processing", // Trạng thái processing cho đơn hàng đã thanh toán
       orderDate: new Date().toISOString(),
-      vnpayTransactionId: vnpayData.vnp_TransactionNo,
-      vnpayPaymentDate: vnpayData.vnp_PayDate,
+      vnpayTransactionId: vnpayParams.vnp_TransactionNo,
+      vnpayPaymentDate: vnpayParams.vnp_PayDate,
     });
 
     // Gửi email xác nhận đơn hàng
@@ -153,9 +157,17 @@ export async function POST(req: Request) {
       // Không throw error để không ảnh hưởng đến việc tạo đơn hàng
     }
 
-    return NextResponse.json({ order });
+    // Trả về JSON response đúng format
+    return NextResponse.json({ 
+      success: true, 
+      message: "Order created successfully",
+      order: order 
+    });
   } catch (error) {
     console.error("Error creating VNPay order:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      message: "Internal Server Error" 
+    }, { status: 500 });
   }
 } 

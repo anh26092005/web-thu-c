@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import useStore from '@/store';
 import Container from '@/components/Container';
 import toast from 'react-hot-toast';
 
-const VnpayReturnPage = () => {
+// Component con để xử lý logic với useSearchParams
+const VnpayReturnContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resetCart } = useStore();
@@ -42,7 +43,18 @@ const VnpayReturnPage = () => {
           pendingOrderData: pendingOrderData, // Gửi dữ liệu từ localStorage
         }),
       })
-      .then(res => res.json())
+      .then(async (res) => {
+        // Kiểm tra content-type trước khi parse JSON
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return res.json();
+        } else {
+          // Nếu không phải JSON, đọc text để debug
+          const text = await res.text();
+          console.error('Non-JSON response:', text);
+          throw new Error(`Server returned non-JSON response: ${text}`);
+        }
+      })
       .then(data => {
         if (data.success) {
           console.log('Order creation API call successful:', data.message);
@@ -75,6 +87,25 @@ const VnpayReturnPage = () => {
         <p>Vui lòng chờ trong giây lát. Bạn sẽ được chuyển hướng ngay sau đây.</p>
       </div>
     </Container>
+  );
+};
+
+// Component loading fallback
+const VnpayReturnLoading = () => (
+  <Container className="flex items-center justify-center py-20">
+    <div className="text-center">
+      <h1 className="text-2xl font-bold">Đang tải...</h1>
+      <p>Vui lòng chờ trong giây lát.</p>
+    </div>
+  </Container>
+);
+
+// Component chính được wrap trong Suspense
+const VnpayReturnPage = () => {
+  return (
+    <Suspense fallback={<VnpayReturnLoading />}>
+      <VnpayReturnContent />
+    </Suspense>
   );
 };
 

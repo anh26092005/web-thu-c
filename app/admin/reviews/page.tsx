@@ -2,20 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import ReviewStars from "@/components/reviews/ReviewStars";
 import { 
   Search, 
   Star, 
-  Check, 
-  X, 
-  Eye,
+  CheckCircle, 
+  Clock, 
   MessageSquare,
-  Clock,
-  CheckCircle,
-  XCircle
+  AlertCircle,
+  Eye
 } from "lucide-react";
 
 interface Review {
@@ -98,7 +95,7 @@ export default function AdminReviewsPage() {
   // Initial load
   useEffect(() => {
     fetchReviews(1, searchTerm, filterStatus, filterRating);
-  }, []);
+  }, [searchTerm, filterStatus, filterRating]);
 
   // Handle search
   const handleSearch = () => {
@@ -357,7 +354,14 @@ export default function AdminReviewsPage() {
 
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-2">
-                        <ReviewStars rating={review.rating} size="sm" />
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star 
+                              key={i}
+                              className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                            />
+                          ))}
+                        </div>
                         <span className="text-sm text-gray-600">
                           {new Date(review.reviewDate).toLocaleDateString('vi-VN')}
                         </span>
@@ -382,7 +386,7 @@ export default function AdminReviewsPage() {
                           disabled={actionLoading === review._id}
                           className="gap-1 text-green-600 border-green-600 hover:bg-green-50"
                         >
-                          <Check className="h-4 w-4" />
+                          <CheckCircle className="h-4 w-4" />
                           {actionLoading === review._id ? "Đang xử lý..." : "Duyệt"}
                         </Button>
                         <Button
@@ -392,11 +396,12 @@ export default function AdminReviewsPage() {
                           disabled={actionLoading === review._id}
                           className="gap-1 text-red-600 border-red-600 hover:bg-red-50"
                         >
-                          <X className="h-4 w-4" />
+                          <AlertCircle className="h-4 w-4" />
                           Từ chối
                         </Button>
                       </>
                     )}
+                    {/* Assuming Eye icon is from lucide-react */}
                     <Button variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />
                     </Button>
