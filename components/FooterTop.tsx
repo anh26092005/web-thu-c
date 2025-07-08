@@ -40,7 +40,8 @@ const data: ContactItemData[] = [
 
 const FooterTop = () => {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 border-b">
+    <div className="max-w-screen-xl mx-auto">
+    <div className="  grid lg:grid-cols-4 md:grid-cols-2 gap-8 border-b">
       {data?.map((item, index) => (
         <div
           key={index}
@@ -57,6 +58,7 @@ const FooterTop = () => {
           </div>
         </div>
       ))}
+    </div>
     </div>
   );
 };

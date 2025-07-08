@@ -22,7 +22,7 @@ const Home = async () => {
       <ShopByBrands />
       <LatestBlog />
       <BackToTopButton />
-      <CustomChat />
+      <CustomChat/>
     </Container>
   );
 };
