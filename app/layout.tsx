@@ -2,7 +2,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="vi">
+    <html lang="vi-VN">
       <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.4.0/fonts/remixicon.css" />
         <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css" />

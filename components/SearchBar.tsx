@@ -198,12 +198,12 @@ const SearchBar = () => {
             </button>
           )}
 
-          <button type="button" className="ml-2 text-blue-600 hover:text-blue-800">
+          {/* <button type="button" className="ml-2 text-blue-600 hover:text-blue-800">
             <Mic size={20} />
-          </button>
-          <button type="button" className="ml-2 text-blue-600 hover:text-blue-800">
+          </button> */}
+          {/* <button type="button" className="ml-2 text-blue-600 hover:text-blue-800">
             <Camera size={20} />
-          </button>
+          </button> */}
         </div>
       
 

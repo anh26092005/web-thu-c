@@ -17,13 +17,15 @@ const LatestBlog = async () => {
           <div key={blog?._id} className="rounded-xl overflow-hidden border bg-white border-[1px] hover:border-shop_light_green/80 transition-all duration-300">
             {blog?.mainImage && (
               <Link href={`/blog/${blog?.slug?.current}`}>
+                <div className="p-2">
                 <Image
                   src={urlFor(blog?.mainImage).url()}
                   alt="blogImage"
                   width={500}
                   height={500}
-                  className="w-full max-h-80 object-cover"
+                  className="w-full max-h-80 object-cover rounded-xl"
                 />
+                </div>
               </Link>
             )}
             <div className="bg-white p-5">

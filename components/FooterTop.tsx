@@ -17,7 +17,7 @@ const data: ContactItemData[] = [
   },
   {
     title: "Liên hệ",
-    subtitle: "0909090909",
+    subtitle: "0375232103",
     icon: (
       <Phone className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
     ),

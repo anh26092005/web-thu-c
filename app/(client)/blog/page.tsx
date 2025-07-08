@@ -21,13 +21,15 @@ const BlogPage = async () => {
           {blogs?.map((blog: any) => (
             <div key={blog?._id} className="rounded-xl overflow-hidden group bg-white">
               {blog?.mainImage && (
+                <div className="p-2">
                 <Image
                   src={urlFor(blog?.mainImage).url()}
                   alt="blogImage"
                   width={500}
                   height={500}
-                  className="w-full max-h-80 object-cover"
+                  className="w-full max-h-80 object-cover rounded-xl"
                 />
+                </div>
               )}
               <div className="bg-white p-5">
                 <div className="text-xs flex items-center gap-5">
