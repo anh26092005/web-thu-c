@@ -39,14 +39,13 @@ export const bannerData = [
     title: "Giảm giá lên đến 50% cho tai nghe được chọn",
     description: "Khám phá bộ sưu tập tai nghe chất lượng cao với giá tốt nhất",
     buttonText: "Mua ngay",
-    buttonLink: "/shop"
+    buttonLink: "/shop",
   },
   {
-    image: banner2, 
+    image: banner2,
     title: "Ưu đãi đặc biệt cho thiết bị gia dụng",
     description: "Tiết kiệm lớn với các thiết bị gia dụng thông minh",
     buttonText: "Khám phá",
-    buttonLink: "/shop"
+    buttonLink: "/shop",
   },
 ];
-

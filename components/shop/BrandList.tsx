@@ -39,7 +39,7 @@ const BrandList = ({ brands, selectedBrand, setSelectedBrand }: Props) => {
             onClick={() => setSelectedBrand(null)}
             className="text-sm font-medium mt-2 underline underline-offset-2 decoration-[1px] hover:text-shop_dark_green hoverEffect text-left"
           >
-            Reset selection
+            Đặt lại
           </button>
         )}
       </RadioGroup>

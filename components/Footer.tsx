@@ -14,11 +14,13 @@ const Footer = () => {
     <footer className="bg-white border-t">
       <Container>
         <FooterTop />
-        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div className="space-y-4">
             <Logo />
             <SubText>
-            Giải pháp nhà thuốc online tiện lợi cho cả gia đình. Cung cấp sản phẩm chính hãng, giao hàng nhanh chóng và tư vấn sức khỏe chuyên nghiệp ngay tại nhà.
+              Giải pháp nhà thuốc online tiện lợi cho cả gia đình. Cung cấp sản
+              phẩm chính hãng, giao hàng nhanh chóng và tư vấn sức khỏe chuyên
+              nghiệp ngay tại nhà.
             </SubText>
             <SocialMedia
               className="text-darkColor/60"
@@ -56,23 +58,23 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-          <div className="space-y-4">
-            <SubTitle>Bản tin</SubTitle>
-            <SubText>
-              Đăng ký nhận bản tin để cập nhật thông tin và nhận
-              ưu đãi độc quyền
-            </SubText>
-            <form className="space-y-3">
-              <Input placeholder="Nhập email của bạn" type="email" required />
-              <Button className="w-full bg-shop_light_green text-white hover:bg-shop_light_green/80">Đăng ký</Button>
-            </form>
-          </div>
+          <div className="space-y-4"></div>
         </div>
         <div className="py-6 border-t text-center text-sm text-gray-600">
           <div>
-            © {new Date().getFullYear()} <Logo className="text-sm" />. <span>Tất cả
-            quyền được bảo lưu bởi <span className="font-bold"><a href="https://thilq0939.github.io/PortfolioGroup/" className="hover:text-shop_light_green hoverEffect font-bold">Nhóm 17</a></span>.</span>
-
+            © {new Date().getFullYear()} <Logo className="text-sm" />.{" "}
+            <span>
+              Tất cả quyền được bảo lưu bởi{" "}
+              <span className="font-bold">
+                <a
+                  href="https://thilq0939.github.io/PortfolioGroup/"
+                  className="hover:text-shop_light_green hoverEffect font-bold"
+                >
+                  Nhóm 17
+                </a>
+              </span>
+              .
+            </span>
           </div>
         </div>
       </Container>

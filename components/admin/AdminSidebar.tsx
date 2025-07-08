@@ -55,10 +55,13 @@ export default function AdminSidebar() {
       icon: ShoppingCart,
       href: "/admin/orders",
       items: [
-        { title: "Tất cả đơn hàng", href: "/studio/structure/order"},
+        { title: "Tất cả đơn hàng", href: "/studio/structure/order" },
         { title: "Chờ xử lý", href: "/studio/structure/order?status=pending" },
         { title: "Đang giao", href: "/studio/structure/order?status=shipped" },
-        { title: "Đã hoàn thành", href: "/studio/structure/order?status=delivered" },
+        {
+          title: "Đã hoàn thành",
+          href: "/studio/structure/order?status=delivered",
+        },
       ],
     },
     {
@@ -66,20 +69,14 @@ export default function AdminSidebar() {
       title: "Đánh giá",
       icon: Star,
       href: "/admin/reviews",
-      items: [
-        { title: "Tất cả đánh giá", href: "/admin/reviews" },
-        { title: "Chờ duyệt", href: "/admin/reviews?status=pending" },
-        { title: "Đã duyệt", href: "/admin/reviews?status=approved" },
-      ],
+      items: [{ title: "Tất cả đánh giá", href: "/admin/reviews" }],
     },
     {
       id: "blog",
       title: "Blog",
       icon: FileText,
       href: "/admin/blog",
-      items: [
-        { title: "Danh mục", href: "/admin/blog/categories" },
-      ],
+      items: [{ title: "Danh mục", href: "/admin/blog/categories" }],
     },
     {
       id: "analytics",
@@ -95,7 +92,8 @@ export default function AdminSidebar() {
       <div className="p-6">
         <nav className="space-y-2">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            const isActive =
+              pathname === item.href || pathname.startsWith(item.href + "/");
             const isExpanded = expandedMenus.includes(item.id);
             const hasItems = item.items.length > 0;
 
@@ -163,4 +161,4 @@ export default function AdminSidebar() {
       </div>
     </aside>
   );
-} 
+}
