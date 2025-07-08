@@ -635,8 +635,9 @@ export default function AdminOrdersPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          ))
+        )}
+      </div>
 
       {/* Pagination */}
       {ordersData && ordersData.pagination.totalPages > 1 && (

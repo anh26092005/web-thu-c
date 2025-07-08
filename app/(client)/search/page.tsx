@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Container from "@/components/Container";
 import Title from "@/components/Title";
@@ -47,8 +47,22 @@ interface SearchResults {
   query: string;
 }
 
+// Loading component
+const SearchLoading = () => (
+  <div className="bg-[#f1f3f8] min-h-screen">
+    <Container className="py-10">
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Đang tải trang tìm kiếm...</p>
+        </div>
+      </div>
+    </Container>
+  </div>
+);
+
 // Component trang kết quả tìm kiếm
-const SearchPage = () => {
+const SearchContent = () => {
   const searchParams = useSearchParams();
   const query = searchParams?.get("q") || "";
   
@@ -358,6 +372,14 @@ const SearchPage = () => {
         </div>
       </Container>
     </div>
+  );
+};
+
+const SearchPage = () => {
+  return (
+    <Suspense fallback={<SearchLoading />}>
+      <SearchContent />
+    </Suspense>
   );
 };
 
