@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { 
@@ -72,6 +72,10 @@ interface OrderStats {
     delivered: number;
     cancelled: number;
   };
+  averageOrderValue: number;
+  totalProductsSold: number;
+  revenueByPaymentMethod: { [key: string]: number };
+  topSellingProducts: { name: string; quantity: number; image?: string }[];
 }
 
 interface OrdersData {
@@ -232,7 +236,7 @@ export default function AdminOrdersPage() {
 
   // Get payment method badge
   const getPaymentBadge = (method: string, isPaid: boolean) => {
-    const paymentText = method === "cod" ? "COD" : 
+    const paymentText = method === "cod" ? "COD" :
                        method === "banking" ? "Chuyển khoản" :
                        method === "momo" ? "MoMo" :
                        method === "vnpay" ? "VNPay" : method;
@@ -275,7 +279,11 @@ export default function AdminOrdersPage() {
   const stats = ordersData?.stats || { 
     total: 0, 
     totalRevenue: 0, 
-    statusCounts: { pending: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0 } 
+    statusCounts: { pending: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0 },
+    averageOrderValue: 0,
+    totalProductsSold: 0,
+    revenueByPaymentMethod: {},
+    topSellingProducts: [],
   };
 
   return (
@@ -296,7 +304,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -313,58 +321,88 @@ export default function AdminOrdersPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Chờ xử lý</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.statusCounts.pending}</p>
-              </div>
-              <Clock className="h-6 w-6 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Đang xử lý</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.statusCounts.processing}</p>
-              </div>
-              <Package className="h-6 w-6 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Đang giao</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.statusCounts.shipped}</p>
-              </div>
-              <Truck className="h-6 w-6 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Hoàn thành</p>
-                <p className="text-2xl font-bold text-green-600">{stats.statusCounts.delivered}</p>
-              </div>
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
                 <p className="text-sm font-medium text-gray-600">Doanh thu</p>
-                <p className="text-lg font-bold text-green-600">{stats.totalRevenue.toLocaleString()}đ</p>
+                <p className="text-2xl font-bold text-green-600">{stats.totalRevenue.toLocaleString()}đ</p>
               </div>
               <DollarSign className="h-6 w-6 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Giá trị TB đơn hàng</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.averageOrderValue.toLocaleString()}đ</p>
+              </div>
+              <DollarSign className="h-6 w-6 text-gray-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Tổng SP đã bán</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalProductsSold.toLocaleString()}</p>
+              </div>
+              <Package className="h-6 w-6 text-gray-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Additional Stats and Top Selling Products */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Doanh thu theo phương thức thanh toán</CardTitle>
+            <CardDescription>Tổng doanh thu từ các phương thức thanh toán khác nhau.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {Object.entries(stats.revenueByPaymentMethod).length > 0 ? (
+                Object.entries(stats.revenueByPaymentMethod).map(([method, revenue]) => (
+                  <div key={method} className="flex items-center justify-between">
+                    <span className="text-sm font-medium capitalize">{method === "cod" ? "COD" : method === "banking" ? "Chuyển khoản" : method === "momo" ? "MoMo" : method === "vnpay" ? "VNPay" : method}</span>
+                    <Badge variant="secondary">{revenue.toLocaleString()}đ</Badge>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-500 text-sm">Chưa có dữ liệu doanh thu theo phương thức thanh toán.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Sản phẩm bán chạy nhất</CardTitle>
+            <CardDescription>Top 5 sản phẩm bán chạy nhất theo số lượng.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.topSellingProducts.length > 0 ? (
+                stats.topSellingProducts.map((product, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
+                      {product.image ? (
+                        <Image src={product.image} alt={product.name} width={40} height={40} className="object-cover" />
+                      ) : (
+                        <Package className="h-5 w-5 text-gray-400" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                      <p className="text-xs text-gray-500">Đã bán: {product.quantity}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-500 text-sm">Chưa có dữ liệu sản phẩm bán chạy.</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -597,9 +635,8 @@ export default function AdminOrdersPage() {
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
 
       {/* Pagination */}
       {ordersData && ordersData.pagination.totalPages > 1 && (
@@ -642,4 +679,4 @@ export default function AdminOrdersPage() {
       )}
     </div>
   );
-} 
+}
