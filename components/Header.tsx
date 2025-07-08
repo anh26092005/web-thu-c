@@ -26,7 +26,7 @@ const Header = async () => {
     <>
     <header className="relative top-0 z-50 pt-3 backdrop-blur-md bg-[#f6f6f6] max-lg:pb-5 max-lg:px-5">
      
-      <Image 
+      {/* <Image 
         src="/images/logo.png" 
         alt="Khủng Long Châu Logo" 
         width={100} 
@@ -42,7 +42,7 @@ const Header = async () => {
         height={90}
         priority
         className="object-contain absolute top-18 left-2 opacity-20 max-lg:hidden"
-      />
+      /> */}
      
     <p className="text-shop_light_green text-sm text-center font-bold">Tra cứu nguồn gốc xuất xứ hàng hóa <a href="https://dichvucong.dav.gov.vn/congbothuoc/index" className=" ml-1 text-shop_light_green underline" target="_blank" rel="noopener noreferrer">Kiểm tra ngay</a></p>
       <div className="md:hidden flex items-center justify-between px-5 mt-5" >
