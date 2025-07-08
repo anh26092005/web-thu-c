@@ -44,4 +44,4 @@ next-env.d.ts
 /.clerk/
 
 # VNPAY configuration file
-config/vnpay.json
+# config/vnpay.json
