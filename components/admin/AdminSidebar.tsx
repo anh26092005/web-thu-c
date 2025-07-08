@@ -9,11 +9,9 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  Users,
   Star,
   FileText,
   BarChart,
-  Settings,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -64,16 +62,6 @@ export default function AdminSidebar() {
       ],
     },
     {
-      id: "customers",
-      title: "Khách hàng",
-      icon: Users,
-      href: "/admin/customers",
-      items: [
-        { title: "Danh sách", href: "/admin/customers" },
-        { title: "Nhóm khách hàng", href: "/admin/customer-groups" },
-      ],
-    },
-    {
       id: "reviews",
       title: "Đánh giá",
       icon: Star,
@@ -90,9 +78,7 @@ export default function AdminSidebar() {
       icon: FileText,
       href: "/admin/blog",
       items: [
-        { title: "Bài viết", href: "/admin/blog/posts" },
         { title: "Danh mục", href: "/admin/blog/categories" },
-        { title: "Thẻ", href: "/admin/blog/tags" },
       ],
     },
     {
@@ -100,24 +86,7 @@ export default function AdminSidebar() {
       title: "Thống kê",
       icon: BarChart,
       href: "/admin/analytics",
-      items: [
-        { title: "Tổng quan", href: "/admin/analytics" },
-        { title: "Bán hàng", href: "/admin/analytics/sales" },
-        { title: "Khách hàng", href: "/admin/analytics/customers" },
-        { title: "Sản phẩm", href: "/admin/analytics/products" },
-      ],
-    },
-    {
-      id: "settings",
-      title: "Cài đặt",
-      icon: Settings,
-      href: "/admin/settings",
-      items: [
-        { title: "Chung", href: "/admin/settings" },
-        { title: "Thanh toán", href: "/admin/settings/payment" },
-        { title: "Vận chuyển", href: "/admin/settings/shipping" },
-        { title: "Email", href: "/admin/settings/email" },
-      ],
+      items: [],
     },
   ];
 

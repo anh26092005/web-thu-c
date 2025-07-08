@@ -30,8 +30,8 @@ const Header = async () => {
            <Logo className="sm:mr-15 mr-5 text-xl"/> 
            <CartIcon/>
       </div>
-      <Container className="flex items-center justify-between text-lightColor mt-5">
-        <div className="w-auto flex items-center gap-2.5 justify-between flex-1 md:gap-4">
+      <Container className="flex items-center justify-between text-lightColor mt-5 relative">
+        <div className="w-auto flex items-center gap-2.5 justify-between flex-1 md:gap-4 relative">
           
          
          <div className="max-md:hidden">

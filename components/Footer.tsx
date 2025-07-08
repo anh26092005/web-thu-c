@@ -70,8 +70,9 @@ const Footer = () => {
         </div>
         <div className="py-6 border-t text-center text-sm text-gray-600">
           <div>
-            © {new Date().getFullYear()} <Logo className="text-sm" />. <a href="https://thilq0939.github.io/PortfolioGroup/" className="hover:text-shop_light_green hoverEffect font-medium">Tất cả
-            quyền được bảo lưu.</a>
+            © {new Date().getFullYear()} <Logo className="text-sm" />. <span>Tất cả
+            quyền được bảo lưu bởi <span className="font-bold"><a href="https://thilq0939.github.io/PortfolioGroup/" className="hover:text-shop_light_green hoverEffect font-bold">Nhóm 17</a></span>.</span>
+
           </div>
         </div>
       </Container>
