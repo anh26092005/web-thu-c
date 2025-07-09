@@ -9,7 +9,7 @@ interface Props {
 const HomeTabbar = ({ selectedTab, onTabSelect }: Props) => {
   return (
     <>
-    <div className="flex items-center">
+    <div className="flex items-center z-500">
       <div className="flex items-center gap-1.5 md:gap-3 overflow-x-auto whitespace-nowrap text-sm font-semibold min-w-0 scrollbar-hide">
           {productType?.map((item) => (
             <button

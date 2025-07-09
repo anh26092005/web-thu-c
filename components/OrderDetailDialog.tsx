@@ -1,5 +1,8 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { MY_ORDERS_QUERYResult } from "@/sanity.types";
-import React from "react";
 import { X } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
 import PriceFormatter from "./PriceFormatter";
@@ -100,54 +103,59 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
   isOpen,
   onClose,
 }) => {
-  if (!isOpen || !order) return null;
+  const [mounted, setMounted] = useState(false);
 
-  // Cast order để truy cập các thuộc tính không có trong type definition
-  const orderData = order as any;
+  // Đảm bảo component chỉ render sau khi mounted để tránh hydration error
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  // Xử lý click vào backdrop để đóng dialog
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  // Dịch trạng thái sang tiếng Việt
   const getStatusText = (status: string) => {
-    const statusMap: { [key: string]: string } = {
-      pending: "Chờ xử lý",
-      processing: "Đang xử lý", 
-      shipped: "Đã giao vận chuyển",
-      out_for_delivery: "Đang giao hàng",
-      delivered: "Đã giao thành công",
-      cancelled: "Đã hủy",
-    };
-    return statusMap[status] || status;
+    switch (status) {
+      case 'pending': return 'Đang chờ xử lý';
+      case 'processing': return 'Đang xử lý';
+      case 'shipped': return 'Đã giao cho đvvc';
+      case 'out_for_delivery': return 'Đang giao hàng';
+      case 'delivered': return 'Đã giao thành công';
+      case 'cancelled': return 'Đã hủy';
+      default: return status;
+    }
   };
 
-  // Dịch phương thức thanh toán
   const getPaymentMethodText = (method: string) => {
-    const methodMap: { [key: string]: string } = {
-      cod: "Thanh toán khi nhận hàng",
-      vnpay: "Thanh toán qua VNPay",
-      momo: "Thanh toán qua MoMo",
-    };
-    return methodMap[method] || method;
+    switch (method) {
+      case 'cod': return 'COD (Thanh toán khi nhận hàng)';
+      case 'vnpay': return 'VNPay';
+      case 'stripe': return 'Thẻ tín dụng';
+      default: return method;
+    }
   };
 
-  // Tính tổng tiền sản phẩm
   const calculateSubtotal = () => {
-    return order.products?.reduce((total, item) => {
-      const price = (item.product as any)?.price || 0;
+    return order?.products?.reduce((total, item) => {
+      const product = item.product as any;
+      const price = product?.price || 0;
       const quantity = item.quantity || 0;
       return total + (price * quantity);
     }, 0) || 0;
   };
 
-  const subtotal = calculateSubtotal();
-  const discount = subtotal - (order.totalPrice || 0);
+  // Chỉ render khi đã mounted và dialog mở
+  if (!mounted || !isOpen || !order) {
+    return null;
+  }
 
-  return (
+  const orderData = order as any;
+  const subtotal = calculateSubtotal();
+  const discount = order.amountDiscount || 0;
+
+  const dialogContent = (
     <>
       <style jsx>{`
         .invoice-box {
@@ -176,7 +184,7 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
       `}</style>
       
       <div 
-        className="fixed inset-0 flex items-center justify-center p-4 backdrop-blur-xl transition-all duration-300 ease-in-out drop-shadow-2xl z-50 "
+        className="fixed inset-0 flex items-center justify-center p-4 backdrop-blur-xl transition-all duration-300 ease-in-out drop-shadow-2xl z-50 bg-black/30"
         onClick={handleBackdropClick}
       >
         <div className="invoice-box w-full max-w-4xl rounded-lg bg-white text-gray-800 shadow-2xl overflow-y-auto scrollbar-hide max-h-[calc(100vh-2rem)] overflow-x-hidden">
@@ -203,33 +211,33 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
             </div>
           </div>
 
-          <div className="relative p-8">
+          <div className="relative p-4 md:p-8">
             
             {/* Stamp trạng thái */}
-            <div className="absolute md:right-110 md:bottom-39 right-9 bottom-37">
-              <div className={`pointer-events-none -rotate-[15deg] rounded-md border-4 px-6 py-2 text-center font-bold uppercase opacity-50 ${
+            <div className="absolute sm:left-15 sm:bottom-50 max-sm:right-4">
+              <div className={`pointer-events-none -rotate-[15deg] rounded-md border-4 px-4 py-2 text-center font-bold uppercase opacity-50 ${
                 orderData.isPaid 
                   ? 'border-green-500 text-green-500' 
                   : 'border-red-500 text-red-500'
               }`}>
-                <p className="text-l md:text-2xl lg:text-3xl">
+                <p className="text-sm md:text-xl lg:text-2xl">
                   {orderData.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
                 </p>
-                <p className="text-sm">
+                <p className="text-xs">
                   {orderData.isPaid ? 'Paid' : 'Unpaid'}
                 </p>
               </div>
             </div>
             
             {/* Thông tin khách hàng và chi tiết đơn hàng */}
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 mb-8">
               <div>
                 <h4 className="mb-2 font-semibold text-[#113585]">KHÁCH HÀNG:</h4>
                 <p className="font-bold">{order.customerName}</p>
                 <p>{order.email}</p>
                 <p>{orderData.phone}</p>
                 <div className="mt-2">
-                  <p>
+                  <p className="text-sm">
                     {(order.shippingAddress as any)?.streetAddress}, {' '}
                     {(order.shippingAddress as any)?.ward?.name}, {' '}
                     {(order.shippingAddress as any)?.province?.name}
@@ -238,13 +246,13 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
               </div>
               <div className="text-left md:text-right">
                 <h4 className="mb-2 font-semibold text-[#113585]">CHI TIẾT:</h4>
-                <p>
+                <p className="mb-1">
                   <span className="text-gray-500">Ngày đặt:</span>{' '}
                   <strong>
                     {new Date(order.orderDate || '').toLocaleDateString('vi-VN')}
                   </strong>
                 </p>
-                <p>
+                <p className="mb-1">
                   <span className="text-gray-500">Giao dự kiến:</span>{' '}
                   <strong>
                     {orderData.estimatedDeliveryDate 
@@ -253,11 +261,11 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
                     }
                   </strong>
                 </p>
-                <p>
+                <p className="mb-1">
                   <span className="text-gray-500">Thanh toán:</span>{' '}
                   <strong>{getPaymentMethodText(orderData.paymentMethod || '')}</strong>
                 </p>
-                <p>
+                <p className="mb-1">
                   <span className="text-gray-500">Trạng thái:</span>{' '}
                   <strong className={`${
                     order.status === 'delivered' ? 'text-green-600' :
@@ -270,18 +278,63 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
               </div>
             </div>
 
-            {/* Bảng sản phẩm */}
-            <div className="mt-10">
-              <table className="w-full text-left">
-                <thead className="bg-[#eaeffb]">
-                  <tr>
-                    <th className="p-3 text-sm font-semibold text-[#113585]">Sản phẩm</th>
-                    <th className="p-3 text-center text-sm font-semibold text-[#113585]">SL</th>
-                    <th className="p-3 text-right text-sm font-semibold text-[#113585]">Đơn giá</th>
-                    <th className="p-3 text-right text-sm font-semibold text-[#113585]">Thành tiền</th>
-                  </tr>
-                </thead>
-                <tbody>
+            {/* Bảng sản phẩm - Responsive */}
+            <div className="mt-6 overflow-x-auto">
+              <div className="min-w-full">
+                <div className="hidden md:block">
+                  <table className="w-full text-left">
+                    <thead className="bg-[#eaeffb]">
+                      <tr>
+                        <th className="p-3 text-sm font-semibold text-[#113585]">Sản phẩm</th>
+                        <th className="p-3 text-center text-sm font-semibold text-[#113585]">SL</th>
+                        <th className="p-3 text-right text-sm font-semibold text-[#113585]">Đơn giá</th>
+                        <th className="p-3 text-right text-sm font-semibold text-[#113585]">Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {order.products?.map((item, index) => {
+                        const product = item.product as any;
+                        const price = product?.price || 0;
+                        const quantity = item.quantity || 0;
+                        const total = price * quantity;
+                        
+                        return (
+                          <tr key={index} className="border-b">
+                            <td className="p-3">
+                              <div className="flex items-center gap-3">
+                                {product?.images && (
+                                  <img
+                                    src={urlFor(product.images[0]).width(50).height(50).url()}
+                                    alt={product.name}
+                                    className="w-12 h-12 object-cover rounded"
+                                  />
+                                )}
+                                <div>
+                                  <p className="font-medium line-clamp-2">
+                                    {product?.name || 'Sản phẩm không xác định'}
+                                  </p>
+                                  <p className="text-xs text-gray-500 capitalize">
+                                    {product?.variant}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-3 text-center font-mono">{quantity}</td>
+                            <td className="p-3 text-right font-mono">
+                              <PriceFormatter amount={price} />
+                            </td>
+                            <td className="p-3 text-right font-mono font-semibold">
+                              <PriceFormatter amount={total} />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile view - Responsive cards */}
+                <div className="md:hidden space-y-4">
                   {order.products?.map((item, index) => {
                     const product = item.product as any;
                     const price = product?.price || 0;
@@ -289,38 +342,40 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
                     const total = price * quantity;
                     
                     return (
-                      <tr key={index} className="border-b">
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            {product?.images && (
-                              <img
-                                src={urlFor(product.images[0]).width(50).height(50).url()}
-                                alt={product.name}
-                                className="w-12 h-12 object-cover rounded"
-                              />
-                            )}
-                            <div>
-                              <p className="font-medium line-clamp-2">
-                                {product?.name || 'Sản phẩm không xác định'}
-                              </p>
-                              <p className="text-xs text-gray-500 capitalize">
-                                {product?.variant}
-                              </p>
+                      <div key={index} className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          {product?.images && (
+                            <img
+                              src={urlFor(product.images[0]).width(60).height(60).url()}
+                              alt={product.name}
+                              className="w-15 h-15 object-cover rounded"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <p className="font-medium text-sm mb-1">
+                              {product?.name || 'Sản phẩm không xác định'}
+                            </p>
+                            <p className="text-xs text-gray-500 font-mono capitalize mb-2">
+                              {product?.variant}
+                            </p>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-mono">SL: {quantity}</span>
+                              <span className="text-sm">
+                                {/* <PriceFormatter amount={price} /> */}
+                              </span>
+                            </div>
+                            <div className="text-right mt-1">
+                              <strong className="text-sm font-mono">
+                                <PriceFormatter amount={total} />
+                              </strong>
                             </div>
                           </div>
-                        </td>
-                        <td className="p-3 text-center font-mono">{quantity}</td>
-                        <td className="p-3 text-right font-mono">
-                          <PriceFormatter amount={price} />
-                        </td>
-                        <td className="p-3 text-right font-mono font-semibold">
-                          <PriceFormatter amount={total} />
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     );
                   })}
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
 
             {/* Tổng cộng */}
@@ -368,6 +423,9 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
       </div>
     </>
   );
+
+  // Sử dụng portal để render dialog bên ngoài DOM tree hiện tại
+  return createPortal(dialogContent, document.body);
 };
 
 export { OrderDetailDialog };

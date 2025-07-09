@@ -18,7 +18,7 @@ const QuantityButtons = ({ product, className }: Props) => {
   const handleRemoveProduct = () => {
     removeItem(product?._id);
     if (itemCount > 1) {
-      toast.success("Quantity Decreased successfully!");
+      toast.success("Đã giảm số lượng!");
     } else {
       toast.success(`${product?.name?.substring(0, 12)} đã được xóa khỏi giỏ hàng!`);
     }
@@ -27,9 +27,9 @@ const QuantityButtons = ({ product, className }: Props) => {
   const handleAddToCart = () => {
     if ((product?.stock as number) > itemCount) {
       addItem(product);
-      toast.success("Quantity Increased successfully!");
+      toast.success("Đã thêm vào giỏ hàng!");
     } else {
-      toast.error("Can not add more than available stock");
+      toast.error("Không thể thêm quá số lượng có sẵn!");
     }
   };
 

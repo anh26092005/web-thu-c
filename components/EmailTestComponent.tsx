@@ -115,9 +115,10 @@ const EmailTestComponent = () => {
         <div className="text-sm text-gray-600 space-y-2">
           <p><strong>Lưu ý:</strong></p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Cần cấu hình RESEND_API_KEY trong .env.local</li>
+            <li>Cần cấu hình EMAIL_USER và EMAIL_PASSWORD trong .env.local</li>
+            <li>Với Gmail, cần sử dụng App Password thay vì mật khẩu thường</li>
             <li>Kiểm tra email trong hộp thư và thư mục spam</li>
-            <li>Xem logs trong Resend dashboard</li>
+            <li>Xem logs trong console để debug</li>
           </ul>
         </div>
       </CardContent>

@@ -14,7 +14,7 @@ const Home = async () => {
 
   return (
     <Container className="bg-shop_light_pink">
-      <div className="absolute top-7.5 inset-0 bg-gradient-to-b h-full from-shop_orange to-[#e8eefa] opacity-20"></div>
+      <div className="absolute top-7.5 inset-0 bg-gradient-to-b md:h-full h-2/3 from-shop_orange to-[#e8eefa] opacity-20"></div>
       
       <HomeBanner />
       <ProductGrid />

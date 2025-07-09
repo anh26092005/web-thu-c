@@ -95,15 +95,15 @@ const ProductCardWrapper = ({ product }: { product: Product }) => {
               <div className="w-20 h-3 bg-gray-200 rounded animate-pulse" />
             </div>
           ) : (
-            <>
-              <ReviewStars rating={reviewSummary.average} size="sm" />
+            <div className="flex items-center gap-2 max-md:flex-col max-md:items-start">
+              <ReviewStars rating={reviewSummary.average} size="sm" className="" />
               <p className="text-lightText text-xs tracking-wide">
                 {reviewSummary.total > 0 
                   ? `${reviewSummary.average}/5 (${reviewSummary.total} đánh giá)`
                   : "Chưa có đánh giá"
                 }
               </p>
-            </>
+            </div>
           )}
         </div>
 

@@ -6,8 +6,9 @@ import PriceView from "@/components/PriceView";
 import ProductCharacteristics from "@/components/ProductCharacteristics";
 import ProductInfo from "@/components/ProductInfo";
 import ProductReviews from "@/components/reviews/ProductReviews";
-import { getProductBySlug } from "@/sanity/queries";
-import { CornerDownLeft, StarIcon, Truck } from "lucide-react";
+import ReviewStars from "@/components/reviews/ReviewStars";
+import { getProductBySlug, getProductReviewSummary } from "@/sanity/queries";
+import { CornerDownLeft, Truck } from "lucide-react";
 import { notFound } from "next/navigation";
 import React from "react";
 import { FaRegQuestionCircle } from "react-icons/fa";
@@ -22,6 +23,13 @@ const SingleProductPage = async ({
 }) => {
   const { slug } = await params;
   const product  = await getProductBySlug(slug);
+  
+  // Lấy dữ liệu đánh giá thực từ database
+  let reviewSummary = { total: 0, average: 0 };
+  if (product?._id) {
+    reviewSummary = await getProductReviewSummary(product._id);
+  }
+  
   console.log("params", params);
   if (!product) {
     return notFound();
@@ -29,7 +37,7 @@ const SingleProductPage = async ({
   
   return (
     <>
-    <div className="flex flex-col justify-between bg-white rounded-xl max-w-screen-xl mx-auto p-5">
+    <div className="flex flex-col justify-between bg-white rounded-xl max-w-screen-xl mx-auto p-5 lg:mt-10">
     <Container className="flex flex-col md:flex-row gap-10 py-5 bg-white rounded-xl mt-10">
       {product?.images && (
         <ImageView images={product?.images} isStock={product?.stock} />
@@ -42,23 +50,23 @@ const SingleProductPage = async ({
           <p className="text-sm text-gray-600 tracking-wide">
             {product?.description}
           </p>
-          <div className="flex items-center gap-0.5 text-xs">
-            {[...Array(5)].map((_, index) => (
-              <StarIcon
-                key={index}
-                size={12}
-                className="text-shop_light_green"
-                fill={"#3b9c3c"}
-              />
-            ))}
-            <p className="font-semibold">{`(120)`}</p>
+          {/* Sử dụng ReviewStars component với dữ liệu thực từ database */}
+          <div className="flex items-center gap-2 text-xs">
+            <ReviewStars 
+              rating={reviewSummary.average} 
+              size="sm"
+              className="gap-0.5"
+            />
+            <p className="font-semibold text-gray-600">
+              ({reviewSummary.total} đánh giá)
+            </p>
           </div>
         </div>
-        <div className="space-y-2 py-5 mt-2">
+        <div className="space-y-2 md:py-5 py-2 md:mt-2">
           <PriceView
             price={product?.price}
             discount={product?.discount}
-            className="text-4xl font-bold"
+            className="text-3xl md:text-4xl font-bold"
           />
           <p
             className={`px-4 py-1.5 mt-2 text-sm text-center inline-block font-semibold rounded-lg ${product?.stock === 0 ? "bg-red-100 text-red-600" : "text-green-600 bg-green-100"}`}

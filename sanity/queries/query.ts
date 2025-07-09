@@ -21,7 +21,7 @@ const PRODUCT_BY_SLUG_QUERY = defineQuery(
   `*[_type == "product" && slug.current == $slug][0]`
 );
 
-const BANNER_QUERY = defineQuery(`*[_type == "banner" && isActive == true]{
+const BANNER_QUERY = defineQuery(`*[_type == "banner" && isActive == true && (!defined(isPopup) || isPopup == false)]{
   _id,
   title,
   image{
@@ -29,6 +29,17 @@ const BANNER_QUERY = defineQuery(`*[_type == "banner" && isActive == true]{
     alt
   },
   description
+}`);
+
+const POPUP_BANNER_QUERY = defineQuery(`*[_type == "banner" && isActive == true && isPopup == true][0]{
+  _id,
+  title,
+  image{
+    asset,
+    alt
+  },
+  description,
+  popupFrequency
 }`);
 
 const BRAND_QUERY = defineQuery(`*[_type == "product" && slug.current == $slug]{
@@ -172,6 +183,7 @@ export {
   DEAL_PRODUCTS,
   PRODUCT_BY_SLUG_QUERY,
   BANNER_QUERY,
+  POPUP_BANNER_QUERY,
   BRAND_QUERY,
   MY_ORDERS_QUERY,
   GET_ALL_BLOG,

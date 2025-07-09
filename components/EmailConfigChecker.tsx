@@ -39,30 +39,78 @@ const EmailConfigChecker = () => {
         responseData = await response.text();
       }
 
-      setResults({
+      // Phân tích kết quả
+      const results: any = {
         apiEndpoint: {
-          status: isJson ? "success" : "error",
-          message: isJson ? "API endpoint hoạt động" : "API trả về HTML thay vì JSON",
-          details: `Status: ${response.status}, Content-Type: ${contentType}`,
+          status: response.status === 400 ? "ok" : "error",
+          message: response.status === 400 
+            ? "API endpoint hoạt động (validation thành công)" 
+            : "API endpoint có vấn đề",
+          details: `Status: ${response.status}, Response: ${JSON.stringify(responseData)}`,
         },
-        validation: {
-          status: response.status === 400 ? "success" : "warning",
-          message: response.status === 400 ? "Validation hoạt động" : "Validation có vấn đề",
-          details: JSON.stringify(responseData, null, 2),
+        emailConfig: {
+          status: "unknown",
+          message: "Chưa kiểm tra được cấu hình email",
+          details: null,
         },
-        envVars: {
-          status: "info",
-          message: "Kiểm tra console để xem log environment variables",
-          details: "Xem Network tab trong DevTools",
+        smtpConnection: {
+          status: "unknown", 
+          message: "Chưa kiểm tra được kết nối SMTP",
+          details: null,
         },
-      });
+      };
+
+      // Phân tích response để đánh giá cấu hình
+      if (isJson && responseData) {
+        if (responseData.debug && responseData.debug.includes("EMAIL_USER or EMAIL_PASSWORD")) {
+          results.emailConfig = {
+            status: "error",
+            message: "Thiếu cấu hình EMAIL_USER hoặc EMAIL_PASSWORD",
+            details: "Cần thêm EMAIL_USER và EMAIL_PASSWORD vào file .env.local",
+          };
+        } else if (responseData.debug && responseData.debug.includes("SMTP verification failed")) {
+          results.emailConfig = {
+            status: "warning",
+            message: "Cấu hình email có vẻ đúng nhưng không kết nối được SMTP",
+            details: "Kiểm tra lại email/password và cài đặt bảo mật",
+          };
+          results.smtpConnection = {
+            status: "error",
+            message: "Không thể kết nối đến máy chủ SMTP",
+            details: "Có thể do App Password chưa được tạo hoặc Less secure app access chưa bật",
+          };
+        } else if (response.status === 400 && responseData.message?.includes("Thiếu thông tin")) {
+          results.emailConfig = {
+            status: "ok",
+            message: "Cấu hình email có vẻ đúng",
+            details: "API đã pass qua kiểm tra cấu hình email",
+          };
+          results.smtpConnection = {
+            status: "ok",
+            message: "Kết nối SMTP thành công",
+            details: "SMTP server có thể kết nối được",
+          };
+        }
+      }
+
+      setResults(results);
 
     } catch (error) {
       setResults({
         apiEndpoint: {
           status: "error",
           message: "Không thể kết nối đến API",
-          details: error instanceof Error ? error.message : "Unknown error",
+          details: error instanceof Error ? error.message : "Network error",
+        },
+        emailConfig: {
+          status: "error",
+          message: "Không thể kiểm tra cấu hình email do lỗi API",
+          details: null,
+        },
+        smtpConnection: {
+          status: "error",
+          message: "Không thể kiểm tra kết nối SMTP do lỗi API", 
+          details: null,
         },
       });
     } finally {
@@ -70,29 +118,30 @@ const EmailConfigChecker = () => {
     }
   };
 
+  // Helper functions
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "success":
+      case "ok":
         return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case "error":
-        return <XCircle className="w-5 h-5 text-red-500" />;
       case "warning":
         return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+      case "error":
+        return <XCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <AlertCircle className="w-5 h-5 text-blue-500" />;
+        return <AlertCircle className="w-5 h-5 text-gray-500" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "success":
+      case "ok":
         return "bg-green-100 text-green-800";
-      case "error":
-        return "bg-red-100 text-red-800";
       case "warning":
         return "bg-yellow-100 text-yellow-800";
+      case "error":
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-blue-100 text-blue-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -131,7 +180,8 @@ const EmailConfigChecker = () => {
         <div className="text-sm text-gray-600 space-y-2">
           <p><strong>Các bước khắc phục:</strong></p>
           <ol className="list-decimal list-inside space-y-1">
-            <li>Kiểm tra file .env.local có RESEND_API_KEY</li>
+            <li>Kiểm tra file .env.local có EMAIL_USER và EMAIL_PASSWORD</li>
+            <li>Với Gmail: Tạo App Password trong Google Account Settings</li>
             <li>Restart server sau khi thêm environment variables</li>
             <li>Đảm bảo API route.ts trong thư mục đúng</li>
             <li>Kiểm tra Network tab trong DevTools để xem request/response</li>

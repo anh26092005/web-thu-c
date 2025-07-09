@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { renderOrderConfirmationEmail, OrderEmailData } from "@/lib/email-templates";
 
-// Khởi tạo Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Cấu hình transporter cho Nodemailer
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    service: 'gmail', // Hoặc có thể thay đổi thành SMTP server khác
+    auth: {
+      user: process.env.EMAIL_USER, // Email gửi
+      pass: process.env.EMAIL_PASSWORD, // Mật khẩu ứng dụng
+    },
+  });
+};
 
 // API endpoint gửi email xác nhận đơn hàng
 export async function POST(request: NextRequest) {
   try {
     // Log debug cấu hình environment
     console.log("=== EMAIL API DEBUG ===");
-    console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
-    console.log("RESEND_FROM_EMAIL:", process.env.RESEND_FROM_EMAIL);
+    console.log("EMAIL_USER exists:", !!process.env.EMAIL_USER);
+    console.log("EMAIL_PASSWORD exists:", !!process.env.EMAIL_PASSWORD);
+    console.log("EMAIL_FROM:", process.env.EMAIL_FROM);
     console.log("Request URL:", request.url);
     console.log("Request method:", request.method);
 
@@ -34,21 +43,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Kiểm tra RESEND_API_KEY
-    if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY không được cấu hình");
+    // Kiểm tra cấu hình EMAIL
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.error("EMAIL_USER hoặc EMAIL_PASSWORD không được cấu hình");
       return NextResponse.json(
         { 
           success: false, 
           message: "Cấu hình email chưa sẵn sàng",
-          debug: "RESEND_API_KEY not found in environment variables"
+          debug: "EMAIL_USER or EMAIL_PASSWORD not found in environment variables"
         },
         { status: 500 }
       );
     }
 
-    // Kiểm tra RESEND_FROM_EMAIL
-    const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    // Tạo transporter
+    const transporter = createTransporter();
+    
+    // Kiểm tra kết nối SMTP
+    try {
+      await transporter.verify();
+      console.log("SMTP connection verified successfully");
+    } catch (verifyError) {
+      console.error("SMTP verification failed:", verifyError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: "Không thể kết nối đến máy chủ email",
+          debug: "SMTP verification failed"
+        },
+        { status: 500 }
+      );
+    }
+
+    // Lấy email gửi từ environment hoặc sử dụng mặc định
+    const fromEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
     console.log("Using from email:", fromEmail);
 
     // Tạo HTML content từ template
@@ -56,11 +84,9 @@ export async function POST(request: NextRequest) {
     const htmlContent = renderOrderConfirmationEmail(emailData);
     console.log("HTML content length:", htmlContent.length);
 
-    // Gửi email qua Resend
-    console.log("Sending email via Resend...");
-    const emailResponse = await resend.emails.send({
-      from: fromEmail,
-      // to: [emailData.customerEmail],
+    // Cấu hình email
+    const mailOptions = {
+      from: `"${emailData.storeName}" <${fromEmail}>`,
       to: emailData.customerEmail,
       subject: `Xác nhận đơn hàng #${emailData.orderNumber} từ ${emailData.storeName}`,
       html: htmlContent,
@@ -89,26 +115,28 @@ export async function POST(request: NextRequest) {
         Trân trọng,
         ${emailData.storeName}
       `,
-    });
+    };
 
-    console.log("Resend response:", emailResponse);
+    // Gửi email qua Nodemailer
+    console.log("Sending email via Nodemailer...");
+    const emailResponse = await transporter.sendMail(mailOptions);
+    console.log("Nodemailer response:", emailResponse);
 
     // Kiểm tra kết quả gửi email
-    if (emailResponse.error) {
-      console.error("Lỗi gửi email:", emailResponse.error);
+    if (!emailResponse.messageId) {
+      console.error("Lỗi gửi email: Không có messageId trong response");
       return NextResponse.json(
         { 
           success: false, 
           message: "Không thể gửi email xác nhận", 
-          error: emailResponse.error,
-          debug: "Resend API returned error"
+          debug: "Nodemailer did not return messageId"
         },
         { status: 500 }
       );
     }
 
     console.log("Email xác nhận đã được gửi thành công:", {
-      emailId: emailResponse.data?.id,
+      messageId: emailResponse.messageId,
       to: emailData.customerEmail,
       orderNumber: emailData.orderNumber,
     });
@@ -117,7 +145,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Email xác nhận đơn hàng đã được gửi thành công",
       data: {
-        emailId: emailResponse.data?.id,
+        messageId: emailResponse.messageId,
         to: emailData.customerEmail,
         orderNumber: emailData.orderNumber,
       },

@@ -5,6 +5,7 @@ import {
   DEAL_PRODUCTS,
   PRODUCT_BY_SLUG_QUERY,
   BANNER_QUERY,
+  POPUP_BANNER_QUERY,
   BRAND_QUERY,
   MY_ORDERS_QUERY,
   GET_ALL_BLOG,
@@ -56,6 +57,13 @@ export const getBanners = async () => {
     query: BANNER_QUERY,
   });
   return data || [];
+};
+
+export const getPopupBanner = async () => {
+  const { data } = await sanityFetch({
+    query: POPUP_BANNER_QUERY,
+  });
+  return data || null;
 };
 
 export const getBrandBySlug = async (slug: string) => {

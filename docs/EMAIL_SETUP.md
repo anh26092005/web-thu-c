@@ -1,120 +1,190 @@
-# Hướng dẫn cấu hình Email với Resend
+# Hướng dẫn cấu hình Email với Nodemailer
 
-## Bước 1: Cài đặt Resend
+## Bước 1: Cài đặt Nodemailer
 
 ```bash
-npm install resend
+npm install nodemailer
+npm install @types/nodemailer --save-dev
 ```
 
-## Bước 2: Đăng ký tài khoản Resend
+## Bước 2: Chuẩn bị tài khoản Gmail
 
-1. Truy cập [https://resend.com](https://resend.com)
-2. Đăng ký tài khoản miễn phí
-3. Xác thực email và hoàn tất đăng ký
+### Tạo tài khoản Gmail (nếu chưa có):
+1. Truy cập [https://accounts.google.com](https://accounts.google.com)
+2. Tạo tài khoản Gmail mới hoặc sử dụng tài khoản hiện có
+3. Nên tạo một tài khoản riêng cho việc gửi email tự động
 
-## Bước 3: Lấy API Key
+### Bật 2-Factor Authentication:
+1. Vào [https://myaccount.google.com/security](https://myaccount.google.com/security)
+2. Bật "2-Step Verification"
+3. Thực hiện theo hướng dẫn để xác thực
 
-1. Đăng nhập vào dashboard Resend
-2. Vào mục "API Keys" 
-3. Tạo API Key mới với tên "Medicine Store"
-4. Copy API Key (chỉ hiển thị 1 lần)
+## Bước 3: Tạo App Password
 
-## Bước 4: Cấu hình Domain (Tùy chọn)
+1. Đăng nhập vào Gmail
+2. Vào [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+3. Chọn "Select app" → "Mail"
+4. Chọn "Select device" → "Other (custom name)"
+5. Nhập tên: "Medicine Store Email"
+6. Click "Generate"
+7. Copy App Password (16 ký tự, dạng: xxxx xxxx xxxx xxxx)
 
-### Sử dụng domain miễn phí của Resend:
-- Có thể sử dụng ngay domain `onboarding@resend.dev`
-- Phù hợp cho testing và development
-
-### Sử dụng domain riêng (Khuyến nghị cho production):
-1. Vào mục "Domains" trong dashboard
-2. Thêm domain của bạn (ví dụ: `yourdomain.com`)
-3. Cấu hình DNS records theo hướng dẫn
-4. Chờ verify thành công
-
-## Bước 5: Cấu hình Environment Variables
+## Bước 4: Cấu hình Environment Variables
 
 Thêm vào file `.env.local`:
 
 ```env
-# Resend Email Configuration
-RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxx
-RESEND_FROM_EMAIL=noreply@yourdomain.com
+# Nodemailer Email Configuration
+EMAIL_USER=your-gmail@gmail.com
+EMAIL_PASSWORD=your-app-password-here
+EMAIL_FROM=your-gmail@gmail.com
 
-# Hoặc sử dụng domain miễn phí của Resend
-RESEND_FROM_EMAIL=onboarding@resend.dev
+# Thông tin cửa hàng
+STORE_NAME="Nhà Thuốc Khủng Long Châu"
+STORE_SUPPORT_PHONE="0909090909"
+STORE_SUPPORT_EMAIL="support@nhathuockhunglongchau.com"
 
 # Base URL cho API calls
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
-## Bước 6: Cấu hình thông tin cửa hàng
+### Ví dụ cấu hình:
+```env
+EMAIL_USER=nhathuoc.store@gmail.com
+EMAIL_PASSWORD=abcd efgh ijkl mnop
+EMAIL_FROM=nhathuoc.store@gmail.com
+```
+
+## Bước 5: Cấu hình thông tin cửa hàng
 
 Chỉnh sửa file `lib/email-service.ts`:
 
 ```typescript
 export const STORE_CONFIG = {
-  name: "Tên Cửa Hàng Của Bạn",
-  supportPhone: "0123-456-789",
-  supportEmail: "support@yourdomain.com",
-  feedbackLink: "https://yourdomain.com/feedback",
+  name: "Nhà Thuốc Khủng Long Châu",
+  supportPhone: "0909090909",
+  supportEmail: "support@nhathuockhunglongchau.com",
+  feedbackLink: "https://nhathuockhunglongchau.com/feedback",
 };
 ```
 
-## Bước 7: Test Email
+## Bước 6: Test Email
 
-1. Tạo đơn hàng thử nghiệm
-2. Kiểm tra email trong hộp thư
-3. Kiểm tra Resend dashboard để xem logs
+1. Restart server sau khi cấu hình environment variables
+2. Sử dụng EmailTestComponent để test
+3. Tạo đơn hàng thử nghiệm
+4. Kiểm tra email trong hộp thư
+5. Kiểm tra console logs để debug
 
-## Giới hạn Free Plan
+## Ưu điểm của Nodemailer so với Resend
 
-- **100 emails/ngày** cho domain miễn phí
-- **3,000 emails/tháng** cho domain riêng
-- Phù hợp cho testing và cửa hàng nhỏ
+### 1. Miễn phí hoàn toàn:
+- Không giới hạn số email gửi
+- Chỉ bị giới hạn bởi Gmail (500 emails/ngày cho tài khoản thường)
+- Không cần trả phí monthly
 
-## Nâng cấp Plan
+### 2. Tự chủ cao:
+- Hoàn toàn kiểm soát cấu hình SMTP
+- Có thể dễ dàng thay đổi provider (Gmail, Outlook, SMTP server riêng)
+- Không phụ thuộc vào dịch vụ bên thứ ba
 
-Nếu cần gửi nhiều email hơn:
-- **Pro Plan**: $20/tháng - 50,000 emails
-- **Business Plan**: $80/tháng - 100,000 emails
+### 3. Tính năng đầy đủ:
+- Hỗ trợ HTML và plain text
+- Attachment files
+- CC, BCC
+- Custom headers
 
 ## Troubleshooting
 
-### Lỗi "API Key not found"
-- Kiểm tra API Key trong `.env.local`
-- Đảm bảo không có khoảng trắng thừa
-- Restart server sau khi thay đổi env
+### Lỗi "Invalid login"
+- Kiểm tra EMAIL_USER có đúng format email
+- Đảm bảo đã tạo App Password (không dùng mật khẩu thường)
+- Kiểm tra 2-Factor Authentication đã được bật
 
-### Email không được gửi
-- Kiểm tra RESEND_FROM_EMAIL có đúng format
-- Kiểm tra domain đã được verify
-- Xem logs trong Resend dashboard
+### Lỗi "Connection timeout"
+- Kiểm tra kết nối internet
+- Đảm bảo firewall không block port 587/465
+- Thử restart server
 
 ### Email vào spam
-- Sử dụng domain riêng đã verify
-- Cấu hình SPF, DKIM, DMARC records
-- Tránh từ ngữ spam trong nội dung
+- Sử dụng FROM email giống với EMAIL_USER
+- Tránh từ ngữ spam trong subject và content
+- Yêu cầu người nhận whitelist email
 
-## Tính năng nâng cao
+### Lỗi "Too many emails"
+- Gmail giới hạn 500 emails/ngày cho tài khoản thường
+- Nếu cần gửi nhiều hơn, cân nhắc:
+  - Sử dụng G Suite/Google Workspace (2000 emails/ngày)
+  - SMTP server riêng
+  - Dịch vụ email marketing khác
 
-### 1. Template động
-- Tùy chỉnh template theo loại sản phẩm
-- Thêm logo và branding
-- Responsive design cho mobile
+## Cấu hình nâng cao
 
-### 2. Email tracking
-- Theo dõi tỷ lệ mở email
-- Theo dõi click links
-- Analytics chi tiết
+### 1. Sử dụng SMTP server khác:
 
-### 3. Automation
-- Email chào mừng khách hàng mới
-- Email nhắc nhở giỏ hàng bỏ quên
-- Email marketing campaigns
+```typescript
+// Outlook/Hotmail
+const transporter = nodemailer.createTransporter({
+  service: 'hotmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+// SMTP server tùy chỉnh
+const transporter = nodemailer.createTransporter({
+  host: 'your-smtp-server.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+```
+
+### 2. Template HTML nâng cao:
+- Thêm CSS inline để tương thích email client
+- Sử dụng table layout thay vì flexbox/grid
+- Test trên nhiều email client (Gmail, Outlook, Apple Mail)
+
+### 3. Queue system cho email:
+- Sử dụng Redis/database để queue email
+- Xử lý background jobs với Bull.js
+- Retry mechanism cho email gửi thất bại
+
+### 4. Email tracking:
+- Thêm tracking pixel để theo dõi email opened
+- UTM parameters cho links
+- Analytics integration
 
 ## Lưu ý bảo mật
 
-- Không commit API Key vào Git
-- Sử dụng environment variables
-- Giới hạn quyền API Key
-- Thường xuyên rotate API Key 
+- Không commit EMAIL_PASSWORD vào Git
+- Sử dụng App Password thay vì mật khẩu thường
+- Giới hạn permissions của email account
+- Thường xuyên rotate App Password
+- Monitor email usage để phát hiện bất thường
+
+## Giới hạn Gmail
+
+### Tài khoản Gmail thường:
+- **500 emails/ngày**
+- **100 recipients/email**
+- **25MB attachment/email**
+
+### Google Workspace:
+- **2,000 emails/ngày**
+- **2,000 recipients/email**
+- **25MB attachment/email**
+
+## Migration từ Resend
+
+Nếu đang sử dụng Resend:
+1. Backup environment variables cũ
+2. Cài đặt Nodemailer
+3. Cập nhật API route
+4. Test thoroughly
+5. Update documentation
+6. Remove Resend dependencies 

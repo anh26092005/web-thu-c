@@ -13,59 +13,92 @@
  */
 
 // Source: schema.json
-export type SanityImagePaletteSwatch = {
-  _type: "sanity.imagePaletteSwatch";
-  background?: string;
-  foreground?: string;
-  population?: number;
-  title?: string;
-};
-
-export type SanityImagePalette = {
-  _type: "sanity.imagePalette";
-  darkMuted?: SanityImagePaletteSwatch;
-  lightVibrant?: SanityImagePaletteSwatch;
-  darkVibrant?: SanityImagePaletteSwatch;
-  vibrant?: SanityImagePaletteSwatch;
-  dominant?: SanityImagePaletteSwatch;
-  lightMuted?: SanityImagePaletteSwatch;
-  muted?: SanityImagePaletteSwatch;
-};
-
-export type SanityImageDimensions = {
-  _type: "sanity.imageDimensions";
-  height?: number;
-  width?: number;
-  aspectRatio?: number;
-};
-
-export type SanityFileAsset = {
+export type Review = {
   _id: string;
-  _type: "sanity.fileAsset";
+  _type: "review";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  originalFilename?: string;
-  label?: string;
+  product?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "product";
+  };
+  customerName?: string;
+  customerEmail?: string;
+  rating?: number;
   title?: string;
-  description?: string;
-  altText?: string;
-  sha1hash?: string;
-  extension?: string;
-  mimeType?: string;
-  size?: number;
-  assetId?: string;
-  uploadId?: string;
-  path?: string;
-  url?: string;
-  source?: SanityAssetSourceData;
+  comment?: string;
+  verified?: boolean;
+  orderNumber?: string;
+  isApproved?: boolean;
+  isRecommended?: boolean;
+  pros?: Array<string>;
+  cons?: Array<string>;
+  images?: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }>;
+  helpfulCount?: number;
+  reviewDate?: string;
+  adminResponse?: {
+    content?: string;
+    respondedAt?: string;
+    respondedBy?: string;
+  };
 };
 
-export type Geopoint = {
-  _type: "geopoint";
-  lat?: number;
-  lng?: number;
-  alt?: number;
+export type Banner = {
+  _id: string;
+  _type: "banner";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  image?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  alt?: string;
+  description?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h1" | "h2" | "h3";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  isActive?: boolean;
+  isPopup?: boolean;
+  popupFrequency?: "always" | "daily" | "weekly" | "once";
 };
 
 export type Address = {
@@ -76,12 +109,47 @@ export type Address = {
   _rev: string;
   name?: string;
   email?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zip?: string;
+  streetAddress?: string;
+  province?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "province";
+  };
+  ward?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "ward";
+  };
   default?: boolean;
   createdAt?: string;
+};
+
+export type Ward = {
+  _id: string;
+  _type: "ward";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  code?: string;
+  province?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "province";
+  };
+};
+
+export type Province = {
+  _id: string;
+  _type: "province";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  code?: string;
 };
 
 export type Blogcategory = {
@@ -116,6 +184,7 @@ export type Blog = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -153,6 +222,7 @@ export type Blog = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
@@ -176,6 +246,7 @@ export type Author = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -207,17 +278,12 @@ export type Order = {
   _updatedAt: string;
   _rev: string;
   orderNumber?: string;
-  invoice?: {
-    id?: string;
-    number?: string;
-    hosted_invoice_url?: string;
-  };
-  stripeCheckoutSessionId?: string;
-  stripeCustomerId?: string;
   clerkUserId?: string;
   customerName?: string;
   email?: string;
-  stripePaymentIntentId?: string;
+  phone?: string;
+  orderNotes?: string;
+  shippingAddress?: VietnameseAddress;
   products?: Array<{
     product?: {
       _ref: string;
@@ -231,15 +297,86 @@ export type Order = {
   totalPrice?: number;
   currency?: string;
   amountDiscount?: number;
-  address?: {
-    state?: string;
-    zip?: string;
-    city?: string;
-    address?: string;
-    name?: string;
+  appliedCoupon?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "coupon";
   };
-  status?: "pending" | "processing" | "paid" | "shipped" | "out_for_delivery" | "delivered" | "cancelled";
+  couponCode?: string;
+  shippingFee?: number;
+  estimatedDeliveryDate?: string;
+  paymentMethod?: "cod" | "momo" | "vnpay";
+  isPaid?: boolean;
+  status?: "pending" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "cancelled";
   orderDate?: string;
+  vnpayResponse?: {
+    vnp_Amount?: string;
+    vnp_BankCode?: string;
+    vnp_ResponseCode?: string;
+    vnp_TxnRef?: string;
+    vnp_TransactionNo?: string;
+    vnp_PayDate?: string;
+  };
+};
+
+export type Coupon = {
+  _id: string;
+  _type: "coupon";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  code?: string;
+  name?: string;
+  description?: string;
+  discountType?: "percentage" | "fixed_amount" | "free_shipping";
+  discountValue?: number;
+  maxDiscountAmount?: number;
+  minOrderAmount?: number;
+  usageLimit?: number;
+  usageCount?: number;
+  userLimit?: number;
+  startDate?: string;
+  endDate?: string;
+  isActive?: boolean;
+  applicableCategories?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "category";
+  }>;
+  applicableProducts?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "product";
+  }>;
+  excludedProducts?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "product";
+  }>;
+};
+
+export type VietnameseAddress = {
+  _type: "vietnameseAddress";
+  streetAddress?: string;
+  province?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "province";
+  };
+  ward?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "ward";
+  };
 };
 
 export type Product = {
@@ -257,6 +394,7 @@ export type Product = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -279,9 +417,366 @@ export type Product = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "brand";
   };
+  origin?: string;
   status?: "new" | "hot" | "sale";
-  variant?: "gadget" | "thuc-pham-chuc-nang" | "refrigerators" | "others";
+  variant?: "thuoc" | "thuc-pham-chuc-nang" | "duoc-my-pham" | "cham-soc-ca-nhan" | "trang-thiet-bi-y-te" | "dinh-duong-thuc-pham-chuc-nang" | "sinh-ly";
   isFeatured?: boolean;
+  drugInfo?: {
+    drugName?: string;
+    compositionSection?: {
+      subtitle?: string;
+      ingredientsTable?: Array<{
+        ingredientName?: string;
+        amount?: string;
+        _type: "ingredientRow";
+        _key: string;
+      }>;
+    };
+    usageSection?: {
+      title?: string;
+      indications?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pharmacodynamics?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pharmacokinetics?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    usageInstructions?: {
+      title?: string;
+      howToUse?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      dosage?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    overdoseAndMissedDose?: {
+      overdose?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      missedDose?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    sideEffects?: {
+      title?: string;
+      content?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+    };
+    warningsAndPrecautions?: {
+      mainNoteTitle?: string;
+      introText?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+      contraindications?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      precautions?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      drivingAndOperatingMachinery?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pregnancy?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      breastfeeding?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      drugInteractions?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    storage?: {
+      title?: string;
+      content?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+    };
+  };
 };
 
 export type Brand = {
@@ -300,6 +795,7 @@ export type Brand = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -330,6 +826,7 @@ export type BlockContent = Array<{
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
   };
+  media?: unknown;
   hotspot?: SanityImageHotspot;
   crop?: SanityImageCrop;
   alt?: string;
@@ -355,10 +852,45 @@ export type Category = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
   };
+};
+
+export type SanityImagePaletteSwatch = {
+  _type: "sanity.imagePaletteSwatch";
+  background?: string;
+  foreground?: string;
+  population?: number;
+  title?: string;
+};
+
+export type SanityImagePalette = {
+  _type: "sanity.imagePalette";
+  darkMuted?: SanityImagePaletteSwatch;
+  lightVibrant?: SanityImagePaletteSwatch;
+  darkVibrant?: SanityImagePaletteSwatch;
+  vibrant?: SanityImagePaletteSwatch;
+  dominant?: SanityImagePaletteSwatch;
+  lightMuted?: SanityImagePaletteSwatch;
+  muted?: SanityImagePaletteSwatch;
+};
+
+export type SanityImageDimensions = {
+  _type: "sanity.imageDimensions";
+  height?: number;
+  width?: number;
+  aspectRatio?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
 };
 
 export type SanityImageCrop = {
@@ -369,12 +901,26 @@ export type SanityImageCrop = {
   right?: number;
 };
 
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
+export type SanityFileAsset = {
+  _id: string;
+  _type: "sanity.fileAsset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  originalFilename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  altText?: string;
+  sha1hash?: string;
+  extension?: string;
+  mimeType?: string;
+  size?: number;
+  assetId?: string;
+  uploadId?: string;
+  path?: string;
+  url?: string;
+  source?: SanityAssetSourceData;
 };
 
 export type SanityImageAsset = {
@@ -400,13 +946,6 @@ export type SanityImageAsset = {
   source?: SanityAssetSourceData;
 };
 
-export type SanityAssetSourceData = {
-  _type: "sanity.assetSourceData";
-  name?: string;
-  id?: string;
-  url?: string;
-};
-
 export type SanityImageMetadata = {
   _type: "sanity.imageMetadata";
   location?: Geopoint;
@@ -418,21 +957,80 @@ export type SanityImageMetadata = {
   isOpaque?: boolean;
 };
 
+export type Geopoint = {
+  _type: "geopoint";
+  lat?: number;
+  lng?: number;
+  alt?: number;
+};
+
 export type Slug = {
   _type: "slug";
   current?: string;
   source?: string;
 };
 
-export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityFileAsset | Geopoint | Address | Blogcategory | Blog | Author | Order | Product | Brand | BlockContent | Category | SanityImageCrop | SanityImageHotspot | SanityImageAsset | SanityAssetSourceData | SanityImageMetadata | Slug;
+export type SanityAssetSourceData = {
+  _type: "sanity.assetSourceData";
+  name?: string;
+  id?: string;
+  url?: string;
+};
+
+export type AllSanitySchemaTypes = Review | Banner | Address | Ward | Province | Blogcategory | Blog | Author | Order | Coupon | VietnameseAddress | Product | Brand | BlockContent | Category | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./sanity/queries/couponQueries.ts
 // Variable: GET_COUPON_BY_CODE
 // Query: *[_type == "coupon" && code == $code && isActive == true][0]{    _id,    code,    name,    description,    discountType,    discountValue,    maxDiscountAmount,    minOrderAmount,    usageLimit,    usageCount,    userLimit,    startDate,    endDate,    isActive,    applicableCategories[]->{      _id,      title    },    applicableProducts[]->{      _id,      name,      slug    },    excludedProducts[]->{      _id,      name,      slug    }  }
-export type GET_COUPON_BY_CODEResult = null;
+export type GET_COUPON_BY_CODEResult = {
+  _id: string;
+  code: string | null;
+  name: string | null;
+  description: string | null;
+  discountType: "fixed_amount" | "free_shipping" | "percentage" | null;
+  discountValue: number | null;
+  maxDiscountAmount: number | null;
+  minOrderAmount: number | null;
+  usageLimit: number | null;
+  usageCount: number | null;
+  userLimit: number | null;
+  startDate: string | null;
+  endDate: string | null;
+  isActive: boolean | null;
+  applicableCategories: Array<{
+    _id: string;
+    title: string | null;
+  }> | null;
+  applicableProducts: Array<{
+    _id: string;
+    name: string | null;
+    slug: Slug | null;
+  }> | null;
+  excludedProducts: Array<{
+    _id: string;
+    name: string | null;
+    slug: Slug | null;
+  }> | null;
+} | null;
 // Variable: GET_ACTIVE_COUPONS
 // Query: *[_type == "coupon" && isActive == true] | order(_createdAt desc){    _id,    code,    name,    description,    discountType,    discountValue,    maxDiscountAmount,    minOrderAmount,    usageLimit,    usageCount,    userLimit,    startDate,    endDate,    isActive,    _createdAt  }
-export type GET_ACTIVE_COUPONSResult = Array<never>;
+export type GET_ACTIVE_COUPONSResult = Array<{
+  _id: string;
+  code: string | null;
+  name: string | null;
+  description: string | null;
+  discountType: "fixed_amount" | "free_shipping" | "percentage" | null;
+  discountValue: number | null;
+  maxDiscountAmount: number | null;
+  minOrderAmount: number | null;
+  usageLimit: number | null;
+  usageCount: number | null;
+  userLimit: number | null;
+  startDate: string | null;
+  endDate: string | null;
+  isActive: boolean | null;
+  _createdAt: string;
+}>;
 // Variable: GET_USER_COUPON_USAGE
 // Query: count(*[_type == "order" && appliedCoupon._ref == $couponId && clerkUserId == $userId])
 export type GET_USER_COUPON_USAGEResult = number;
@@ -445,13 +1043,15 @@ export type GET_COUPON_USAGE_HISTORYResult = Array<{
   email: string | null;
   totalPrice: number | null;
   amountDiscount: number | null;
-  couponCode: null;
+  couponCode: string | null;
   orderDate: string | null;
-  status: "cancelled" | "delivered" | "out_for_delivery" | "paid" | "pending" | "processing" | "shipped" | null;
+  status: "cancelled" | "delivered" | "out_for_delivery" | "pending" | "processing" | "shipped" | null;
 }>;
 // Variable: UPDATE_COUPON_USAGE_COUNT
 // Query: *[_type == "coupon" && _id == $couponId][0]{    usageCount  }
-export type UPDATE_COUPON_USAGE_COUNTResult = null;
+export type UPDATE_COUPON_USAGE_COUNTResult = {
+  usageCount: number | null;
+} | null;
 
 // Source: ./sanity/queries/query.ts
 // Variable: BRANDS_QUERY
@@ -472,6 +1072,7 @@ export type BRANDS_QUERYResult = Array<{
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -500,6 +1101,7 @@ export type LATEST_BLOG_QUERYResult = Array<{
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -533,6 +1135,7 @@ export type LATEST_BLOG_QUERYResult = Array<{
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
@@ -557,6 +1160,7 @@ export type DEAL_PRODUCTSResult = Array<{
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -573,9 +1177,366 @@ export type DEAL_PRODUCTSResult = Array<{
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "brand";
   };
+  origin?: string;
   status?: "hot" | "new" | "sale";
-  variant?: "gadget" | "others" | "refrigerators" | "thuc-pham-chuc-nang";
+  variant?: "cham-soc-ca-nhan" | "dinh-duong-thuc-pham-chuc-nang" | "duoc-my-pham" | "sinh-ly" | "thuc-pham-chuc-nang" | "thuoc" | "trang-thiet-bi-y-te";
   isFeatured?: boolean;
+  drugInfo?: {
+    drugName?: string;
+    compositionSection?: {
+      subtitle?: string;
+      ingredientsTable?: Array<{
+        ingredientName?: string;
+        amount?: string;
+        _type: "ingredientRow";
+        _key: string;
+      }>;
+    };
+    usageSection?: {
+      title?: string;
+      indications?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pharmacodynamics?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pharmacokinetics?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    usageInstructions?: {
+      title?: string;
+      howToUse?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      dosage?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    overdoseAndMissedDose?: {
+      overdose?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      missedDose?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    sideEffects?: {
+      title?: string;
+      content?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+    };
+    warningsAndPrecautions?: {
+      mainNoteTitle?: string;
+      introText?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+      contraindications?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      precautions?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      drivingAndOperatingMachinery?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pregnancy?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      breastfeeding?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      drugInteractions?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    storage?: {
+      title?: string;
+      content?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+    };
+  };
 }>;
 // Variable: PRODUCT_BY_SLUG_QUERY
 // Query: *[_type == "product" && slug.current == $slug][0]
@@ -594,6 +1555,7 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -616,13 +1578,434 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "brand";
   };
+  origin?: string;
   status?: "hot" | "new" | "sale";
-  variant?: "gadget" | "others" | "refrigerators" | "thuc-pham-chuc-nang";
+  variant?: "cham-soc-ca-nhan" | "dinh-duong-thuc-pham-chuc-nang" | "duoc-my-pham" | "sinh-ly" | "thuc-pham-chuc-nang" | "thuoc" | "trang-thiet-bi-y-te";
   isFeatured?: boolean;
+  drugInfo?: {
+    drugName?: string;
+    compositionSection?: {
+      subtitle?: string;
+      ingredientsTable?: Array<{
+        ingredientName?: string;
+        amount?: string;
+        _type: "ingredientRow";
+        _key: string;
+      }>;
+    };
+    usageSection?: {
+      title?: string;
+      indications?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pharmacodynamics?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pharmacokinetics?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    usageInstructions?: {
+      title?: string;
+      howToUse?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      dosage?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    overdoseAndMissedDose?: {
+      overdose?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      missedDose?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    sideEffects?: {
+      title?: string;
+      content?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+    };
+    warningsAndPrecautions?: {
+      mainNoteTitle?: string;
+      introText?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+      contraindications?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      precautions?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      drivingAndOperatingMachinery?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      pregnancy?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      breastfeeding?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+      drugInteractions?: {
+        subtitle?: string;
+        content?: Array<{
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: "span";
+            _key: string;
+          }>;
+          style?: "normal";
+          listItem?: "bullet" | "number";
+          markDefs?: Array<{
+            href?: string;
+            _type: "link";
+            _key: string;
+          }>;
+          level?: number;
+          _type: "block";
+          _key: string;
+        }>;
+      };
+    };
+    storage?: {
+      title?: string;
+      content?: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+    };
+  };
 } | null;
 // Variable: BANNER_QUERY
-// Query: *[_type == "banner" && isActive == true]{  _id,  title,  image{    asset,    alt  },  description}
-export type BANNER_QUERYResult = Array<never>;
+// Query: *[_type == "banner" && isActive == true && (!defined(isPopup) || isPopup == false)]{  _id,  title,  image{    asset,    alt  },  description}
+export type BANNER_QUERYResult = Array<{
+  _id: string;
+  title: string | null;
+  image: {
+    asset: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    } | null;
+    alt: null;
+  } | null;
+  description: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "h1" | "h2" | "h3" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+}>;
+// Variable: POPUP_BANNER_QUERY
+// Query: *[_type == "banner" && isActive == true && isPopup == true][0]{  _id,  title,  image{    asset,    alt  },  description,  popupFrequency}
+export type POPUP_BANNER_QUERYResult = {
+  _id: string;
+  title: string | null;
+  image: {
+    asset: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    } | null;
+    alt: null;
+  } | null;
+  description: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "h1" | "h2" | "h3" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  popupFrequency: "always" | "daily" | "once" | "weekly" | null;
+} | null;
 // Variable: BRAND_QUERY
 // Query: *[_type == "product" && slug.current == $slug]{  "brandName": brand->title  }
 export type BRAND_QUERYResult = Array<{
@@ -637,17 +2020,39 @@ export type MY_ORDERS_QUERYResult = Array<{
   _updatedAt: string;
   _rev: string;
   orderNumber?: string;
-  invoice?: {
-    id?: string;
-    number?: string;
-    hosted_invoice_url?: string;
-  };
-  stripeCheckoutSessionId?: string;
-  stripeCustomerId?: string;
   clerkUserId?: string;
   customerName?: string;
   email?: string;
-  stripePaymentIntentId?: string;
+  phone?: string;
+  orderNotes?: string;
+  shippingAddress: {
+    _type: "vietnameseAddress";
+    streetAddress?: string;
+    province: {
+      _id: string;
+      _type: "province";
+      _createdAt: string;
+      _updatedAt: string;
+      _rev: string;
+      name?: string;
+      code?: string;
+    } | null;
+    ward: {
+      _id: string;
+      _type: "ward";
+      _createdAt: string;
+      _updatedAt: string;
+      _rev: string;
+      name?: string;
+      code?: string;
+      province?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "province";
+      };
+    } | null;
+  } | null;
   products: Array<{
     product: {
       _id: string;
@@ -664,6 +2069,7 @@ export type MY_ORDERS_QUERYResult = Array<{
           _weak?: boolean;
           [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
         };
+        media?: unknown;
         hotspot?: SanityImageHotspot;
         crop?: SanityImageCrop;
         _type: "image";
@@ -686,9 +2092,366 @@ export type MY_ORDERS_QUERYResult = Array<{
         _weak?: boolean;
         [internalGroqTypeReferenceTo]?: "brand";
       };
+      origin?: string;
       status?: "hot" | "new" | "sale";
-      variant?: "gadget" | "others" | "refrigerators" | "thuc-pham-chuc-nang";
+      variant?: "cham-soc-ca-nhan" | "dinh-duong-thuc-pham-chuc-nang" | "duoc-my-pham" | "sinh-ly" | "thuc-pham-chuc-nang" | "thuoc" | "trang-thiet-bi-y-te";
       isFeatured?: boolean;
+      drugInfo?: {
+        drugName?: string;
+        compositionSection?: {
+          subtitle?: string;
+          ingredientsTable?: Array<{
+            ingredientName?: string;
+            amount?: string;
+            _type: "ingredientRow";
+            _key: string;
+          }>;
+        };
+        usageSection?: {
+          title?: string;
+          indications?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          pharmacodynamics?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          pharmacokinetics?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+        };
+        usageInstructions?: {
+          title?: string;
+          howToUse?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          dosage?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+        };
+        overdoseAndMissedDose?: {
+          overdose?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          missedDose?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+        };
+        sideEffects?: {
+          title?: string;
+          content?: Array<{
+            children?: Array<{
+              marks?: Array<string>;
+              text?: string;
+              _type: "span";
+              _key: string;
+            }>;
+            style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+            listItem?: "bullet" | "number";
+            markDefs?: Array<{
+              href?: string;
+              _type: "link";
+              _key: string;
+            }>;
+            level?: number;
+            _type: "block";
+            _key: string;
+          }>;
+        };
+        warningsAndPrecautions?: {
+          mainNoteTitle?: string;
+          introText?: Array<{
+            children?: Array<{
+              marks?: Array<string>;
+              text?: string;
+              _type: "span";
+              _key: string;
+            }>;
+            style?: "normal";
+            listItem?: "bullet" | "number";
+            markDefs?: Array<{
+              href?: string;
+              _type: "link";
+              _key: string;
+            }>;
+            level?: number;
+            _type: "block";
+            _key: string;
+          }>;
+          contraindications?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          precautions?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          drivingAndOperatingMachinery?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          pregnancy?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          breastfeeding?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+          drugInteractions?: {
+            subtitle?: string;
+            content?: Array<{
+              children?: Array<{
+                marks?: Array<string>;
+                text?: string;
+                _type: "span";
+                _key: string;
+              }>;
+              style?: "normal";
+              listItem?: "bullet" | "number";
+              markDefs?: Array<{
+                href?: string;
+                _type: "link";
+                _key: string;
+              }>;
+              level?: number;
+              _type: "block";
+              _key: string;
+            }>;
+          };
+        };
+        storage?: {
+          title?: string;
+          content?: Array<{
+            children?: Array<{
+              marks?: Array<string>;
+              text?: string;
+              _type: "span";
+              _key: string;
+            }>;
+            style?: "normal";
+            listItem?: "bullet" | "number";
+            markDefs?: Array<{
+              href?: string;
+              _type: "link";
+              _key: string;
+            }>;
+            level?: number;
+            _type: "block";
+            _key: string;
+          }>;
+        };
+      };
     } | null;
     quantity?: number;
     _key: string;
@@ -696,16 +2459,27 @@ export type MY_ORDERS_QUERYResult = Array<{
   totalPrice?: number;
   currency?: string;
   amountDiscount?: number;
-  address?: {
-    state?: string;
-    zip?: string;
-    city?: string;
-    address?: string;
-    name?: string;
+  appliedCoupon?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "coupon";
   };
-  status?: "cancelled" | "delivered" | "out_for_delivery" | "paid" | "pending" | "processing" | "shipped";
+  couponCode?: string;
+  shippingFee?: number;
+  estimatedDeliveryDate?: string;
+  paymentMethod?: "cod" | "momo" | "vnpay";
+  isPaid?: boolean;
+  status?: "cancelled" | "delivered" | "out_for_delivery" | "pending" | "processing" | "shipped";
   orderDate?: string;
-  shippingAddress: null;
+  vnpayResponse?: {
+    vnp_Amount?: string;
+    vnp_BankCode?: string;
+    vnp_ResponseCode?: string;
+    vnp_TxnRef?: string;
+    vnp_TransactionNo?: string;
+    vnp_PayDate?: string;
+  };
 }>;
 // Variable: GET_ALL_BLOG
 // Query: *[_type == 'blog'] | order(publishedAt desc)[0...$quantity]{  ...,       blogcategories[]->{    title}    }
@@ -730,6 +2504,7 @@ export type GET_ALL_BLOGResult = Array<{
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -763,6 +2538,7 @@ export type GET_ALL_BLOGResult = Array<{
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
@@ -789,6 +2565,7 @@ export type SINGLE_BLOG_QUERYResult = {
         _weak?: boolean;
         [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
       };
+      media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
       _type: "image";
@@ -801,6 +2578,7 @@ export type SINGLE_BLOG_QUERYResult = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -835,6 +2613,7 @@ export type SINGLE_BLOG_QUERYResult = {
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     alt?: string;
@@ -856,6 +2635,33 @@ export type BLOG_CATEGORIESResult = Array<{
     description?: string;
   }> | null;
 }>;
+// Variable: CATEGORIES_QUERY
+// Query: *[_type == "category"] | order(title asc) {    ...,    "productCount": count(*[_type == "product" && references(^._id)])  }
+export type CATEGORIES_QUERYResult = Array<{
+  _id: string;
+  _type: "category";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  description?: string;
+  range?: number;
+  featured?: boolean;
+  image?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  productCount: number;
+}>;
 // Variable: OTHERS_BLOG_QUERY
 // Query: *[  _type == "blog"  && defined(slug.current)  && slug.current != $slug]|order(publishedAt desc)[0...$quantity]{...  publishedAt,  title,  mainImage,  slug,  author->{    name,    image,  },  categories[]->{    title,    "slug": slug.current,  }}
 export type OTHERS_BLOG_QUERYResult = Array<{
@@ -867,6 +2673,7 @@ export type OTHERS_BLOG_QUERYResult = Array<{
       _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
     };
+    media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
     _type: "image";
@@ -881,6 +2688,7 @@ export type OTHERS_BLOG_QUERYResult = Array<{
         _weak?: boolean;
         [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
       };
+      media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
       _type: "image";
@@ -890,10 +2698,151 @@ export type OTHERS_BLOG_QUERYResult = Array<{
 }>;
 // Variable: PROVINCES_QUERY
 // Query: *[_type == 'province'] | order(name asc)
-export type PROVINCES_QUERYResult = Array<never>;
+export type PROVINCES_QUERYResult = Array<{
+  _id: string;
+  _type: "province";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  code?: string;
+}>;
 // Variable: WARDS_BY_PROVINCE_QUERY
 // Query: *[_type == 'ward' && province->_id == $provinceId] | order(name asc)
-export type WARDS_BY_PROVINCE_QUERYResult = Array<never>;
+export type WARDS_BY_PROVINCE_QUERYResult = Array<{
+  _id: string;
+  _type: "ward";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  code?: string;
+  province?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "province";
+  };
+}>;
+// Variable: REVIEWS_BY_PRODUCT_QUERY
+// Query: *[_type == "review" && product->_id == $productId && isApproved == true] | order(reviewDate desc){    _id,    customerName,    rating,    title,    comment,    verified,    isRecommended,    pros,    cons,    images,    helpfulCount,    reviewDate,    adminResponse  }
+export type REVIEWS_BY_PRODUCT_QUERYResult = Array<{
+  _id: string;
+  customerName: string | null;
+  rating: number | null;
+  title: string | null;
+  comment: string | null;
+  verified: boolean | null;
+  isRecommended: boolean | null;
+  pros: Array<string> | null;
+  cons: Array<string> | null;
+  images: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }> | null;
+  helpfulCount: number | null;
+  reviewDate: string | null;
+  adminResponse: {
+    content?: string;
+    respondedAt?: string;
+    respondedBy?: string;
+  } | null;
+}>;
+// Variable: PRODUCT_REVIEW_STATS_QUERY
+// Query: *[_type == "review" && product->_id == $productId && isApproved == true]{    rating  }
+export type PRODUCT_REVIEW_STATS_QUERYResult = Array<{
+  rating: number | null;
+}>;
+// Variable: CREATE_REVIEW_QUERY
+// Query: *[_type == "review" && product->_id == $productId && customerEmail == $email][0]
+export type CREATE_REVIEW_QUERYResult = {
+  _id: string;
+  _type: "review";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  product?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "product";
+  };
+  customerName?: string;
+  customerEmail?: string;
+  rating?: number;
+  title?: string;
+  comment?: string;
+  verified?: boolean;
+  orderNumber?: string;
+  isApproved?: boolean;
+  isRecommended?: boolean;
+  pros?: Array<string>;
+  cons?: Array<string>;
+  images?: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    _key: string;
+  }>;
+  helpfulCount?: number;
+  reviewDate?: string;
+  adminResponse?: {
+    content?: string;
+    respondedAt?: string;
+    respondedBy?: string;
+  };
+} | null;
+// Variable: ALL_REVIEWS_QUERY
+// Query: *[_type == "review" && isApproved == true] | order(reviewDate desc)[0...$limit]{    _id,    customerName,    rating,    title,    comment,    verified,    isRecommended,    reviewDate,    product->{      _id,      name,      slug,      images[0]    }  }
+export type ALL_REVIEWS_QUERYResult = Array<{
+  _id: string;
+  customerName: string | null;
+  rating: number | null;
+  title: string | null;
+  comment: string | null;
+  verified: boolean | null;
+  isRecommended: boolean | null;
+  reviewDate: string | null;
+  product: {
+    _id: string;
+    name: string | null;
+    slug: Slug | null;
+    images: {
+      asset?: {
+        _ref: string;
+        _type: "reference";
+        _weak?: boolean;
+        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+      };
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+      _key: string;
+    } | null;
+  } | null;
+}>;
+// Variable: PRODUCT_REVIEW_SUMMARY_QUERY
+// Query: *[_type == "review" && product._ref == $productId && isApproved == true]{    rating  }
+export type PRODUCT_REVIEW_SUMMARY_QUERYResult = Array<{
+  rating: number | null;
+}>;
 
 // Query TypeMap
 import "@sanity/client";
@@ -908,14 +2857,21 @@ declare module "@sanity/client" {
     " *[_type == 'blog' && isLatest == true]|order(name asc){\n      ...,\n      blogcategories[]->{\n      title\n    }\n    }": LATEST_BLOG_QUERYResult;
     "*[_type == 'product' && status == 'hot'] | order(name asc){\n    ...,\"categories\": categories[]->title\n  }": DEAL_PRODUCTSResult;
     "*[_type == \"product\" && slug.current == $slug][0]": PRODUCT_BY_SLUG_QUERYResult;
-    "*[_type == \"banner\" && isActive == true]{\n  _id,\n  title,\n  image{\n    asset,\n    alt\n  },\n  description\n}": BANNER_QUERYResult;
+    "*[_type == \"banner\" && isActive == true && (!defined(isPopup) || isPopup == false)]{\n  _id,\n  title,\n  image{\n    asset,\n    alt\n  },\n  description\n}": BANNER_QUERYResult;
+    "*[_type == \"banner\" && isActive == true && isPopup == true][0]{\n  _id,\n  title,\n  image{\n    asset,\n    alt\n  },\n  description,\n  popupFrequency\n}": POPUP_BANNER_QUERYResult;
     "*[_type == \"product\" && slug.current == $slug]{\n  \"brandName\": brand->title\n  }": BRAND_QUERYResult;
     "*[_type == 'order' && clerkUserId == $userId] | order(orderDate desc){\n...,\nproducts[]{\n  ...,\n  product->\n},\nshippingAddress{\n  ...,\n  province->,\n  ward->\n}\n}": MY_ORDERS_QUERYResult;
     "*[_type == 'blog'] | order(publishedAt desc)[0...$quantity]{\n  ...,  \n     blogcategories[]->{\n    title\n}\n    }\n  ": GET_ALL_BLOGResult;
     "*[_type == \"blog\" && slug.current == $slug][0]{\n  ..., \n    author->{\n    name,\n    image,\n  },\n  blogcategories[]->{\n    title,\n    \"slug\": slug.current,\n  },\n}": SINGLE_BLOG_QUERYResult;
     "*[_type == \"blog\"]{\n     blogcategories[]->{\n    ...\n    }\n  }": BLOG_CATEGORIESResult;
+    "*[_type == \"category\"] | order(title asc) {\n    ...,\n    \"productCount\": count(*[_type == \"product\" && references(^._id)])\n  }": CATEGORIES_QUERYResult;
     "*[\n  _type == \"blog\"\n  && defined(slug.current)\n  && slug.current != $slug\n]|order(publishedAt desc)[0...$quantity]{\n...\n  publishedAt,\n  title,\n  mainImage,\n  slug,\n  author->{\n    name,\n    image,\n  },\n  categories[]->{\n    title,\n    \"slug\": slug.current,\n  }\n}": OTHERS_BLOG_QUERYResult;
     "*[_type == 'province'] | order(name asc)": PROVINCES_QUERYResult;
     "*[_type == 'ward' && province->_id == $provinceId] | order(name asc)": WARDS_BY_PROVINCE_QUERYResult;
+    "*[_type == \"review\" && product->_id == $productId && isApproved == true] | order(reviewDate desc){\n    _id,\n    customerName,\n    rating,\n    title,\n    comment,\n    verified,\n    isRecommended,\n    pros,\n    cons,\n    images,\n    helpfulCount,\n    reviewDate,\n    adminResponse\n  }": REVIEWS_BY_PRODUCT_QUERYResult;
+    "*[_type == \"review\" && product->_id == $productId && isApproved == true]{\n    rating\n  }": PRODUCT_REVIEW_STATS_QUERYResult;
+    "*[_type == \"review\" && product->_id == $productId && customerEmail == $email][0]": CREATE_REVIEW_QUERYResult;
+    "*[_type == \"review\" && isApproved == true] | order(reviewDate desc)[0...$limit]{\n    _id,\n    customerName,\n    rating,\n    title,\n    comment,\n    verified,\n    isRecommended,\n    reviewDate,\n    product->{\n      _id,\n      name,\n      slug,\n      images[0]\n    }\n  }": ALL_REVIEWS_QUERYResult;
+    "*[_type == \"review\" && product._ref == $productId && isApproved == true]{\n    rating\n  }": PRODUCT_REVIEW_SUMMARY_QUERYResult;
   }
 }

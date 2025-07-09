@@ -72,16 +72,40 @@ export const bannerType = defineType({
         description: 'Đặt thành "true" để hiển thị banner này trên trang web.',
         initialValue: true,
       }),
+      defineField({
+        name: 'isPopup',
+        title: 'Hiển thị làm Popup',
+        type: 'boolean',
+        description: 'Đặt thành "true" để hiển thị banner này làm popup khuyến mãi khi vào trang web.',
+        initialValue: false,
+      }),
+      defineField({
+        name: 'popupFrequency',
+        title: 'Tần suất hiển thị Popup',
+        type: 'string',
+        options: {
+          list: [
+            { title: 'Mỗi lần truy cập', value: 'always' },
+            { title: 'Một lần mỗi ngày', value: 'daily' },
+            { title: 'Một lần mỗi tuần', value: 'weekly' },
+            { title: 'Chỉ một lần', value: 'once' },
+          ],
+        },
+        description: 'Chọn tần suất hiển thị popup.',
+        initialValue: 'daily',
+        hidden: ({ parent }) => !parent?.isPopup, // Chỉ hiện khi isPopup = true
+      }),
     ],
     preview: {
       select: {
         title: 'title',
         media: 'image',
+        isPopup: 'isPopup',
       },
-      prepare({ title, media }) {
+      prepare({ title, media, isPopup }) {
         return {
           title: title || 'Banner mới',
-          subtitle: 'Banner',
+          subtitle: isPopup ? 'Popup Banner' : 'Banner thường',
           media,
         };
       },

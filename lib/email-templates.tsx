@@ -62,7 +62,7 @@ export const OrderConfirmationTemplate = ({
     }}>
       {/* Header */}
       <div style={{
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ffff',
         padding: '20px',
         borderRadius: '8px',
         textAlign: 'center' as const,
@@ -92,7 +92,7 @@ export const OrderConfirmationTemplate = ({
 
       {/* Order Information */}
       <div style={{
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ffff',
         padding: '20px',
         borderRadius: '8px',
         marginBottom: '30px'
@@ -136,7 +136,7 @@ export const OrderConfirmationTemplate = ({
 
       {/* Product Details */}
       <div style={{
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ffff',
         padding: '20px',
         borderRadius: '8px',
         marginBottom: '30px'
@@ -175,7 +175,7 @@ export const OrderConfirmationTemplate = ({
 
       {/* Payment Summary */}
       <div style={{
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ffff',
         padding: '20px',
         borderRadius: '8px',
         marginBottom: '30px'
@@ -235,7 +235,7 @@ export const OrderConfirmationTemplate = ({
 
       {/* Shipping Address */}
       <div style={{
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ffff',
         padding: '20px',
         borderRadius: '8px',
         marginBottom: '30px'
@@ -279,7 +279,7 @@ export const OrderConfirmationTemplate = ({
 
       {/* Support Section */}
       <div style={{
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#ffff',
         padding: '20px',
         borderRadius: '8px',
         marginBottom: '30px'
@@ -346,7 +346,7 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
     <body style="margin: 0; padding: 0; background-color: #f5f5f5;">
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <!-- Header -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 30px;">
+        <div style="background-color: #ffff; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 30px;">
           <h1 style="color: #2c5aa0; font-size: 24px; margin: 0 0 10px 0;">
             Xác nhận đơn hàng #${data.orderNumber}
           </h1>
@@ -366,7 +366,7 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
         </div>
 
         <!-- Order Information -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <div style="background-color: #ffff; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
           <h2 style="color: #2c5aa0; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
             THÔNG TIN ĐƠN HÀNG
           </h2>
@@ -393,7 +393,7 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
         </div>
 
         <!-- Product Details -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <div style="background-color: #ffff; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
           <h2 style="color: #2c5aa0; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
             CHI TIẾT SẢN PHẨM
           </h2>
@@ -413,7 +413,7 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
         </div>
 
         <!-- Payment Summary -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <div style="background-color: #ffff; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
           <h2 style="color: #2c5aa0; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
             TÓM TẮT THANH TOÁN
           </h2>
@@ -456,7 +456,7 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
         </div>
 
         <!-- Shipping Address -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <div style="background-color: #ffff; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
           <h2 style="color: #2c5aa0; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
             ĐỊA CHỈ GIAO HÀNG
           </h2>
@@ -483,7 +483,7 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
         </div>
 
         <!-- Support Section -->
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <div style="background-color: #ffff; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
           <h2 style="color: #2c5aa0; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #2c5aa0; padding-bottom: 5px;">
             HỖ TRỢ, KHIẾU NẠI VÀ ĐÓNG GÓP Ý KIẾN
           </h2>
