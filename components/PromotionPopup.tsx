@@ -94,7 +94,7 @@ const PromotionPopup = ({ banner }: PromotionPopupProps) => {
         >
           {/* Background overlay với blur effect */}
           <motion.div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 opacity-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
