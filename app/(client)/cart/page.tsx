@@ -39,15 +39,15 @@ import toast from "react-hot-toast";
 // Local type definitions
 interface ProvinceData {
   _id: string;
-  name: string;
-  code: string;
+  name?: string;
+  code?: string;
 }
 
 interface WardData {
   _id: string;
-  name: string;
-  code: string;
-  province: {
+  name?: string;
+  code?: string;
+  province?: {
     _ref: string;
     _type: "reference";
   };
@@ -86,9 +86,44 @@ const CartPage = () => {
 
   // Hàm tính tổng tiền sau khi trừ mã giảm giá
   const getFinalTotalPrice = () => {
-    const subtotal = getSubTotalPrice();
-    const totalAfterCoupon = Math.max(0, subtotal - couponDiscount);
+    const originalTotal = getOriginalTotalPrice(); // Tổng giá gốc
+    const productDiscount = getProductDiscountAmount(); // Giảm giá sản phẩm
+    const subtotalAfterProductDiscount = originalTotal - productDiscount; // Tổng sau giảm giá sản phẩm
+    const totalAfterCoupon = Math.max(0, subtotalAfterProductDiscount - couponDiscount); // Tổng cuối cùng
     return totalAfterCoupon;
+  };
+
+  // Function tính giá sau khi giảm
+  const getDiscountedPrice = (product: any) => {
+    const price = product?.price ?? 0;
+    const discount = product?.discount ?? 0;
+    if (discount > 0) {
+      return price - (discount * price) / 100;
+    }
+    return price;
+  };
+
+  // Function tính tổng giá gốc của tất cả sản phẩm
+  const getOriginalTotalPrice = () => {
+    return Object.values(groupedItems).reduce((total: number, { product }) => {
+      const itemCount = getItemCount(product?._id);
+      const price = product?.price ?? 0;
+      return total + (price * itemCount);
+    }, 0);
+  };
+
+  // Function tính tổng số tiền giảm từ discount sản phẩm
+  const getProductDiscountAmount = () => {
+    return Object.values(groupedItems).reduce((total: number, { product }) => {
+      const itemCount = getItemCount(product?._id);
+      const price = product?.price ?? 0;
+      const discount = product?.discount ?? 0;
+      if (discount > 0) {
+        const discountAmount = (discount * price) / 100;
+        return total + (discountAmount * itemCount);
+      }
+      return total;
+    }, 0);
   };
 
   // Hàm xử lý khi áp dụng mã giảm giá thành công
@@ -262,8 +297,8 @@ const CartPage = () => {
               quantity: item.quantity,
             })),
             totalPrice: getFinalTotalPrice(),
-            originalPrice: getSubTotalPrice(),
-            discountAmount: couponDiscount,
+            originalPrice: getOriginalTotalPrice(), // Tổng giá gốc của tất cả sản phẩm
+            discountAmount: getProductDiscountAmount() + couponDiscount, // Tổng giảm giá từ sản phẩm + coupon
             shippingDiscount: shippingDiscount,
             appliedCoupon: appliedCoupon ? {
               _id: appliedCoupon._id,
@@ -311,8 +346,8 @@ const CartPage = () => {
             quantity: item.quantity,
           })),
           totalPrice: getFinalTotalPrice(),
-          originalPrice: getSubTotalPrice(),
-          discountAmount: couponDiscount,
+          originalPrice: getOriginalTotalPrice(), // Tổng giá gốc của tất cả sản phẩm
+          discountAmount: getProductDiscountAmount() + couponDiscount, // Tổng giảm giá từ sản phẩm + coupon
           shippingDiscount: shippingDiscount,
           appliedCoupon: appliedCoupon ? {
             _id: appliedCoupon._id,
@@ -460,10 +495,27 @@ const CartPage = () => {
                             </div>
                           </div>
                           <div className="flex flex-col items-start justify-between h-36 md:h-44 p-0.5 md:p-1">
-                            <PriceFormatter
-                              amount={(product?.price as number) * itemCount}
-                              className="font-bold text-lg"
-                            />
+                            {/* Hiển thị thông tin giá chi tiết */}
+                            <div className="flex flex-col items-end gap-1">
+                              {/* Giá gốc */}
+                              <div className="text-sm text-gray-600">
+                                Giá gốc: <span className="font-medium">{product?.price?.toLocaleString()}đ</span>
+                              </div>
+                              
+                              {/* Phần trăm giảm giá (nếu có) */}
+                              {product?.discount && product?.discount > 0 && (
+                                <div className="text-sm text-green-600">
+                                  Giảm giá: <span className="font-medium">{product.discount}%</span>
+                                </div>
+                              )}
+                              
+                              {/* Tổng tiền sau giảm */}
+                              <PriceFormatter
+                                amount={getDiscountedPrice(product) * itemCount}
+                                className="font-bold text-lg text-green-600"
+                              />
+                            </div>
+                            
                             <QuantityButtons product={product} />
                           </div>
                         </div>
@@ -514,15 +566,24 @@ const CartPage = () => {
                         Tóm tắt đơn hàng
                       </h2>
                       <div className="space-y-4">
+                        {/* Tạm tính - Tổng giá gốc */}
                         <div className="flex items-center justify-between">
-                          <span>Tổng phụ</span>
-                          <PriceFormatter amount={getSubTotalPrice()} />
+                          <span>Tạm tính (giá gốc)</span>
+                          <PriceFormatter amount={getOriginalTotalPrice()} />
                         </div>
+                        
+                        {/* Giảm giá từ sản phẩm */}
+                        {getProductDiscountAmount() > 0 && (
+                          <div className="flex items-center justify-between text-green-600">
+                            <span>Giảm giá sản phẩm</span>
+                            <span>-<PriceFormatter amount={getProductDiscountAmount()} /></span>
+                          </div>
+                        )}
                         
                         {/* Hiển thị mã giảm giá nếu có */}
                         {couponDiscount > 0 && (
                           <div className="flex items-center justify-between text-green-600">
-                            <span>Giảm giá ({appliedCoupon?.code})</span>
+                            <span>Giảm giá mã ({appliedCoupon?.code})</span>
                             <span>-<PriceFormatter amount={couponDiscount} /></span>
                           </div>
                         )}
@@ -549,7 +610,7 @@ const CartPage = () => {
                         <div className="pt-4 border-t">
                           <CouponInput
                             cartItems={getCartItemsForCoupon()}
-                            subtotal={getSubTotalPrice()}
+                            subtotal={getOriginalTotalPrice()}
                             userId={user?.id}
                             onCouponApplied={handleCouponApplied}
                             onCouponRemoved={handleCouponRemoved}
@@ -706,15 +767,24 @@ const CartPage = () => {
                         Tóm tắt đơn hàng
                       </h2>
                       <div className="space-y-2">
+                        {/* Tạm tính - Tổng giá gốc */}
                         <div className="flex items-center justify-between">
-                          <span>Tổng phụ</span>
-                          <PriceFormatter amount={getSubTotalPrice()} />
+                          <span>Tạm tính (giá gốc)</span>
+                          <PriceFormatter amount={getOriginalTotalPrice()} />
                         </div>
+                        
+                        {/* Giảm giá từ sản phẩm */}
+                        {getProductDiscountAmount() > 0 && (
+                          <div className="flex items-center justify-between text-green-600">
+                            <span>Giảm giá sản phẩm</span>
+                            <span>-<PriceFormatter amount={getProductDiscountAmount()} /></span>
+                          </div>
+                        )}
                         
                         {/* Hiển thị mã giảm giá nếu có */}
                         {couponDiscount > 0 && (
                           <div className="flex items-center justify-between text-green-600">
-                            <span>Giảm giá ({appliedCoupon?.code})</span>
+                            <span>Giảm giá mã ({appliedCoupon?.code})</span>
                             <span>-<PriceFormatter amount={couponDiscount} /></span>
                           </div>
                         )}
@@ -741,7 +811,7 @@ const CartPage = () => {
                         <div className="pt-4 border-t">
                           <CouponInput
                             cartItems={getCartItemsForCoupon()}
-                            subtotal={getSubTotalPrice()}
+                            subtotal={getOriginalTotalPrice()}
                             userId={user?.id}
                             onCouponApplied={handleCouponApplied}
                             onCouponRemoved={handleCouponRemoved}

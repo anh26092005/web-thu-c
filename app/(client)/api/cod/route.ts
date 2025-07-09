@@ -91,13 +91,14 @@ export async function POST(req: Request) {
       const productDetails = await Promise.all(
         cart.map(async (item: any) => {
           const product = await backendClient.fetch(
-            `*[_type == "product" && _id == $productId][0]{ name, price }`,
+            `*[_type == "product" && _id == $productId][0]{ name, price, discount }`,
             { productId: item._id }
           );
           return {
             name: product?.name || "Sản phẩm",
             quantity: item.quantity,
             price: product?.price || 0,
+            discount: product?.discount || 0, // Thêm thông tin discount
           };
         })
       );

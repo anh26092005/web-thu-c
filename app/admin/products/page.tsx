@@ -282,7 +282,7 @@ export default function AdminProductsPage() {
                           {product.discount && product.discount > 0 ? (
                             <div>
                               <p className="font-medium text-red-600">
-                                {(product.price - product.discount).toLocaleString()}đ
+                                {(product.price - (product.discount * product.price) / 100).toLocaleString()}đ
                               </p>
                               <p className="text-sm text-gray-500 line-through">
                                 {product.price.toLocaleString()}đ

@@ -11,12 +11,16 @@ export interface OrderEmailData {
   products: Array<{
     name: string;
     quantity: number;
-    price: number;
+    price: number; // Giá gốc
+    discount?: number; // Phần trăm giảm giá (0-100)
+    discountedPrice: number; // Giá sau khi giảm
+    totalPrice: number; // Tổng tiền gốc (price * quantity)
+    totalDiscountedPrice: number; // Tổng tiền sau giảm (discountedPrice * quantity)
   }>;
-  subtotal: number;
-  discountAmount: number;
-  shippingFee: number;
-  totalAmount: number;
+  subtotal: number; // Tổng giá gốc của tất cả sản phẩm
+  discountAmount: number; // Tổng số tiền giảm (tính từ % giảm)
+  shippingFee: number; // Không sử dụng nữa
+  totalAmount: number; // Tổng tiền cuối cùng (subtotal - discountAmount)
   paymentMethod: string;
   shippingAddress: {
     street: string;
@@ -167,8 +171,26 @@ export const OrderConfirmationTemplate = ({
               Số lượng: <strong>{product.quantity}</strong>
             </p>
             <p style={{ margin: '0', color: '#666' }}>
-              Giá: <strong>{product.price.toLocaleString()}đ</strong>
+              Giá gốc: <strong>{product.price.toLocaleString()}đ</strong>
             </p>
+            {product.discount && product.discount > 0 && (
+              <>
+                <p style={{ margin: '0', color: '#666' }}>
+                  Giảm giá: <strong>{product.discount}%</strong>
+                </p>
+                <p style={{ margin: '0', color: '#666' }}>
+                  Giá sau giảm: <strong>{product.discountedPrice.toLocaleString()}đ</strong>
+                </p>
+              </>
+            )}
+            <p style={{ margin: '0', color: '#666' }}>
+              Tổng giá: <strong>{product.totalPrice.toLocaleString()}đ</strong>
+            </p>
+            {product.discount && product.discount > 0 && (
+              <p style={{ margin: '0', color: '#28a745', fontWeight: 'bold' }}>
+                Tổng sau giảm: <strong>{product.totalDiscountedPrice.toLocaleString()}đ</strong>
+              </p>
+            )}
           </div>
         ))}
       </div>
@@ -204,12 +226,6 @@ export const OrderConfirmationTemplate = ({
               </td>
             </tr>
           )}
-          <tr>
-            <td style={{ padding: '8px 0' }}>Phí vận chuyển:</td>
-            <td style={{ padding: '8px 0', textAlign: 'right' as const }}>
-              {shippingFee > 0 ? `${shippingFee.toLocaleString()}đ` : 'Miễn phí'}
-            </td>
-          </tr>
           <tr style={{ borderTop: '2px solid #2c5aa0' }}>
             <td style={{ padding: '12px 0', fontWeight: 'bold', fontSize: '18px' }}>
               TỔNG CỘNG:
@@ -406,8 +422,19 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
                 Số lượng: <strong>${product.quantity}</strong>
               </p>
               <p style="margin: 0; color: #666;">
-                Giá: <strong>${product.price.toLocaleString()}đ</strong>
+                Giá gốc: <strong>${product.price.toLocaleString()}đ</strong>
               </p>
+              ${product.discount && product.discount > 0 ? `
+              <p style="margin: 0; color: #666;">
+                Giảm giá: <strong>${product.discount}%</strong>
+              </p>
+              ` : ''}
+              
+              ${product.discount && product.discount > 0 ? `
+              <p style="margin: 0; color: #28a745; font-weight: bold;">
+                Giá sau giảm: <strong>${product.totalDiscountedPrice.toLocaleString()}đ</strong>
+              </p>
+              ` : ''}
             </div>
           `).join('')}
         </div>
@@ -432,12 +459,6 @@ export const renderOrderConfirmationEmail = (data: OrderEmailData): string => {
               </td>
             </tr>
             ` : ''}
-            <tr>
-              <td style="padding: 8px 0;">Phí vận chuyển:</td>
-              <td style="padding: 8px 0; text-align: right;">
-                ${data.shippingFee > 0 ? `${data.shippingFee.toLocaleString()}đ` : 'Miễn phí'}
-              </td>
-            </tr>
             <tr style="border-top: 2px solid #2c5aa0;">
               <td style="padding: 12px 0; font-weight: bold; font-size: 18px;">
                 TỔNG CỘNG:

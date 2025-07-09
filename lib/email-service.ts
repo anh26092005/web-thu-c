@@ -12,6 +12,7 @@ export interface OrderData {
     name: string;
     quantity: number;
     price: number;
+    discount?: number; // Thêm trường discount cho sản phẩm
   }>;
   totalPrice: number;
   originalPrice: number;
@@ -47,6 +48,14 @@ export const prepareOrderEmailData = (orderData: OrderData): OrderEmailData => {
   // Tính phí vận chuyển (miễn phí nếu có giảm giá vận chuyển)
   const shippingFee = orderData.shippingDiscount > 0 ? 0 : 30000;
 
+  // Function tính giá sau khi giảm
+  const getDiscountedPrice = (price: number, discount: number = 0) => {
+    if (discount > 0) {
+      return price - (discount * price) / 100;
+    }
+    return price;
+  };
+
   return {
     orderNumber: orderData.orderNumber,
     customerName: orderData.customerInfo.name,
@@ -54,15 +63,22 @@ export const prepareOrderEmailData = (orderData: OrderData): OrderEmailData => {
     customerPhone: orderData.customerInfo.phone,
     orderDate: formatDate(orderData.orderDate),
     status: "pending", // Trạng thái mặc định cho đơn hàng mới
-    products: orderData.products.map(product => ({
-      name: product.name,
-      quantity: product.quantity,
-      price: product.price * product.quantity, // Tổng giá cho số lượng
-    })),
-    subtotal: orderData.originalPrice,
-    discountAmount: orderData.discountAmount,
+    products: orderData.products.map(product => {
+      const discountedPrice = getDiscountedPrice(product.price, product.discount);
+      return {
+        name: product.name,
+        quantity: product.quantity,
+        price: product.price, // Giá gốc
+        discount: product.discount || 0, // Phần trăm giảm giá
+        discountedPrice: discountedPrice, // Giá sau khi giảm
+        totalPrice: product.price * product.quantity, // Tổng tiền gốc (price * quantity)
+        totalDiscountedPrice: discountedPrice * product.quantity, // Tổng tiền sau giảm
+      };
+    }),
+    subtotal: orderData.originalPrice, // Tổng giá gốc của tất cả sản phẩm
+    discountAmount: orderData.discountAmount, // Tổng số tiền giảm từ mã giảm giá
     shippingFee: shippingFee,
-    totalAmount: orderData.totalPrice,
+    totalAmount: orderData.totalPrice, // Tổng tiền cuối cùng
     paymentMethod: orderData.paymentMethod,
     shippingAddress: orderData.shippingAddress,
     estimatedDeliveryDays: estimatedDeliveryDays,

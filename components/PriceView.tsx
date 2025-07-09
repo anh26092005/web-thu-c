@@ -8,16 +8,23 @@ interface Props {
   className?: string;
 }
 const PriceView = ({ price, discount, className }: Props) => {
+  // Tính giá sau khi giảm
+  const discountedPrice = price && discount && discount > 0 
+    ? price - (discount * price) / 100 
+    : price;
+  
   return (
     <div className="flex items-center justify-between gap-5">
       <div className="flex items-center gap-2">
+        {/* Hiển thị giá khuyến mãi làm giá chính */}
         <PriceFormatter
-          amount={price}
+          amount={discountedPrice}
           className={cn("text-shop_light_green", className)}
         />
-        {price && discount && (
+        {/* Hiển thị giá gốc bị gạch ngang khi có khuyến mãi */}
+        {price && discount && discount > 0 && (
           <PriceFormatter
-            amount={price + (discount * price) / 100}
+            amount={price}
             className={twMerge(
               "line-through text-xs font-normal text-zinc-500",
               className

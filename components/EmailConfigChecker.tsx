@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 
-// Component kiểm tra cấu hình email
+// Component kiểm tra cấu hình Pema
 const EmailConfigChecker = () => {
   const [checking, setChecking] = useState(false);
   const [results, setResults] = useState<any>(null);

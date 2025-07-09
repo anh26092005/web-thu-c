@@ -77,8 +77,9 @@ const useStore = create<StoreState>()(
       getSubTotalPrice: () => {
         return get().items.reduce((total, item) => {
           const price = item.product.price ?? 0;
-          const discount = ((item.product.discount ?? 0) * price) / 100;
-          const discountedPrice = price + discount;
+          const discount = item.product.discount ?? 0;
+          // Tính giá sau khi giảm: giá gốc - (phần trăm giảm * giá gốc / 100)
+          const discountedPrice = price - (discount * price) / 100;
           return total + discountedPrice * item.quantity;
         }, 0);
       },

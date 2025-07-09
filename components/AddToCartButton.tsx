@@ -18,6 +18,16 @@ const AddToCartButton = ({ product, className }: Props) => {
   const itemCount = getItemCount(product?._id);
   const isOutOfStock = product?.stock === 0;
 
+  // Tính giá sau khi giảm
+  const getDiscountedPrice = (product: Product) => {
+    const price = product?.price ?? 0;
+    const discount = product?.discount ?? 0;
+    if (discount > 0) {
+      return price - (discount * price) / 100;
+    }
+    return price;
+  };
+
   const handleAddToCart = () => {
     if ((product?.stock as number) > itemCount) {
       addItem(product);
@@ -39,7 +49,7 @@ const AddToCartButton = ({ product, className }: Props) => {
           <div className="flex items-center justify-between border-t pt-1">
             <span className="text-xs font-semibold">Tổng</span>
             <PriceFormatter
-              amount={product?.price ? product?.price * itemCount : 0}
+              amount={getDiscountedPrice(product) * itemCount}
             />
           </div>
         </div>

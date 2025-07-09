@@ -110,6 +110,16 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
     setMounted(true);
   }, []);
 
+  // Function tính giá sau khi giảm
+  const getDiscountedPrice = (product: any) => {
+    const price = product?.price || 0;
+    const discount = product?.discount || 0;
+    if (discount > 0) {
+      return price - (discount * price) / 100;
+    }
+    return price;
+  };
+
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -140,10 +150,27 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
   const calculateSubtotal = () => {
     return order?.products?.reduce((total, item) => {
       const product = item.product as any;
-      const price = product?.price || 0;
+      const discountedPrice = getDiscountedPrice(product);
       const quantity = item.quantity || 0;
-      return total + (price * quantity);
+      return total + (discountedPrice * quantity);
     }, 0) || 0;
+  };
+
+  // Function tính tổng tiền theo giá gốc (chưa giảm)
+  const calculateOriginalSubtotal = () => {
+    return order?.products?.reduce((total, item) => {
+      const product = item.product as any;
+      const originalPrice = product?.price || 0;
+      const quantity = item.quantity || 0;
+      return total + (originalPrice * quantity);
+    }, 0) || 0;
+  };
+
+  // Function tính tổng số tiền giảm giá (giá gốc * phần trăm giảm)
+  const calculateTotalDiscount = () => {
+    const originalSubtotal = calculateOriginalSubtotal();
+    const discountedSubtotal = calculateSubtotal();
+    return originalSubtotal - discountedSubtotal;
   };
 
   // Chỉ render khi đã mounted và dialog mở
@@ -384,19 +411,13 @@ const OrderDetailDialog: React.FC<OrderDetailsDialogProps> = ({
                 <div className="flex justify-between">
                   <span className="text-gray-500">Tạm tính:</span>
                   <span className="font-mono">
-                    <PriceFormatter amount={subtotal} />
+                    <PriceFormatter amount={calculateOriginalSubtotal()} />
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Giảm giá:</span>
                   <span className="font-mono">
-                    - <PriceFormatter amount={discount} />
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Phí vận chuyển:</span>
-                  <span className="font-mono">
-                    <PriceFormatter amount={orderData.shippingFee || 0} />
+                    - <PriceFormatter amount={calculateOriginalSubtotal() - (order.totalPrice || 0)} />
                   </span>
                 </div>
                 <div className="border-t pt-2">
