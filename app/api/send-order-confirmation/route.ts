@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const emailResponse = await resend.emails.send({
       from: fromEmail,
       // to: [emailData.customerEmail],
-      to: ["khunglongchaucompany@gmail.com"],
+      to: emailData.customerEmail,
       subject: `Xác nhận đơn hàng #${emailData.orderNumber} từ ${emailData.storeName}`,
       html: htmlContent,
       // Thêm text version cho email client không hỗ trợ HTML
