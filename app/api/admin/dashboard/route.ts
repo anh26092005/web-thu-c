@@ -71,7 +71,7 @@ export async function GET() {
       .reduce((sum: number, o: any) => sum + o.totalPrice, 0);
 
     // Mock data cho customers (nếu chưa có schema user)
-    const totalUsers = 856; // Có thể thay bằng query thật nếu có schema
+    const totalUsers = 4; // Có thể thay bằng query thật nếu có schema
 
     // Hoạt động hôm nay (mock data - có thể tính thật từ createdAt)
     const today = new Date();
